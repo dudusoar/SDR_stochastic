@@ -56,11 +56,13 @@ def generate_order_details(demand_table, locations):
     :param locations: Dictionary with coordinates for each restaurant and customer.
     :return: DataFrame with detailed order information including real indices.
     """
-    label_list = []
-    t_list = []
+    n = demand_table.iloc[:, 2:].sum().sum() # Total number of the orders
+    arrive_time_list = []
     x_list = []
     y_list = []
+    count = 0
     real_index_list = []
+    order_pair_index_list = []
 
     # Iterate over each time interval column in demand_table
     for j in range(2, demand_table.shape[1]):  # Assuming the first two columns are 'Pickup' and 'Delivery'
@@ -71,27 +73,29 @@ def generate_order_details(demand_table, locations):
             if orders_count > 0:
                 # Generate order details for each order
                 for _ in range(orders_count):
-                    # Restaurant information
+                    count += 1
                     pickup_label = demand_table.iloc[i, 0]
                     delivery_label = demand_table.iloc[i, 1]
-                    label_list.append(i * 2 + 1)
+
+                    # Restaurant information
+                    order_pair_index_list.append(count)
                     x_list.append(locations[pickup_label][0])
                     y_list.append(locations[pickup_label][1])
-                    t_list.append(time_start)
+                    arrive_time_list.append(time_start)
                     real_index_list.append(pickup_label)
 
                     # Customer information
-                    label_list.append(i * 2 + 2)
+                    order_pair_index_list.append(count + n)
                     x_list.append(locations[delivery_label][0])
                     y_list.append(locations[delivery_label][1])
-                    t_list.append(time_start + 10)  # Assuming some fixed travel or processing time
+                    arrive_time_list.append(time_start + 10)  # Assuming some fixed travel or processing time
                     real_index_list.append(delivery_label)
 
     df_point = pd.DataFrame({
-        "label": label_list,
+        "pair_index": order_pair_index_list,
         "x": x_list,
         "y": y_list,
-        "earliest": t_list,
+        "earliest": arrive_time_list,
         "real_index": real_index_list
     })
 
@@ -101,35 +105,28 @@ def generate_order_details(demand_table, locations):
 # Example usage
 if __name__ == "__main__":
 
-    # 需求表测试
-    # pairs = [(1, 3), (1, 4), (1, 5), (1, 6), (2, 3), (2, 4), (2, 5), (2, 6)]
-    # time_intervals = ((0, 10), (10, 20), (20, 30))
-    # demand_table = generate_demand_table(
-    #     pairs, time_intervals,
-    #     sample_dist=np.random.randint, sample_params={'low': 1, 'high': 10},
-    #     demand_dist=np.random.poisson, demand_params={'lam': 5})
-    # print('打印需求表')
-    # print(demand_table)
 
     # order pair测试
     from real_map import RealMap
-    real_map = RealMap(n_r=2, n_c=4)
+    real_map = RealMap(n_r=1, n_c=2)
     coordinates = real_map.generate_coordinates(np.random.uniform, {'low': 0, 'high': 10})
     pairs = real_map.generate_pairs()
     time_intervals = ((0, 10), (10, 20), (20, 30))
     demand_table = generate_demand_table(
         pairs, time_intervals,
-        sample_dist=np.random.randint, sample_params={'low': 1, 'high': 10},
-        demand_dist=np.random.poisson, demand_params={'lam': 5})
+        sample_dist=np.random.randint, sample_params={'low': 1, 'high': 3},
+        demand_dist=np.random.poisson, demand_params={'lam': 2})
+    print('demand table')
+    print(demand_table)
+    print('total demand')
+    print(demand_table.iloc[:, 2:].sum().sum())
     order_pairs_table = generate_order_details(demand_table, coordinates)
+    print('order pairs')
     print(order_pairs_table)
 
+    real_map.plot_map(show_index='number')
 
-    # from utils import split_pairs_demand
-    # time_interval = '0-10'
-    # demand_dict = split_pairs_demand(pairs, demand_table, time_interval)
-    # print('打印需求字典')
-    # print(demand_dict)
+
 
 
 
