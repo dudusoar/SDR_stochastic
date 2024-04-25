@@ -1,78 +1,70 @@
 import numpy as np
-from demands import generate_demand_table
-from demands import generate_order_details
+from demands import generate_demand_table, generate_order_pairs
 from real_map import RealMap
 from utils import generate_time_intervals
+from graph import PDPGraph
 
 
-def ParametersGenerator(n,v,time_range,time_stepsize,B,b,Q, M, stochasitc_setting)-> dict:
+def ParametersGenerator(n_r,n_c,stochasitc_setting,time_range,time_stepsize,v,B,b,Q,M)-> dict:
   '''
-  n: number of pairs
   v: number of vehicles
-  time_range: the whole service time
-  time_stepsize: size of each time step
   B: maximum battery level
   b: battery consume rate
   Q: maximum capacity
+  M:
+  n_r: number of restaurants
+  n_c: number of customers
   stochasitc_setting: random function for generating the coordinates, sampling the pairs and generating the demands
+  time_range: the whole service time
+  time_stepsize: size of each time step
 
   return: a dictionary for the parameters
   '''
-  # initialization for the parameters
   params = {}
-  params['n'] = n
+  # information from real data
+  realMap= RealMap(
+      n_r, n_c,
+      dist_function = stochasitc_setting['coordinates'],
+      dist_params = stochasitc_setting['coordinates_params'])
+  time_intervals = generate_time_intervals(time_range, time_stepsize)
+  demand_table = generate_demand_table(
+      realMap.pairs, time_intervals,
+      sample_dist=stochasitc_setting['sample'], sample_params = stochasitc_setting['sample_params'],
+      demand_dist=stochasitc_setting['demand'], demand_params = stochasitc_setting['demand_params'])
+  order_pairs_table = generate_order_pairs(demand_table, realMap.coordinates)
+
+  params['realMap'] = realMap
+  params['time_intervals'] = time_intervals
+  params['demand_table'] = demand_table
+  params['order_pairs_table'] = order_pairs_table
+
+  # direct params
   params['v'] = v
   params['B'] = B
   params['b'] = b
   params['Q'] = Q
-  params['M'] = M
+  params['M'] = M # big M
 
-  # === generate graph ===
-  graph = NodesGenerator(n)
+  # pdp graph
+  pdp = PDPGraph(realMap, order_pairs_table)
+  params['n'] = pdp.n # number of pairs
   ## sets
-  params['P']:tuple = graph.P
-  params['D']:tuple = graph.D
-  params['C']:tuple = graph.C
-  params['charging_station']:tuple = graph.charging_station
-  params['N']:tuple = graph.N
-  params['N_depot ']:tuple = graph.N_depot
-  params['N_dest']:tuple = graph.N_dest
+  params['P'] = pdp.P
+  params['D'] = pdp.D
+  params['C'] = pdp.C
+  params['N'] = pdp.N
+  params['N_depot '] = pdp.N_depot
+  params['N_dest']:tuple = pdp.N_dest
+  params['V'] = tuple(range(v)) # vehicle sets
 
-  # === generate other sets ===
-  params['V'] = tuple(range(v))
-
-  ## other information related the graph
-  params['coordinates'] = graph.generate_coordinates(
-      stochasitc_setting['coordinates'],
-      stochasitc_setting['coordinates_params'])
-  params['time_matrix'] = graph.generate_time_matrix()
-  params['pairs'] = graph.generate_pairs()
-
-
-  # === generate time intervals ===
-  params['time_intervals'] = generate_time_intervals(time_range,time_stepsize)
-
-  # === generate demans table ===
-  params['demand_table'] = generate_demand_table(
-      params['pairs'],
-      params['time_intervals'],
-      stochasitc_setting['sample'],stochasitc_setting['sample_params'],
-      stochasitc_setting['demand'],stochasitc_setting['demand_params'])
+  params['time_matrix'] = pdp.time_matrix
+  params['p_i'] = pdp.p_i
 
   return params
 
 # === examples ===
 if __name__ == "__main__":
-
-    # Generate the map
-    real_map = RealMap(n_r=3, n_c=6)
-
-    n,v = 3,1
-    time_range = 120
-    time_stepsize = 10
-    B,b = 100,0.5
-    Q = 30
-    M = 1000 # big M
+    n_r,n_c = 1,2
     stochasitc_setting = {
         'coordinates':np.random.uniform,
         'coordinates_params':{'low': 0, 'high': 10},
@@ -81,6 +73,14 @@ if __name__ == "__main__":
         'demand':np.random.poisson,
         'demand_params': {'lam': 5},
     }
-    params = ParametersGenerator(n,v,time_range,time_stepsize,B,b,Q,M, stochasitc_setting)
+    time_range = 120
+    time_stepsize = 10
+
+    v = 1
+    B,b = 100,0.5
+    Q = 30
+    M = 1000 # big M
+
+    params = ParametersGenerator(n_r,n_c,stochasitc_setting,time_range,time_stepsize,v,B,b,Q,M)
 
 

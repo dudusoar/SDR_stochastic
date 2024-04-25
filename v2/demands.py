@@ -48,7 +48,7 @@ def generate_demand_table(pairs, time_intervals, sample_dist, sample_params, dem
 
     return demand_table
 
-def generate_order_details(demand_table, locations):
+def generate_order_pairs(demand_table, locations):
     """
     Generate a detailed DataFrame for each order based on the demand table and location coordinates.
 
@@ -105,13 +105,13 @@ def generate_order_details(demand_table, locations):
 # Example usage
 if __name__ == "__main__":
 
-
-    # order pair测试
     from real_map import RealMap
-    real_map = RealMap(n_r=1, n_c=2)
-    coordinates = real_map.generate_coordinates(np.random.uniform, {'low': 0, 'high': 10})
-    pairs = real_map.generate_pairs()
+    realMap = RealMap(n_r=1, n_c=2, dist_function = np.random.uniform, dist_params = {'low': 0, 'high': 10})
+    coordinates = realMap.coordinates
+    pairs = realMap.pairs
     time_intervals = ((0, 10), (10, 20), (20, 30))
+
+    # demand table
     demand_table = generate_demand_table(
         pairs, time_intervals,
         sample_dist=np.random.randint, sample_params={'low': 1, 'high': 3},
@@ -120,11 +120,16 @@ if __name__ == "__main__":
     print(demand_table)
     print('total demand')
     print(demand_table.iloc[:, 2:].sum().sum())
-    order_pairs_table = generate_order_details(demand_table, coordinates)
+
+    # order pairs table
+    order_pairs_table = generate_order_pairs(demand_table, coordinates)
     print('order pairs')
     print(order_pairs_table)
 
-    real_map.plot_map(show_index='number')
+    # plot
+    realMap.plot_map(show_index='number')
+
+
 
 
 
