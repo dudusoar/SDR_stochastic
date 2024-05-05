@@ -54,8 +54,8 @@ def ParametersGenerator(n_r,n_c,stochasitc_setting,time_range,time_stepsize,v,B,
   params['C'] = pdp.C
   params['N'] = pdp.N
   params['N_depot '] = pdp.N_depot
-  params['N_dest']:tuple = pdp.N_dest
-  params['V'] = tuple(range(v)) # vehicle sets
+  params['N_dest'] = pdp.N_dest
+  params['V'] = list(range(v)) # vehicle sets
 
   params['time_matrix'] = pdp.time_matrix
   params['p_i'] = pdp.p_i
