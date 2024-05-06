@@ -24,7 +24,7 @@ class PDPGraph:
 
         # features
         self.p_i = self.generate_demand_dict()
-        self.pdp_to_real = self.create_mapping() # dict {pair index: real index
+        self.pdp_to_real = self.create_mapping() # dict {pair index: real index}
         self.time_matrix = self.generate_time_matrix()
 
     def generate_demand_dict(self):
@@ -75,6 +75,7 @@ class PDPGraph:
         return time_matrix
 
 
+
 # === examples ===
 if __name__ == "__main__":
     from real_map import RealMap
@@ -99,10 +100,11 @@ if __name__ == "__main__":
     print('p_i', pdpGraph.p_i)
     print('pdp graph mapping to real map', pdpGraph.pdp_to_real)
 
-    print("\nTime Matrix:")
-    # 打印矩阵，保持格式整齐
-    for row in pdpGraph.time_matrix:
-        print(" ".join(f"{elem:.2f}" for elem in row))
+    # print("\nTime Matrix:")
+    # # 打印矩阵，保持格式整齐
+    # for row in pdpGraph.time_matrix:
+    #     print(" ".join(f"{elem:.2f}" for elem in row))
+    print(pdpGraph.time_matrix.shape)
 
 
 

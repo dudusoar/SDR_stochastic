@@ -127,8 +127,11 @@ if __name__ == "__main__":
     print(order_pairs_table)
 
     # plot
-    realMap.plot_map(show_index='number')
-
+    # realMap.plot_map(show_index='number')
+    e_i_demands = order_pairs_table[['pair_index', 'earliest']].sort_values(by='pair_index')['earliest'].values
+    print(e_i_demands)
+    e_i = np.concatenate(([0], e_i_demands, [0, 0]))
+    print(e_i)
 
 
 

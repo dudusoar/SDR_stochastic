@@ -11,4 +11,3 @@ def generate_time_intervals(time_range:int, time_step:int)-> tuple:
 
 
 
-
