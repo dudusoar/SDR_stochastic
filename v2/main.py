@@ -18,7 +18,7 @@ def create_model(params):
     # decision variables
     x = m.addVars(params['N'], params['N'], params['V'], vtype=gp.GRB.BINARY,name='x')  # x_ijk, link and vehicle selection
     y = m.addVars(params['N'], params['V'], vtype=gp.GRB.BINARY, name='y')  # y_ik, ensuring all stops are visited once
-    r = m.addVars(params['N'], params['V'], vtype=gp.GRB.BINARY, name='r')  # r_ik, late penalty
+    r = m.addVars(params['D'], vtype=gp.GRB.BINARY, name='r')  # r_ik, late penalty
     tau = m.addVars(params['N'], params['V'], ub=GRB.INFINITY,name="tau")  # tau_ik, arrive time at node i for vehicle k
     E = m.addVars(params['N'], params['V'], ub=params['B'],name="E")  # E_ik, current battery level at node i for vehicle k
     C = m.addVars(params['N'], params['V'], ub=params['Q'],name="C")  # C_ik, remaining capacity at node i for vehicle k
@@ -56,7 +56,7 @@ def create_model(params):
     m.addConstrs((tau[i, k] >= params['e_i'][i] * y[i, k] for i in params['P'] for k in params['V']),
                  "earliest_start_time")
     ## 延误时间
-    m.addConstrs((params['l_i'][i] <= tau[i, k] + params['M'] * (1 - r[i]) for i in params['D'] for k in params['V']), "no late no penalty")
+    m.addConstrs((params['l_i'][i] - tau[i, k]  <= params['M'] * (1 - r[i]) for i in params['D'] for k in params['V']), "no late no penalty")
     m.addConstrs((tau[i, k] - params['l_i'][i] <= params['M'] * r[i] for i in params['D'] for k in params['V']), "no late no penalty")
 
     # 电池约束
@@ -109,6 +109,8 @@ def print_params(params):
     # print(f"Latest delay time: {params['time_delay']}")
     print(f"ALl pdp nodes: {params['N']}")
     print(f"Numer of orders: {params['n']}")
+    print(f"ALl pick nodes: {params['P']}")
+    print(f"ALl delivery nodes: {params['D']}")
     print(f"Earlist time: {params['e_i']}")
     print(len(params['e_i']))
     print(f"Lastest time: {params['l_i']}")
