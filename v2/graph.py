@@ -16,8 +16,8 @@ class PDPGraph:
         self.charging_station = [2 * self.n + 2]
         # === Sets: list ===
         self.C = sorted(self.order_pairs_table['pair_index'].tolist())
-        self.P = self.C[:self.n+1]
-        self.D = self.C[self.n+1:]
+        self.P = self.C[:self.n]
+        self.D = self.C[self.n:]
         self.N = sorted(self.depot + self.C + self.dest + self.charging_station)
         self.N_depot = sorted(self.depot + self.C + self.charging_station)
         self.N_dest = sorted(self.C + self.dest + self.charging_station)
@@ -94,6 +94,8 @@ if __name__ == "__main__":
     pdpGraph = PDPGraph(real_map, order_pairs_table)
     print('Number of pairs', pdpGraph.n)
     print('Customer sets', pdpGraph.C)
+    print('Pickup sets', pdpGraph.P)
+    print('Delivery sets', pdpGraph.D)
     print('All nodes', pdpGraph.N)
     print('N_depot',pdpGraph.N_depot)
     print('N_dest',pdpGraph.N_dest)
@@ -104,7 +106,9 @@ if __name__ == "__main__":
     # # 打印矩阵，保持格式整齐
     # for row in pdpGraph.time_matrix:
     #     print(" ".join(f"{elem:.2f}" for elem in row))
-    print(pdpGraph.time_matrix.shape)
+    # print(pdpGraph.time_matrix.shape)
+
+
 
 
 

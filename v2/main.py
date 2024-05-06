@@ -56,7 +56,7 @@ def create_model(params):
     m.addConstrs((tau[i, k] >= params['e_i'][i] * y[i, k] for i in params['P'] for k in params['V']),
                  "earliest_start_time")
     ## 延误时间
-    m.addConstrs((params['l_i'][i] - tau[i, k]  <= params['M'] * (1 - r[i]) for i in params['D'] for k in params['V']), "no late no penalty")
+    m.addConstrs((params['l_i'][i] - tau[i, k] <= params['M'] * (1 - r[i]) for i in params['D'] for k in params['V']), "no late no penalty")
     m.addConstrs((tau[i, k] - params['l_i'][i] <= params['M'] * r[i] for i in params['D'] for k in params['V']), "no late no penalty")
 
     # 电池约束

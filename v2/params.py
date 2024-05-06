@@ -109,3 +109,5 @@ if __name__ == "__main__":
     print(params['l_i'])
     print(len(params['l_i']))
 
+
+
