@@ -30,7 +30,10 @@ def create_model(params):
             for k in params['V']:
                 if (i == j) | ((i == j + params['n']) & (j > 0)):
                     x[i, j, k].ub = 0
-
+                    
+    objective = sum(0.3 * params['time_matrix'][i,j] * x[i, j, k] for i in params['N'] for j in params['N'] for k in params['V']) + sum(r[i]*1 for i in params['D'])
+    m.setObjective(objective, gp.GRB.MINIMIZE)
+    
     # 每个点被服务一次
     m.addConstrs((sum(y[i, k] for k in params['V']) == 1) for i in params['C'])  # 每个点只被一辆车服务一次
     m.addConstrs((y[i, k] <= 1) for i in params['charging'] for k in params['V'])  # 每个车最多充一次电
@@ -147,7 +150,8 @@ def main(args):
     model = create_model(params)
 
     # 模型求解
-    # ...
+    model.setParam('TimeLimit', 100)
+    model.optimize()
 
 if __name__ == "__main__":
     # 在命令行输入：python main.py -v 3 -B 25 -b 0.6 -Q 8 -M 1500 -n_r 3 -n_c 8 --time_range 180 --time_stepsize 15 --time_delay 90
