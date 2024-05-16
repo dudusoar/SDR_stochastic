@@ -154,7 +154,7 @@ def main(args):
     model.optimize()
 
 if __name__ == "__main__":
-    # 在命令行输入：python main.py -v 3 -B 25 -b 0.6 -Q 8 -M 1500 -n_r 3 -n_c 8 --time_range 180 --time_stepsize 15 --time_delay 90
+    # 在命令行输入：python gurobi_model.py -v 3 -B 25 -b 0.6 -Q 8 -M 1500 -n_r 3 -n_c 8 --time_range 180 --time_stepsize 15 --time_delay 90
     # 来修改默认参数
     parser = argparse.ArgumentParser(description='Parameters')
     parser.add_argument("-v", type=int, default=2, help="Number of vehicles")
