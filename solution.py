@@ -15,6 +15,7 @@ class Solution:
         self.total_delay = 0  # 总延迟时间
         self.feasible = True  # 解的可行性
 
+
     def update_solution_state(self):
         """根据当前的车辆路径更新arrival_times, battery_levels和capacities"""
         self.arrival_times = [[0] * (2 * self.n + 3) for _ in range(self.v)]
@@ -38,7 +39,6 @@ class Solution:
 
                 # 更新载货量
                 self.capacities[k][i] = self.capacities[k][i - 1] + self.params['p_i'][node]
-
     def evaluate(self):
         """评估当前解的目标函数值"""
         # 计算总行驶时间
