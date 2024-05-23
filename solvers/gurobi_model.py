@@ -8,9 +8,9 @@ import gurobipy as gp
 def create_model(params):
     # create model
     params_gp = {
-        "WLSACCESSID": 'daa4d2b5-ee06-49b9-834b-15010a0c0cfe',
-        "WLSSECRET": 'e2dc2c9f-4503-4035-ae0f-28e4b3aa9668',
-        "LICENSEID": 2442699,
+        "WLSACCESSID": ,
+        "WLSSECRET": ,
+        "LICENSEID": ,
     }
     env = gp.Env(params=params_gp)
     m = gp.Model(env=env)
