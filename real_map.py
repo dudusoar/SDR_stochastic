@@ -14,7 +14,7 @@ class RealMap:
         # features
         self.coordinates = self.generate_coordinates(dist_function, dist_params)
         self.all_nodes_names = self.generate_node_dict()  # Save the name-to-index mapping
-        self.time_matrix = self.generate_time_matrix() # real time matrix
+        self.distance_matrix = self.generate_distance_matrix() # real time matrix
         self.pairs = self.generate_pairs() # all Restaurant-Customer pairs
 
 
@@ -77,24 +77,24 @@ class RealMap:
                 pairs.append((r,c))
         return pairs
 
-    def generate_time_matrix(self) -> np.ndarray:
+    def generate_distance_matrix(self) -> np.ndarray:
         """
         Calculate the time matrix based on Euclidean distance between nodes.
         """
         num_nodes = len(self.all_nodes)
-        time_matrix = np.zeros((num_nodes, num_nodes))
+        distance_matrix = np.zeros((num_nodes, num_nodes))
 
         for i in self.all_nodes:
             for j in self.all_nodes:
                 if i != j:
                     dist = np.sqrt((self.coordinates[i][0] - self.coordinates[j][0])**2 +
                                    (self.coordinates[i][1] - self.coordinates[j][1])**2)
-                    time_matrix[i][j] = dist
-                    time_matrix[j][i] = dist  # Ensure the matrix is symmetric
+                    distance_matrix[i][j] = dist
+                    distance_matrix[j][i] = dist  # Ensure the matrix is symmetric
                 else:
-                    time_matrix[i][j] = 0  # Distance to self is zero
+                    distance_matrix[i][j] = 0  # Distance to self is zero
 
-        return time_matrix
+        return distance_matrix
 
     def plot_map(self, show_index=None, highlight_nodes=None):
         '''
@@ -138,30 +138,10 @@ class RealMap:
         plt.show()
 
 if __name__ == '__main__':
-    # create RealMap instance，n_r restaruants and n_r customers
+    # create RealMap instance，n_r restaurants and n_r customers
     realMap = RealMap(n_r=3, n_c=6, dist_function = np.random.uniform, dist_params = {'low': -3.2, 'high': 3.2})
-
-    # coordinates
-    coordinates = realMap.coordinates
-    print("Coordinates:")
-    for node, coord in coordinates.items():
-        print(f"Node {node}: ({coord[0]:.2f}, {coord[1]:.2f})")
-
-    # time matrix
-    time_matrix = realMap.generate_time_matrix()
-    print("\nTime Matrix:")
-    for row in time_matrix:
-        print(" ".join(f"{elem:.2f}" for elem in row))
-
-    # all restaraunts
-    print("all_nodes")
-    print(realMap.all_nodes)
-    # dictonary for node-name pairs
-    print("nodes_dict")
-    print(realMap.all_nodes_names)
-    # all res-customer pairs
-    print("pairs")
-    print(realMap.pairs)
-
     # plot
     realMap.plot_map(show_index='number')
+    # print the contents
+    from utils import print_realmap_attributes
+    print_realmap_attributes(realMap)
