@@ -18,24 +18,42 @@ class RealMap:
         self.pairs = self.generate_pairs() # all Restaurant-Customer pairs
 
 
-    def generate_coordinates(self, dist_function, dist_params)-> dict:
-        '''
-        Generate the random coordinates
-        :param dist_function: random function
-        :param dist_params: corresponding parameters
-        '''
-        # Dynamically adjust the range based on the number of nodes
+    # def generate_coordinates(self, dist_function, dist_params)-> dict:
+    #     '''
+    #     Generate the random coordinates
+    #     :param dist_function: random function
+    #     :param dist_params: corresponding parameters
+    #     '''
+    #     # Dynamically adjust the range based on the number of nodes
+    #     coordinates = {}
+
+    #     # Generate coordinates for pickup and delivery nodes
+    #     for node in self.all_nodes[:self.n + 1]:
+    #         x = dist_function(**dist_params)
+    #         y = dist_function(**dist_params)
+    #         coordinates[node] = (x, y)
+
+    #     # Depot, destination, and charging station are placed at the same location
+    #     coordinates[self.all_nodes[self.n + 1]] = coordinates[0]
+    #     coordinates[self.all_nodes[self.n + 2]] = coordinates[0]
+
+    #     return coordinates
+
+    def generate_coordinates(self, dist_function, dist_params):
         coordinates = {}
 
-        # Generate coordinates for pickup and delivery nodes
-        for node in self.all_nodes[:self.n + 1]:
+        # Set the depot coordinates as the origin (0, 0)
+        coordinates[0] = (0, 0)
+
+        # Generate random coordinates for restaurants and customers relative to the depot
+        for i in range(1, self.n + 1):
             x = dist_function(**dist_params)
             y = dist_function(**dist_params)
-            coordinates[node] = (x, y)
+            coordinates[i] = (x, y)
 
-        # Depot, destination, and charging station are placed at the same location
-        coordinates[self.all_nodes[self.n + 1]] = coordinates[0]
-        coordinates[self.all_nodes[self.n + 2]] = coordinates[0]
+        # Set the same coordinates for destination and charging station as the depot
+        coordinates[self.n + 1] = (0, 0)
+        coordinates[self.n + 2] = (0, 0)
 
         return coordinates
 
@@ -120,32 +138,30 @@ class RealMap:
         plt.show()
 
 if __name__ == '__main__':
-    # 创建 RealMap 实例，设定有n_r个餐厅和n_c个顾客
-    realMap = RealMap(n_r=1, n_c=2, dist_function = np.random.uniform, dist_params = {'low': 0, 'high': 10})
+    # create RealMap instance，n_r restaruants and n_r customers
+    realMap = RealMap(n_r=3, n_c=6, dist_function = np.random.uniform, dist_params = {'low': -3.2, 'high': 3.2})
 
-    # 生成坐标，使用 numpy 的 uniform 分布
+    # coordinates
     coordinates = realMap.coordinates
     print("Coordinates:")
     for node, coord in coordinates.items():
         print(f"Node {node}: ({coord[0]:.2f}, {coord[1]:.2f})")
 
-    # 生成时间矩阵
+    # time matrix
     time_matrix = realMap.generate_time_matrix()
     print("\nTime Matrix:")
-    # 打印矩阵，保持格式整齐
     for row in time_matrix:
         print(" ".join(f"{elem:.2f}" for elem in row))
 
-    # 所有节点
+    # all restaraunts
     print("all_nodes")
     print(realMap.all_nodes)
-    # 生成node对应名字的字典
+    # dictonary for node-name pairs
     print("nodes_dict")
     print(realMap.all_nodes_names)
-    # 生成所有餐厅和顾客的pair
+    # all res-customer pairs
     print("pairs")
     print(realMap.pairs)
 
-
-    # 画图
+    # plot
     realMap.plot_map(show_index='number')
