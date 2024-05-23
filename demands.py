@@ -118,20 +118,11 @@ if __name__ == "__main__":
         demand_dist=np.random.poisson, demand_params={'lam': 2})
     print('demand table')
     print(demand_table)
-    print('total demand')
-    print(demand_table.iloc[:, 2:].sum().sum())
 
     # order pairs table
     order_pairs_table = generate_order_pairs(demand_table, coordinates)
     print('order pairs')
     print(order_pairs_table)
-
-    # plot
-    # realMap.plot_map(show_index='number')
-    e_i_demands = order_pairs_table[['pair_index', 'earliest']].sort_values(by='pair_index')['earliest'].values
-    print(e_i_demands)
-    e_i = np.concatenate(([0], e_i_demands, [0, 0]))
-    print(e_i)
 
 
 

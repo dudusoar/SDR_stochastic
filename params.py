@@ -2,7 +2,7 @@ import numpy as np
 from demands import generate_demand_table, generate_order_pairs
 from real_map import RealMap
 from utils import generate_time_intervals
-from graph import PDPGraph
+from pdpgraph import PDPGraph
 
 
 
@@ -63,7 +63,7 @@ def ParametersGenerator(n_r,n_c,stochasitc_setting,time_range,time_stepsize, tim
   params['V'] = list(range(v)) # vehicle sets
 
 
-  params['time_matrix'] = pdp.time_matrix
+  params['distance_matrix'] = pdp.distance_matrix
   params['p_i'] = pdp.p_i
 
   # time windows
@@ -99,15 +99,6 @@ if __name__ == "__main__":
 
     params = ParametersGenerator(n_r,n_c,stochasitc_setting,time_range,time_stepsize,time_delay, v,B,b,Q,M)
 
-    print(params['time_matrix'].shape)
-    print(params['n'])
-    print(params['demand_table'])
-    print(params['order_pairs_table'])
-
-    print(params['e_i'])
-    print(len(params['e_i']))
-    print(params['l_i'])
-    print(len(params['l_i']))
 
 
 
