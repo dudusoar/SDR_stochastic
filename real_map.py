@@ -90,7 +90,6 @@ class RealMap:
                     dist = np.sqrt((self.coordinates[i][0] - self.coordinates[j][0])**2 +
                                    (self.coordinates[i][1] - self.coordinates[j][1])**2)
                     distance_matrix[i][j] = dist
-                    distance_matrix[j][i] = dist  # Ensure the matrix is symmetric
                 else:
                     distance_matrix[i][j] = 0  # Distance to self is zero
 
