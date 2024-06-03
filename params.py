@@ -6,13 +6,8 @@ from pdpgraph import PDPGraph
 
 
 
-def ParametersGenerator(n_r,n_c,stochasitc_setting,time_range,time_stepsize, time_delay, v,B,b,Q,M)-> dict:
+def ParametersGenerator(n_r,n_c,stochasitc_setting,time_range,time_stepsize, time_delay, v,B,b,Q,M,speed)-> dict:
   '''
-  v: number of vehicles
-  B: maximum battery level
-  b: battery consume rate
-  Q: maximum capacity
-  M:
   n_r: number of restaurants
   n_c: number of customers
   stochasitc_setting: random function for generating the coordinates, sampling the pairs and generating the demands
@@ -20,19 +15,28 @@ def ParametersGenerator(n_r,n_c,stochasitc_setting,time_range,time_stepsize, tim
   time_stepsize: size of each time step
   time_delay: latest delay time
 
+  v: number of vehicles
+  B: maximum battery level
+  b: battery consume rate
+  Q: maximum capacity
+  M: big m for gurobi model
+  speed: speed of the delivery robots
+
   return: a dictionary for the parameters
   '''
   params = {}
   # information from real data
   realMap= RealMap(
-      n_r, n_c,
-      dist_function = stochasitc_setting['coordinates'],
-      dist_params = stochasitc_setting['coordinates_params'])
+                    n_r, n_c,
+                    dist_function = stochasitc_setting['coordinates'],
+                    dist_params = stochasitc_setting['coordinates_params'])
   time_intervals = generate_time_intervals(time_range, time_stepsize)
   demand_table = generate_demand_table(
-      realMap.pairs, time_intervals,
-      sample_dist=stochasitc_setting['sample'], sample_params = stochasitc_setting['sample_params'],
-      demand_dist=stochasitc_setting['demand'], demand_params = stochasitc_setting['demand_params'])
+                                        realMap.pairs, time_intervals,
+                                        sample_dist=stochasitc_setting['sample'], 
+                                        sample_params = stochasitc_setting['sample_params'],
+                                        demand_dist=stochasitc_setting['demand'], 
+                                        demand_params = stochasitc_setting['demand_params'])
   order_pairs_table = generate_order_pairs(demand_table, realMap.coordinates)
 
   params['realMap'] = realMap
@@ -48,7 +52,9 @@ def ParametersGenerator(n_r,n_c,stochasitc_setting,time_range,time_stepsize, tim
   params['M'] = M # big M
 
   # pdp graph
-  pdp = PDPGraph(realMap, order_pairs_table)
+  pdp = PDPGraph(realMap, order_pairs_table, speed)
+  params['pdpGraph'] = pdp
+  params['speed'] = pdp.speed
   params['n'] = pdp.n # number of pairs
   ## sets
   params['charging'] = pdp.charging_station
@@ -64,6 +70,7 @@ def ParametersGenerator(n_r,n_c,stochasitc_setting,time_range,time_stepsize, tim
 
 
   params['distance_matrix'] = pdp.distance_matrix
+  params['time_matrix'] = pdp.time_matrix
   params['p_i'] = pdp.p_i
 
   # time windows
@@ -79,26 +86,31 @@ def ParametersGenerator(n_r,n_c,stochasitc_setting,time_range,time_stepsize, tim
 
 # === examples ===
 if __name__ == "__main__":
-    n_r,n_c = 1,2
+    n_r,n_c = 2,3
     stochasitc_setting = {
-        'coordinates':np.random.uniform,
-        'coordinates_params':{'low': 0, 'high': 10},
-        'sample':np.random.randint,
-        'sample_params': {'low': 0, 'high': 3},
-        'demand':np.random.poisson,
-        'demand_params': {'lam': 2},
-    }
+                            'coordinates':np.random.uniform,
+                            'coordinates_params':{'low': -2, 'high': 2},
+                            'sample':np.random.randint,
+                            'sample_params': {'low': 1, 'high': 2},
+                            'demand':np.random.poisson,
+                            'demand_params': {'lam': 1},
+                        }
     time_range = 30
     time_stepsize = 10
-    time_delay = 60
+    time_delay = 30
 
     v = 1
-    B,b = 100,0.5
-    Q = 30
+    B,b = 20,0.5
+    Q = 5
     M = 1000 # big M
 
-    params = ParametersGenerator(n_r,n_c,stochasitc_setting,time_range,time_stepsize,time_delay, v,B,b,Q,M)
+    speed = 4
 
+    params = ParametersGenerator(n_r,n_c,stochasitc_setting,time_range,time_stepsize,time_delay, v,B,b,Q,M, speed)
+    params["pdpGraph"].plot_graph(show_index=True)
+
+    from utils import print_params_contents
+    print_params_contents(params)
 
 
 
