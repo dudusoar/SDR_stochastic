@@ -37,6 +37,7 @@ def print_pdpgraph_attributes(pdpgraph):
     print("- pdp_to_real (Dictionary Mapping PDP Nodes to Real Nodes):", pdpgraph.pdp_to_real)
     print("- real_to_pdp (Dictionary Mapping Real Nodes to PDP Nodes):", pdpgraph.real_to_pdp)
     print("- Distance_matrix (Distance Matrix between PDP Nodes):", pdpgraph.distance_matrix)
+    print("- Time_matrix (Time Matrix between PDP Nodes):", pdpgraph.time_matrix)
 
 def print_params_contents(params):
     print("Parameters Contents:")
