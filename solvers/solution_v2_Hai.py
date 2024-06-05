@@ -81,7 +81,7 @@ class Solution:
         return obj_value
 
     def check_feasibility(self):
-        """s
+        """
         Check if the current solution satisfies all the constraints.
         """
         # if be served only once
