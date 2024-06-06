@@ -1,7 +1,7 @@
 import argparse
 import numpy as np
 from params import ParametersGenerator
-from gurobipy import Model, GRB
+from gurobipy import GRB
 import gurobipy as gp
 
 

@@ -138,7 +138,7 @@ class RealMap:
 
 if __name__ == '__main__':
     # create RealMap instance，n_r restaurants and n_r customers
-    realMap = RealMap(n_r=3, n_c=6, dist_function = np.random.uniform, dist_params = {'low': -3.2, 'high': 3.2})
+    realMap = RealMap(n_r=2, n_c=4, dist_function = np.random.uniform, dist_params = {'low': -1, 'high': 1})
     # plot
     realMap.plot_map(show_index='number')
     # print the contents
