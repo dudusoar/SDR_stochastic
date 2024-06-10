@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 class PDPTWSolution:
     def __init__(self, instance, vehicle_capacity, battery_capacity, battery_consume_rate, routes):
         """
@@ -118,10 +117,10 @@ class PDPTWSolution:
             curr_node = route[i]
             next_node = route[i + 1]
             travel_time += time_matrix[curr_node][next_node]
-
+            
             if self.instance.time_windows[next_node][1] != float('inf'):
                 delay_time += max(0, leave_times[i] - self.instance.time_windows[next_node][1])
-
+            
             wait_time += wait_times[i]
 
         self.total_travel_times[vehicle_id] = travel_time
@@ -146,22 +145,19 @@ class PDPTWSolution:
             return False
         if not self.check_battery_constraint(selected_vehicles):
             return False
-        # if not self.check_unique_service(selected_vehicles):
-        #     return False
-        # if not self.check_depot_constraint(selected_vehicles):
-        #     return False
-        # if not self.check_pickup_delivery_order(selected_vehicles):
-        #     return False
+        if not self.check_pickup_delivery_order(selected_vehicles):
+            return False
         return True
 
     def get_selected_vehicles(self):
         """
         获取被选择的车辆列表
         :return: 被选择的车辆 ID 列表
+        没有被选择的车辆的路径被初始化[0,0]
         """
         selected_vehicles = []
         for vehicle_id in range(self.num_vehicles):
-            if self.routes[vehicle_id] is not None and len(self.routes[vehicle_id]) > 0:
+            if len(self.routes[vehicle_id]) > 2:
                 selected_vehicles.append(vehicle_id)
         return selected_vehicles
 
@@ -184,32 +180,7 @@ class PDPTWSolution:
             if np.any(self.route_battery_levels[vehicle_id] < 0):
                 return False
         return True
-
-    def check_unique_service(self, selected_vehicles):
-        """
-        检查唯一服务约束
-        :param selected_vehicles: 被选择的车辆 ID 列表
-        """
-        visited_nodes = set()
-        for vehicle_id in selected_vehicles:
-            route = self.routes[vehicle_id]
-            for node in route:
-                if node in visited_nodes:
-                    return False
-                visited_nodes.add(node)
-        return True
-
-    def check_depot_constraint(self, selected_vehicles):
-        """
-        检查车辆是否从车场出发并返回车场
-        :param selected_vehicles: 被选择的车辆 ID 列表
-        """
-        for vehicle_id in selected_vehicles:
-            route = self.routes[vehicle_id]
-            if route[0] != 0 or route[-1] != 0:
-                return False
-        return True
-
+    
     def check_pickup_delivery_order(self, selected_vehicles):
         """
         检查取货-送货顺序约束
@@ -227,46 +198,47 @@ class PDPTWSolution:
                         return False
         return True
 
-    def plot_solution(self):
+    def plot_solution(self, vehicle_ids=None):
         """
         绘制解的路线图
+        :param vehicle_ids: 要绘制路径的车辆 ID 列表（可选），默认为 None，表示绘制所有被选择车辆的路径
         """
         selected_vehicles = self.get_selected_vehicles()
         if not selected_vehicles:
             print("No vehicle is selected in the solution.")
             return
-
+    
+        if vehicle_ids is None:
+            vehicle_ids = selected_vehicles
+        else:
+            vehicle_ids = [vehicle_id for vehicle_id in vehicle_ids if vehicle_id in selected_vehicles]
+    
+        if not vehicle_ids:
+            print("No valid vehicle IDs provided.")
+            return
+    
         plt.figure(figsize=(8, 8))
         plt.scatter(self.instance.depot[0], self.instance.depot[1], c='red', marker='s', s=100, label='Depot')
-        plt.scatter([p[0] for p in self.instance.pickup_points], [p[1] for p in self.instance.pickup_points], c='blue',
-                    marker='o', label='Pickup')
-        plt.scatter([d[0] for d in self.instance.delivery_points], [d[1] for d in self.instance.delivery_points],
-                    c='green', marker='d', label='Delivery')
-
-        # 为每个点添加标签
-        plt.annotate('Depot', (self.instance.depot[0], self.instance.depot[1]), textcoords='offset points',
-                     xytext=(0, 10), ha='center')
+        plt.scatter([p[0] for p in self.instance.pickup_points], [p[1] for p in self.instance.pickup_points], c='blue', marker='o', label='Pickup')
+        plt.scatter([d[0] for d in self.instance.delivery_points], [d[1] for d in self.instance.delivery_points], c='green', marker='d', label='Delivery')
+    
+        plt.annotate('Depot', (self.instance.depot[0], self.instance.depot[1]), textcoords='offset points', xytext=(0, 10), ha='center')
         for i, pickup_point in enumerate(self.instance.pickup_points, start=1):
-            plt.annotate(f'P{i}', (pickup_point[0], pickup_point[1]), textcoords='offset points', xytext=(0, 5),
-                         ha='center')
+            plt.annotate(f'P{i}', (pickup_point[0], pickup_point[1]), textcoords='offset points', xytext=(0, 5), ha='center')
         for i, delivery_point in enumerate(self.instance.delivery_points, start=1):
-            plt.annotate(f'D{i}', (delivery_point[0], delivery_point[1]), textcoords='offset points', xytext=(0, 5),
-                         ha='center')
-
-        color_map = plt.cm.get_cmap('viridis', len(selected_vehicles))
-        for i, vehicle_id in enumerate(selected_vehicles):
+            plt.annotate(f'D{i}', (delivery_point[0], delivery_point[1]), textcoords='offset points', xytext=(0, 5), ha='center')
+    
+        color_map = plt.cm.get_cmap('viridis', len(vehicle_ids))
+        for i, vehicle_id in enumerate(vehicle_ids):
             route = self.routes[vehicle_id]
             color = color_map(i)
-
-            route_points = [self.instance.depot] + [
-                self.instance.pickup_points[node - 1] if node <= self.instance.n else self.instance.delivery_points[
-                    node - self.instance.n - 1] for node in route[1:-1]] + [self.instance.depot]
+            
+            route_points = [self.instance.depot] + [self.instance.pickup_points[node-1] if node <= self.instance.n else self.instance.delivery_points[node-self.instance.n-1] for node in route[1:-1]] + [self.instance.depot]
             route_x = [point[0] for point in route_points]
             route_y = [point[1] for point in route_points]
-
-            plt.plot(route_x, route_y, color=color, linestyle='-', linewidth=1.5, alpha=0.8,
-                     label=f'Vehicle {vehicle_id + 1}')
-
+            
+            plt.plot(route_x, route_y, color=color, linestyle='-', linewidth=1.5, alpha=0.8, label=f'Vehicle {vehicle_id+1}')
+    
         plt.xlabel('X')
         plt.ylabel('Y')
         plt.title('PDPTW Solution')
