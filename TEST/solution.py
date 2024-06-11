@@ -61,7 +61,7 @@ class PDPTWSolution:
         route = self.routes[vehicle_id]
         battery_levels = self.route_battery_levels[vehicle_id]
         capacity_levels = self.route_capacity_levels[vehicle_id]
-        time_matrix = self.instance.calculate_time_matrix()
+        time_matrix = self.instance.time_matrix
 
         battery_levels[0] = self.battery_capacity
         capacity_levels[0] = 0
@@ -84,7 +84,7 @@ class PDPTWSolution:
         arrival_times = self.route_arrival_times[vehicle_id]
         leave_times = self.route_leave_times[vehicle_id]
         wait_times = self.route_wait_times[vehicle_id]
-        time_matrix = self.instance.calculate_time_matrix()
+        time_matrix = self.instance.time_matrix
 
         arrival_times[0] = 0
         wait_times[0] = 0
@@ -107,7 +107,7 @@ class PDPTWSolution:
         route = self.routes[vehicle_id]
         leave_times = self.route_leave_times[vehicle_id]
         wait_times = self.route_wait_times[vehicle_id]
-        time_matrix = self.instance.calculate_time_matrix()
+        time_matrix = self.instance.time_matrix
 
         travel_time = 0
         delay_time = 0

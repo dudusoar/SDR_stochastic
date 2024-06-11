@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-
 class PDPTWInstance:
     def __init__(self, n, map_size, speed, extra_time, seed=None):
         """
@@ -38,6 +37,8 @@ class PDPTWInstance:
         self.indices = [0] + list(range(1, self.n + 1)) + list(range(self.n + 1, 2 * self.n + 1))
 
         self.generate_points()  # 生成 pickup 和 delivery 点
+        self.distance_matrix = self.calculate_distance_matrix() # 距离矩阵
+        self.time_matrix = self.calculate_time_matrix() # 时间矩阵
         self.generate_time_windows()  # 生成时间窗口和服务时间
         self.generate_demands()  # 生成需求量
 
@@ -108,8 +109,7 @@ class PDPTWInstance:
         计算时间矩阵
         :return: 时间矩阵
         """
-        distance_matrix = self.calculate_distance_matrix()
-        time_matrix = (distance_matrix / self.speed) * 60
+        time_matrix = (self.distance_matrix / self.speed) * 60
         return time_matrix
 
     def generate_time_windows(self):
