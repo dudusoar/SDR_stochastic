@@ -99,3 +99,72 @@ class RemovalOperators:
         
         return new_solution, removed_pairs
 
+class RepairOperators:
+    def __init__(self, solution):
+        self.solution = solution
+        self.instance = solution.instance
+
+    def basic_greedy_heuristic(self, removed_pairs):
+        for pickup, delivery in removed_pairs:
+            best_cost = float('inf')
+            best_route = None
+            best_insert_pos = None
+
+            for vehicle_id, route in enumerate(self.solution.routes):
+                for i in range(1, len(route)):
+                    for j in range(i, len(route) + 1):
+                        temp_route = route[:i] + [pickup] + route[i:j] + [delivery] + route[j:]
+                        temp_solution = deepcopy(self.solution)
+                        temp_solution.routes[vehicle_id] = temp_route
+                        temp_solution.calculate_all()
+
+                        cost = temp_solution.objective_function()
+                        if cost < best_cost and temp_solution.is_feasible():
+                            best_cost = cost
+                            best_route = vehicle_id
+                            best_insert_pos = (i, j)
+
+            if best_route is not None and best_insert_pos is not None:
+                i, j = best_insert_pos
+                self.solution.routes[best_route] = self.solution.routes[best_route][:i] + [pickup] + self.solution.routes[best_route][i:j] + [delivery] + self.solution.routes[best_route][j:]
+                self.solution.calculate_all()
+
+    def regret_heuristic(self, removed_pairs, k):
+        while removed_pairs:
+            max_regret = float('-inf')
+            best_request = None
+            best_route = None
+            best_insert_pos = None
+
+            for pickup, delivery in removed_pairs:
+                insertion_costs = []
+                for vehicle_id, route in enumerate(self.solution.routes):
+                    for i in range(1, len(route)):
+                        for j in range(i, len(route) + 1):
+                            temp_route = route[:i] + [pickup] + route[i:j] + [delivery] + route[j:]
+                            temp_solution = deepcopy(self.solution)
+                            temp_solution.routes[vehicle_id] = temp_route
+                            temp_solution.calculate_all()
+
+                            cost = temp_solution.objective_function()
+                            if temp_solution.is_feasible():
+                                insertion_costs.append((cost, vehicle_id, i, j))
+
+                insertion_costs.sort(key=lambda x: x[0])
+                if len(insertion_costs) >= k:
+                    regret = insertion_costs[k-1][0] - insertion_costs[0][0]
+                else:
+                    regret = insertion_costs[-1][0] - insertion_costs[0][0]
+
+                if regret > max_regret:
+                    max_regret = regret
+                    best_request = (pickup, delivery)
+                    best_route = insertion_costs[0][1]
+                    best_insert_pos = (insertion_costs[0][2], insertion_costs[0][3])
+
+            if best_request is not None and best_route is not None and best_insert_pos is not None:
+                removed_pairs.remove(best_request)
+                pickup, delivery = best_request
+                i, j = best_insert_pos
+                self.solution.routes[best_route] = self.solution.routes[best_route][:i] + [pickup] + self.solution.routes[best_route][i:j] + [delivery] + self.solution.routes[best_route][j:]
+                self.solution.calculate_all()
