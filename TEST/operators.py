@@ -103,6 +103,7 @@ class RemovalOperators:
                     route.remove(delivery_node)
 
             removed_pairs.append((pickup_node,delivery_node))
+            new_solution.update_all()
         
         return new_solution, removed_pairs
 
@@ -110,6 +111,7 @@ class RepairOperators:
     def __init__(self, solution):
         self.solution = solution
         self.instance = solution.instance
+        self.insertion_log = []  # 用于记录插入日志
 
     # first insertion method
     def greedy_insertion(self, removed_pairs):
@@ -122,21 +124,24 @@ class RepairOperators:
                 for i in range(1, len(route)):
                     for j in range(i, len(route) + 1):
                         temp_route = route[:i] + [pickup] + route[i:j] + [delivery] + route[j:]
+
                         temp_solution = deepcopy(self.solution)
                         temp_solution.routes[vehicle_id] = temp_route
+                        temp_solution.update_all()
 
-                        temp_solution.calculate_all() # update the objective function of the temp solution
-                        cost = temp_solution.objective_function()
-                        if cost < best_cost and temp_solution.is_feasible():
-                            best_cost = cost
-                            best_route = vehicle_id
-                            best_insert_position = (i, j)
+                        if temp_solution.is_feasible():
+                            cost = temp_solution.objective_function()
+                            if cost < best_cost:
+                                best_cost = cost
+                                best_route = vehicle_id
+                                best_insert_position = (i, j)
 
             if best_route is not None and best_insert_position is not None:
                 i, j = best_insert_position
                 self.solution.routes[best_route] = self.solution.routes[best_route][:i] + [pickup] + self.solution.routes[best_route][i:j] + [delivery] + self.solution.routes[best_route][j:]
-                self.solution.calculate_all()
-    
+                self.solution.update_all()
+                self.record_insertion(best_route, pickup, delivery, best_insert_position)  # 记录插入位置
+
     # second insertion algorithm
     def regret_insertion(self, removed_pairs, k):
         while removed_pairs:
@@ -151,9 +156,10 @@ class RepairOperators:
                     for i in range(1, len(route)):
                         for j in range(i, len(route) + 1):
                             temp_route = route[:i] + [pickup] + route[i:j] + [delivery] + route[j:]
+
                             temp_solution = deepcopy(self.solution)
                             temp_solution.routes[vehicle_id] = temp_route
-                            temp_solution.calculate_all()
+                            temp_solution.update_all()
 
                             cost = temp_solution.objective_function()
                             if temp_solution.is_feasible():
@@ -176,8 +182,31 @@ class RepairOperators:
                 pickup, delivery = best_request
                 i, j = best_insert_position
                 self.solution.routes[best_route] = self.solution.routes[best_route][:i] + [pickup] + self.solution.routes[best_route][i:j] + [delivery] + self.solution.routes[best_route][j:]
-                self.solution.calculate_all()
+                self.solution.update_all()
+                self.record_insertion(best_route, pickup, delivery, best_insert_position)  # 记录插入位置
 
+    def record_insertion(self, vehicle_id, pickup, delivery, position):
+        """
+        记录插入位置
+        :param vehicle_id: 车辆ID
+        :param pickup: 取货点
+        :param delivery: 送货点
+        :param position: 插入位置 (i, j)
+        """
+        self.insertion_log.append({
+            'vehicle_id': vehicle_id,
+            'pickup': pickup,
+            'delivery': delivery,
+            'position': position
+        })
+
+    def get_insertion_log(self):
+        """
+        获取插入日志
+        :return: 插入日志
+        """
+        return self.insertion_log
+    
 class SwapOperators:
     def __init__(self, solution):
         self.solution = solution

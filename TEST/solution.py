@@ -11,12 +11,15 @@ class PDPTWSolution:
         :param battery_consume_rate: 电池消耗率
         :param routes: 给定的路径列表
         """
+        # unchanged parameters within the same instance
         self.instance = instance
         self.vehicle_capacity = vehicle_capacity
         self.battery_capacity = battery_capacity
         self.battery_consume_rate = battery_consume_rate
         self.routes = routes
         self.num_vehicles = len(routes)
+
+        # need to be initialized based on the new routes
         # battery and capacity
         self.route_battery_levels = np.empty((self.num_vehicles,), dtype=object)
         self.route_capacity_levels = np.empty((self.num_vehicles,), dtype=object)
@@ -52,6 +55,14 @@ class PDPTWSolution:
             self.calculate_battery_capacity_levels(vehicle_id)
             self.calculate_arrival_leave_wait_times(vehicle_id)
             self.calculate_travel_delay_wait_times(vehicle_id)
+    
+    def update_all(self):
+        """
+        更新所有相关属性
+        :param new_routes: 新的路径列表
+        """
+        self.initialize_routes()
+        self.calculate_all()
 
     def calculate_battery_capacity_levels(self, vehicle_id):
         """
