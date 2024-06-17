@@ -9,13 +9,143 @@ class RemovalOperators:
         self.solution = solution
         self.instance = solution.instance 
     
-    # first removal mothod
+    # first removal method
+#*****************************************************************************************************
+#Start of SISR removal
+    # Main SISR removal function
+    def SISR_removal(self, L_max, avg_remove_order, d_matrix, remaining_orders=None):
+        routes_copy = deepcopy(self.solution.routes)
+        n_orders = self.instance.n
+        removed_list = []
+        deconstructed_route_list = []
+        k_s, l_s_max = self.number_of_strings(L_max, avg_remove_order, routes_copy, n_orders)
+        k_s = min(k_s, len(routes_copy))
+        for i in range(int(k_s)):
+            if i == 0:
+                start_order = int(self.order_to_start(n_orders))
+                route = self.find_lists_containing_element(routes_copy, start_order)
+                l_t = self.number_of_orders(l_s_max, route)
+                routes_copy, removed_list, deconstructed_route_list, primal_sorted_indices = self.primal_string_removal(
+                    d_matrix, routes_copy, route, l_t, start_order, n_orders, removed_list, deconstructed_route_list)
+            elif primal_sorted_indices == []:
+                break
+            else:
+                route, next_order = self.find_next_list(primal_sorted_indices, routes_copy)
+                l_t = self.number_of_orders(l_s_max, route)
+                routes_copy, removed_list, deconstructed_route_list, primal_sorted_indices = self.other_string_removal(
+                    d_matrix, routes_copy, route, l_t, next_order, n_orders, removed_list, deconstructed_route_list,
+                    primal_sorted_indices)
+
+        remaining_routes = deconstructed_route_list + routes_copy
+        removed_list = removed_list  # + remaining_orders
+
+        return self.remove_requests(removed_list)
+
+    def number_of_strings(self, L_max, avg_remove_order, routes, n_orders):
+        T_avg = np.floor(n_orders / len(routes))
+        l_s_max = min(T_avg, L_max)
+        k_s_max = 4 * avg_remove_order / (1 + l_s_max) - 1
+        k_s = np.floor(np.random.uniform(1, k_s_max + 1))
+
+        return k_s, l_s_max
+
+    # Generate number of orders to remove in each string
+    def number_of_orders(self, l_s_max, route):
+        l_t_max = min(l_s_max, (len(route) - 2) / 2)
+        l_t = np.floor(np.random.uniform(1, l_t_max + 1))
+
+        return l_t
+
+    # Generate random order to start, remove orders according to order distance matrix
+    def order_to_start(self, n_orders, remaining_order=None):
+        reference_order = np.floor(np.random.uniform(1, n_orders + 1))
+        if remaining_order != None:
+            while reference_order in remaining_order:
+                reference_order = np.floor(np.random.uniform(1, n_orders + 1))
+        return reference_order
+
+    def find_lists_containing_element(self, routes, order):
+        return [route for route in routes if order in route][0]
+
+    def primal_string_removal(self, d_matrix, routes, route, l_t, reference_order, n_orders, removed_list,
+                              deconstructed_route_list):
+        distances = d_matrix[reference_order - 1]
+        sorted_indices = np.argsort(distances).tolist()
+        # print('sorted_indices',sorted_indices)
+        # sorted_indices_updated = sorted_indices.copy()
+        route_1 = deepcopy(route)
+        a = 0
+        for i in sorted_indices:
+            if a <= l_t - 1:
+                if i + 1 in route:
+                    route_1.remove(i + 1)
+                    removed_list.append(i + 1)
+                    route_1.remove(i + 1 + n_orders)
+                    removed_list.append(i + 1 + n_orders)
+                    a += 1
+            else:
+                break
+        for order in route[1:-1]:
+            if order > n_orders:
+                continue
+            else:
+                sorted_indices.remove(order - 1)
+        routes.remove(route)
+
+        deconstructed_route_list.append(route_1)
+        # print('deconstructed_route_list',deconstructed_route_list)
+
+        return routes, removed_list, deconstructed_route_list, sorted_indices
+
+    def find_next_list(self, primal_sorted_indices, routes, remaining_order=None):
+        d = 0
+        # print('routes:',routes)
+        # print('primal_sorted_indices',primal_sorted_indices)
+        i = primal_sorted_indices[d]
+        next_order = i + 1
+        # print('next_order',next_order)
+        if remaining_order != None:
+            while next_order in remaining_order:
+                i = primal_sorted_indices[d + 1]
+                next_order = i + 1
+        return [route for route in routes if next_order in route][0], next_order
+
+    def other_string_removal(self, d_matrix, routes, route, l_t, reference_order, n_orders, removed_list,
+                             deconstructed_route_list, primal_sorted_indices):
+        distances = d_matrix[reference_order - 1]
+        sorted_indices = np.argsort(distances).tolist()
+        route_1 = deepcopy(route)
+        a = 0
+        for i in sorted_indices:
+            if a <= l_t - 1:
+                if i + 1 in route:
+                    route_1.remove(i + 1)
+                    removed_list.append(i + 1)
+                    route_1.remove(i + 1 + n_orders)
+                    removed_list.append(i + 1 + n_orders)
+                    a += 1
+            else:
+                break
+        route_2 = deepcopy(route)
+        for order in route_2[1:-1]:
+            if order > n_orders:
+                continue
+            else:
+                primal_sorted_indices.remove(order - 1)
+        routes.remove(route)
+
+        deconstructed_route_list.append(route_1)
+
+        return routes, removed_list, deconstructed_route_list, primal_sorted_indices
+# *****************************************************************************************
+# End of SISR removal
+
     def shaw_removal(self, num_remove, p):
         removed_requests = []
         remaining_requests = list(range(1, self.instance.n+1))
 
         # 随机选择一个起点请求
-        initial_request =  random.choice(remaining_requests)
+        initial_request = random.choice(remaining_requests)
         removed_requests.append(initial_request)
         remaining_requests.remove(initial_request)
 
@@ -91,9 +221,9 @@ class RemovalOperators:
         contribution = original_objective - new_objective
         return contribution
 
-    def remove_requests(self,requests):
+    def remove_requests(self, requests):
         new_solution = deepcopy(self.solution)
-        removed_pairs= []
+        removed_pairs = []
         
         for request in requests:
             pickup_node, delivery_node = request, request + self.instance.n
@@ -102,7 +232,7 @@ class RemovalOperators:
                     route.remove(pickup_node)
                     route.remove(delivery_node)
 
-            removed_pairs.append((pickup_node,delivery_node))
+            removed_pairs.append((pickup_node, delivery_node))
             new_solution.update_all()
         
         return new_solution, removed_pairs
@@ -334,7 +464,8 @@ class SwapOperators:
         best_insertion_v_prime = min(insertion_positions_v_prime, key=lambda pos: pos[1])
 
         # 执行交换并返回新路线
-        new_route = route[:best_insertion_v[0]] + [v] + route[best_insertion_v[0]:best_insertion_v[1]] + [v_prime] + route[best_insertion_v[1]:]
+        new_route = (route[:best_insertion_v[0]] + [v] + route[best_insertion_v[0]:best_insertion_v_prime[0]]
+                     + [v_prime] + route[best_insertion_v_prime[0]:])
         return new_route
 
     def get_best_insertion_positions(self, route, node, node_index):
