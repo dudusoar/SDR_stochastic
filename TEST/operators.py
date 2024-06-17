@@ -9,9 +9,9 @@ class RemovalOperators:
         self.solution = solution
         self.instance = solution.instance 
     
-    # first removal method
-#*****************************************************************************************************
-#Start of SISR removal
+
+    #*****************************************************************************************************
+    #Start of SISR removal
     # Main SISR removal function
     def SISR_removal(self, L_max, avg_remove_order, d_matrix, remaining_orders=None):
         routes_copy = deepcopy(self.solution.routes)
@@ -137,19 +137,21 @@ class RemovalOperators:
         deconstructed_route_list.append(route_1)
 
         return routes, removed_list, deconstructed_route_list, primal_sorted_indices
-# *****************************************************************************************
-# End of SISR removal
+    # *****************************************************************************************
+    # End of SISR removal
 
+    #*****************************************************************************************************
+    #Start of shaw removal
     def shaw_removal(self, num_remove, p):
         removed_requests = []
         remaining_requests = list(range(1, self.instance.n+1))
 
-        # 随机选择一个起点请求
+        # Select a request randomly
         initial_request = random.choice(remaining_requests)
         removed_requests.append(initial_request)
         remaining_requests.remove(initial_request)
 
-        # 距离和时间的归一化因子
+        # Normalization factor
         max_distance = np.max(self.instance.distance_matrix)
         max_arrive_time = np.max([np.max(arrival_time) for arrival_time in self.solution.route_arrival_times])
 
@@ -187,13 +189,19 @@ class RemovalOperators:
             if node in route:
                 return self.solution.route_arrival_times[vehicle_id][route.index(node)]
         return None
+    #*****************************************************************************************************
+    #End of shaw removal
     
-    # second removal method
+    #*****************************************************************************************************
+    #Start of random removal
     def random_removal(self, num_remove):
         removed_requests = random.sample(range(1, self.instance.n + 1), num_remove)
         return self.remove_requests(removed_requests)
+    #*****************************************************************************************************
+    #End of random removal
     
-    # third removal method
+    #*****************************************************************************************************
+    #Start of worst removal
     def worst_removal(self, num_remove):
         contributions = [(req, self.calculate_contribution(req)) for req in range(1, self.instance.n + 1)]
         contributions.sort(key=lambda x: x[1], reverse=True)
@@ -212,7 +220,7 @@ class RemovalOperators:
                 route.remove(pickup)
                 route.remove(delivery)
 
-        # 重新计算所有状态变量和目标函数值
+        # update
         temp_solution.calculate_all()
         original_objective = self.solution.objective_function()
         new_objective = temp_solution.objective_function()
@@ -220,6 +228,8 @@ class RemovalOperators:
         # 贡献度定义为目标函数值的变化量
         contribution = original_objective - new_objective
         return contribution
+        #*****************************************************************************************************
+        #End of worst removal
 
     def remove_requests(self, requests):
         new_solution = deepcopy(self.solution)
@@ -243,24 +253,25 @@ class RepairOperators:
         self.instance = solution.instance
         self.insertion_log = []  # 用于记录插入日志
 
-    # first insertion method
+    #*****************************************************************************************************
+    #Start of greedy insertion
     def greedy_insertion(self, removed_pairs):
+        # loop the removed pairs
         for pickup, delivery in removed_pairs:
             best_cost = float('inf')
             best_route = None
             best_insert_position = None
-
+            # loop each route to find a suitable location to insert 
             for vehicle_id, route in enumerate(self.solution.routes):
                 for i in range(1, len(route)):
                     for j in range(i, len(route) + 1):
-                        temp_route = route[:i] + [pickup] + route[i:j] + [delivery] + route[j:]
+                        new_route = route[:i] + [pickup] + route[i:j] + [delivery] + route[j:]
+                        new_solution = deepcopy(self.solution)
+                        new_solution.routes[vehicle_id] = new_route
+                        new_solution.update_all()
 
-                        temp_solution = deepcopy(self.solution)
-                        temp_solution.routes[vehicle_id] = temp_route
-                        temp_solution.update_all()
-
-                        if temp_solution.is_feasible():
-                            cost = temp_solution.objective_function()
+                        if new_solution.is_feasible():
+                            cost = new_solution.objective_function()
                             if cost < best_cost:
                                 best_cost = cost
                                 best_route = vehicle_id
@@ -271,8 +282,11 @@ class RepairOperators:
                 self.solution.routes[best_route] = self.solution.routes[best_route][:i] + [pickup] + self.solution.routes[best_route][i:j] + [delivery] + self.solution.routes[best_route][j:]
                 self.solution.update_all()
                 self.record_insertion(best_route, pickup, delivery, best_insert_position)  # 记录插入位置
+    #*****************************************************************************************************
+    #End of greedy insertion
 
-    # second insertion algorithm
+    #*****************************************************************************************************
+    #Start of regret insertion
     def regret_insertion(self, removed_pairs, k):
         while removed_pairs:
             max_regret = float('-inf')
@@ -314,6 +328,8 @@ class RepairOperators:
                 self.solution.routes[best_route] = self.solution.routes[best_route][:i] + [pickup] + self.solution.routes[best_route][i:j] + [delivery] + self.solution.routes[best_route][j:]
                 self.solution.update_all()
                 self.record_insertion(best_route, pickup, delivery, best_insert_position)  # 记录插入位置
+    #*****************************************************************************************************
+    #End of regret insertion
 
     def record_insertion(self, vehicle_id, pickup, delivery, position):
         """
@@ -337,16 +353,15 @@ class RepairOperators:
         """
         return self.insertion_log
     
-class SwapOperators:
+class ReverseOperators:
     def __init__(self, solution):
         self.solution = solution
         self.instance = solution.instance
 
     def two_opt(self, max_iterations):
-        """
-        运行 2-opt 算法求解 PDPTW 问题
-        :return: 最优解（PDPTWSolution 对象）
-        """
+        '''
+        2-opt altorithm
+        '''
         best_solution = deepcopy(self.solution)
         current_solution = deepcopy(self.solution)
 
@@ -368,7 +383,7 @@ class SwapOperators:
 
                         # 不创建新的实例，直接更新当前解
                         current_solution.routes = new_routes
-                        current_solution.calculate_all()
+                        current_solution.update_all()
 
                         if current_solution.is_feasible() and current_solution.objective_function() < best_solution.objective_function():
                             best_solution = deepcopy(current_solution)
@@ -383,7 +398,7 @@ class SwapOperators:
 
         return best_solution
 
-    def two_opt_swap(route, i, j):
+    def two_opt_swap(self, route, i, j):
         """
         执行 2-opt 交换
         :param route: 路径列表
@@ -397,102 +412,4 @@ class SwapOperators:
         new_route = route[:i] + list(reversed(route[i:j+1])) + route[j+1:]
         return new_route
 
-    def swap_star(self, max_iterations):
-        """
-        运行 SWAP* 算法求解 PDPTW 问题
-        :param max_iterations: 最大迭代次数
-        :return: 最优解（PDPTWSolution 对象）
-        """
-        best_solution = deepcopy(self.solution)
-        current_solution = deepcopy(self.solution)
-
-        for _ in range(max_iterations):
-            improved = False
-
-            for vehicle_id in range(current_solution.num_vehicles):
-                route = current_solution.routes[vehicle_id]
-                if len(route) <= 2:
-                    continue
-
-                for i in range(1, len(route) - 1):
-                    for j in range(i + 1, len(route)):
-                        new_route = self.swap_star_move(route, i, j)
-                        if new_route is None:
-                            continue
-
-                        new_routes = deepcopy(current_solution.routes)
-                        new_routes[vehicle_id] = new_route
-
-                        # 不创建新的实例，直接更新当前解
-                        current_solution.routes = new_routes
-                        current_solution.calculate_all()
-
-                        if current_solution.is_feasible() and current_solution.objective_function() < best_solution.objective_function():
-                            best_solution = deepcopy(current_solution)
-                            improved = True
-                            break
-
-                    if improved:
-                        break
-
-            if not improved:
-                break
-
-        return best_solution
-
-    def swap_star_move(self, route, i, j):
-        """
-        执行 SWAP* 交换
-        :param route: 路径列表
-        :param i: 第一个要交换的节点的索引
-        :param j: 第二个要交换的节点的索引
-        :return: 交换后的新路径列表，如果交换无效则返回 None
-        """
-        if i == 0 or j == len(route) - 1:
-            return None
-
-        # 获取客户v和v'
-        v = route[i]
-        v_prime = route[j]
-
-        # 计算新插入位置
-        insertion_positions_v = self.get_best_insertion_positions(route, v, j)
-        insertion_positions_v_prime = self.get_best_insertion_positions(route, v_prime, i)
-
-        # 找到最佳插入位置
-        best_insertion_v = min(insertion_positions_v, key=lambda pos: pos[1])
-        best_insertion_v_prime = min(insertion_positions_v_prime, key=lambda pos: pos[1])
-
-        # 执行交换并返回新路线
-        new_route = (route[:best_insertion_v[0]] + [v] + route[best_insertion_v[0]:best_insertion_v_prime[0]]
-                     + [v_prime] + route[best_insertion_v_prime[0]:])
-        return new_route
-
-    def get_best_insertion_positions(self, route, node, node_index):
-        """
-        获取节点的三个最佳插入位置
-        :param route: 路径列表
-        :param node: 节点
-        :param node_index: 节点索引
-        :return: 最佳插入位置列表
-        """
-        insertion_positions = []
-        for i in range(1, len(route) - 1):
-            if i != node_index:
-                cost = self.calculate_insertion_cost(route, node, i)
-                insertion_positions.append((i, cost))
-        insertion_positions.sort(key=lambda x: x[1])
-        return insertion_positions[:3]
-
-    def calculate_insertion_cost(self, route, node, position):
-        """
-        计算节点插入到指定位置的成本
-        :param route: 路径列表
-        :param node: 节点
-        :param position: 位置
-        :return: 插入成本
-        """
-        prev_node = route[position - 1]
-        next_node = route[position]
-        insertion_cost = self.instance.distance_matrix[prev_node][node] + self.instance.distance_matrix[node][next_node] - self.instance.distance_matrix[prev_node][next_node]
-        return insertion_cost
+   

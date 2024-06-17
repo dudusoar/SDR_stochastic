@@ -1,4 +1,9 @@
 from solution import PDPTWSolution
+import random 
+import numpy as np
+from copy import deepcopy
+from collections import defaultdict
+from operators import RemovalOperators, RepairOperators, ReverseOperators
 
 # 初始解
 def greedy_insertion_init(instance, num_vehicles, vehicle_capacity, battery_capacity, battery_consume_rate):
@@ -52,69 +57,77 @@ def greedy_insertion_init(instance, num_vehicles, vehicle_capacity, battery_capa
     return solution
 
 
-# 其他算法
-# 2-opt
-class TwoOptSolver:
-    def __init__(self, initial_solution, max_iterations=100):
-        """
-        初始化 TwoOptSolver 对象
-        :param initial_solution: 初始解（PDPTWSolution 对象）
-        :param max_iterations: 最大迭代次数
-        """
-        self.initial_solution = initial_solution
-        self.max_iterations = max_iterations
-        self.best_solution = None
+# ALNS
+class ALNS:
+    def __init__(self, initial_solution, 
+                 removal_operators, repair_operators, 
+                 max_iterations, max_no_improve, segment_length, 
+                 r, weight_update_interval, sigma,
+                 start_temp, cooling_rate,):
+        # solution
+        self.current_solution = initial_solution  
+        self.best_solution = deepcopy(initial_solution) 
+        # Removal and Repair operators
+        self.removal_operators = removal_operators 
+        self.repair_operators = repair_operators
+        # Parameters for ALNS
+        self.max_iterations = max_iterations 
+        self.max_no_improve = max_no_improve 
+        self.weight_update_interval = weight_update_interval  
+        self.segment_length = segment_length  
+        self.r = r
+        # Scores
+        self.sigma1 = sigma[0]
+        self.sigma2 = sigma[1] 
+        self.sigma3 = sigma[2] 
+        # Acceptance criteria
+        self.start_temp = start_temp 
+        self.cooling_rate = cooling_rate  
+        self.current_temp = start_temp  
+        # Visited solutions
+        self.visited_solutions = set() 
 
-    def solve(self):
-        """
-        运行 2-opt 算法求解 PDPTW 问题
-        :return: 最优解（PDPTWSolution 对象）
-        """
-        self.best_solution = self.initial_solution
-        current_solution = self.initial_solution
-
-        for _ in range(self.max_iterations):
-            improved = False
-
-            for vehicle_id in range(current_solution.num_vehicles):
-                route = current_solution.routes[vehicle_id]
-                if len(route) <= 4:
-                    continue
-                for i in range(1, len(route) - 2):
-                    for j in range(i + 1, len(route) - 1):
-                        new_route = self.two_opt_swap(route, i, j)
-                        new_routes = current_solution.routes.copy()
-                        new_routes[vehicle_id] = new_route
+        # initialization
+        self.removal_weights = np.ones(len(removal_operators))
+        self.repair_weights = np.ones(len(repair_operators))
+        self.removal_scores = np.zeros(len(removal_operators))
+        self.repair_scores = np.zeros(len(repair_operators))
     
-                        new_solution = PDPTWSolution(current_solution.instance, current_solution.vehicle_capacity,
-                                                     current_solution.battery_capacity, current_solution.battery_consume_rate,
-                                                     new_routes)
+    def select_operators(self,weights):
+        '''
+        Select the heuristic algorithms using roulette wheel selection principle
+        The insertion heuristic is selected independently of the removal heuristic
+
+        :param weights: weight lists for different operators
+        :return: index for the selected operator
+        '''
+        total_weight = np.sum(weights)
+        probabilities = weights / total_weight
+        cumulative_probabilities = np.cumsum(probabilities)
+        random_number = random.random()
+        for i, probability in enumerate(cumulative_probabilities):
+            if random_number < probability:
+                return i
+        return len(weights) - 1 # select the last one
+    
+    def update_weight(self):
+        '''
+        At the end of each segement
+        '''
+        pass
+
+    def acceptance_criterion(self, new_solution):
+        pass
+
+
+    def run(self):
+        '''
+        main function
+        :return: the best solution
+        '''
+        pass
+
+
+
+
         
-                        if new_solution.is_feasible() and new_solution.objective_function() < self.best_solution.objective_function():
-                            self.best_solution = new_solution
-                            current_solution = new_solution
-                            improved = True
-                            break
-
-                    if improved:
-                        break
-
-            if not improved:
-                break
-
-        return self.best_solution
-
-    @staticmethod
-    def two_opt_swap(route, i, j):
-        """
-        执行 2-opt 交换
-        :param route: 路径列表
-        :param i: 第一个要交换的节点的索引
-        :param j: 第二个要交换的节点的索引
-        :return: 交换后的新路径列表，如果交换无效则返回 None
-        """
-        if i == 0 or j == len(route) - 1:
-            return None
-
-        new_route = route[:i] + list(reversed(route[i:j+1])) + route[j+1:]
-        return new_route
