@@ -214,7 +214,7 @@ class RemovalOperators:
         temp_solution = deepcopy(self.solution)
         pickup, delivery = req, req + self.instance.n
 
-        # 移除请求的pickup和delivery点
+        # remove the pickup and delivery points
         for route in temp_solution.routes:
             if pickup in route:
                 route.remove(pickup)
@@ -225,7 +225,7 @@ class RemovalOperators:
         original_objective = self.solution.objective_function()
         new_objective = temp_solution.objective_function()
 
-        # 贡献度定义为目标函数值的变化量
+        # calculate the contribution
         contribution = original_objective - new_objective
         return contribution
         #*****************************************************************************************************
@@ -243,15 +243,15 @@ class RemovalOperators:
                     route.remove(delivery_node)
 
             removed_pairs.append((pickup_node, delivery_node))
-            new_solution.update_all()
+            new_solution.update_all() # update all of the things
         
         return new_solution, removed_pairs
 
 class RepairOperators:
     def __init__(self, solution):
-        self.solution = solution
+        self.solution = deepcopy(solution)
         self.instance = solution.instance
-        self.insertion_log = []  # 用于记录插入日志
+        self.insertion_log = []  # record
 
     #*****************************************************************************************************
     #Start of greedy insertion
@@ -265,29 +265,30 @@ class RepairOperators:
             for vehicle_id, route in enumerate(self.solution.routes):
                 for i in range(1, len(route)):
                     for j in range(i, len(route) + 1):
-                        new_route = route[:i] + [pickup] + route[i:j] + [delivery] + route[j:]
-                        new_solution = deepcopy(self.solution)
-                        new_solution.routes[vehicle_id] = new_route
-                        new_solution.update_all()
+                        temp_route = route[:i] + [pickup] + route[i:j] + [delivery] + route[j:]
+                        temp_solution = deepcopy(self.solution)
+                        temp_solution.routes[vehicle_id] = temp_route
+                        temp_solution.update_all()
 
-                        if new_solution.is_feasible():
-                            cost = new_solution.objective_function()
+                        if temp_solution.is_feasible():
+                            cost = temp_solution.objective_function()
                             if cost < best_cost:
                                 best_cost = cost
                                 best_route = vehicle_id
                                 best_insert_position = (i, j)
-
+            
+            # update the self.solution
             if best_route is not None and best_insert_position is not None:
-                i, j = best_insert_position
-                self.solution.routes[best_route] = self.solution.routes[best_route][:i] + [pickup] + self.solution.routes[best_route][i:j] + [delivery] + self.solution.routes[best_route][j:]
-                self.solution.update_all()
-                self.record_insertion(best_route, pickup, delivery, best_insert_position)  # 记录插入位置
+                self.insert_single_request(pickup,delivery,best_route, best_insert_position)
+        
+        return self.solution
     #*****************************************************************************************************
     #End of greedy insertion
 
     #*****************************************************************************************************
     #Start of regret insertion
     def regret_insertion(self, removed_pairs, k):
+
         while removed_pairs:
             max_regret = float('-inf')
             best_request = None
@@ -300,50 +301,65 @@ class RepairOperators:
                     for i in range(1, len(route)):
                         for j in range(i, len(route) + 1):
                             temp_route = route[:i] + [pickup] + route[i:j] + [delivery] + route[j:]
-
                             temp_solution = deepcopy(self.solution)
                             temp_solution.routes[vehicle_id] = temp_route
                             temp_solution.update_all()
 
-                            cost = temp_solution.objective_function()
                             if temp_solution.is_feasible():
+                                cost = temp_solution.objective_function()
                                 insertion_costs.append((cost, vehicle_id, i, j))
-
-                insertion_costs.sort(key=lambda x: x[0])
-                if len(insertion_costs) >= k:
-                    regret = insertion_costs[k-1][0] - insertion_costs[0][0]
+                
+                n = len(insertion_costs)
+                if n > 0:
+                    insertion_costs.sort(key=lambda x: x[0])
+                    if n >= k:
+                        regret = insertion_costs[k-1][0] - insertion_costs[0][0]
+                    else:
+                        if n == 1:
+                            regret = 0
+                        else:
+                            regret = insertion_costs[-1][0] - insertion_costs[0][0]
                 else:
-                    regret = insertion_costs[-1][0] - insertion_costs[0][0]
+                    # when insertion_costs is empty
+                    regret = float('-inf')
 
                 if regret > max_regret:
                     max_regret = regret
                     best_request = (pickup, delivery)
                     best_route = insertion_costs[0][1]
                     best_insert_position = (insertion_costs[0][2], insertion_costs[0][3])
+                
 
             if best_request is not None and best_route is not None and best_insert_position is not None:
                 removed_pairs.remove(best_request)
                 pickup, delivery = best_request
-                i, j = best_insert_position
-                self.solution.routes[best_route] = self.solution.routes[best_route][:i] + [pickup] + self.solution.routes[best_route][i:j] + [delivery] + self.solution.routes[best_route][j:]
-                self.solution.update_all()
-                self.record_insertion(best_route, pickup, delivery, best_insert_position)  # 记录插入位置
+                self.insert_single_request(pickup,delivery,best_route, best_insert_position)
+                
+        return self.solution
+        
     #*****************************************************************************************************
     #End of regret insertion
-
+    def insert_single_request(self, pickup, delivery, vehicle_id, insert_position):
+        i, j = insert_position
+        self.solution.routes[vehicle_id] = self.solution.routes[vehicle_id][:i] \
+                                           + [pickup] + self.solution.routes[vehicle_id][i:j] + [delivery] \
+                                           + self.solution.routes[vehicle_id][j:]
+        self.solution.update_all() # update all of the things
+        self.record_insertion(vehicle_id, pickup, delivery, insert_position)  # 记录插入位置
+    
     def record_insertion(self, vehicle_id, pickup, delivery, position):
         """
         记录插入位置
-        :param vehicle_id: 车辆ID
-        :param pickup: 取货点
-        :param delivery: 送货点
-        :param position: 插入位置 (i, j)
+        vehicle_id: 车辆ID
+        pickup: 取货点
+        delivery: 送货点
+        position: 插入位置 (i, j)
         """
         self.insertion_log.append({
-            'vehicle_id': vehicle_id,
-            'pickup': pickup,
-            'delivery': delivery,
-            'position': position
+        'vehicle_id': vehicle_id,
+        'pickup': pickup,
+        'delivery': delivery,
+        'position': position
         })
 
     def get_insertion_log(self):
@@ -352,7 +368,8 @@ class RepairOperators:
         :return: 插入日志
         """
         return self.insertion_log
-    
+        
+
 class ReverseOperators:
     def __init__(self, solution):
         self.solution = solution

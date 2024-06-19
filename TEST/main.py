@@ -10,8 +10,8 @@ def main():
     random.seed(42)
 
     # 参数设置
-    n = 20  # pickup点的数量
-    map_size = 3  # 地图大小
+    n = 10  # pickup点的数量
+    map_size = 2  # 地图大小
     speed = 4  # 车辆速度
     extra_time = 10  # delivery点时间窗口起始时间的额外时间
     num_vehicles = 5  # 车辆数量
@@ -21,7 +21,6 @@ def main():
 
     # 生成PDPTW实例
     instance = PDPTWInstance(n, map_size, speed, extra_time, seed=1234)
-
     df = instance.to_dataframe()
 
     # Reference matrix for SISR removal
