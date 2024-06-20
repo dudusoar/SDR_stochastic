@@ -297,6 +297,8 @@ class RepairOperators:
 
             for pickup, delivery in removed_pairs:
                 insertion_costs = []
+
+                # for each request, check all of feasible solution
                 for vehicle_id, route in enumerate(self.solution.routes):
                     for i in range(1, len(route)):
                         for j in range(i, len(route) + 1):
@@ -323,13 +325,13 @@ class RepairOperators:
                     # when insertion_costs is empty
                     regret = float('-inf')
 
+                # update the max regret
                 if regret > max_regret:
                     max_regret = regret
                     best_request = (pickup, delivery)
                     best_route = insertion_costs[0][1]
                     best_insert_position = (insertion_costs[0][2], insertion_costs[0][3])
                 
-
             if best_request is not None and best_route is not None and best_insert_position is not None:
                 removed_pairs.remove(best_request)
                 pickup, delivery = best_request
