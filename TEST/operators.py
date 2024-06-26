@@ -167,8 +167,7 @@ class RemovalOperators:
         
         return self.remove_requests(removed_requests)
     
-    def calculate_sim
-    ilarity(self,req1,req2,max_distance,max_arrive_time):
+    def calculate_similarity(self,req1,req2,max_distance,max_arrive_time):
         '''for shaw_removal'''
         pickup1, delivery1 = req1, req1 + self.instance.n
         pickup2, delivery2 = req2, req2 + self.instance.n
