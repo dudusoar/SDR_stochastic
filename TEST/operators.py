@@ -167,7 +167,8 @@ class RemovalOperators:
         
         return self.remove_requests(removed_requests)
     
-    def calculate_similarity(self,req1,req2,max_distance,max_arrive_time):
+    def calculate_sim
+    ilarity(self,req1,req2,max_distance,max_arrive_time):
         '''for shaw_removal'''
         pickup1, delivery1 = req1, req1 + self.instance.n
         pickup2, delivery2 = req2, req2 + self.instance.n
@@ -289,7 +290,6 @@ class RepairOperators:
     #*****************************************************************************************************
     #Start of regret insertion
     def regret_insertion(self, removed_pairs, k):
-        unremoved_pairs = []
         while removed_pairs:
             insertion_costs = []
             for pickup, delivery in removed_pairs: # iterate every pair
@@ -322,7 +322,6 @@ class RepairOperators:
                 # 无法被插入到任何路径，直接跳过
                 if len(costs) == 0:
                     removed_pairs.remove((pickup, delivery))
-                    unremoved_pairs.append((pickup, delivery))
                     continue
                 # 处理插入机会少于k的请求
                 if len(costs) > 0 and len(costs) < k:
@@ -347,8 +346,7 @@ class RepairOperators:
                 removed_pairs.remove(best_request)
                 pickup, delivery = best_request
                 self.insert_single_request(pickup, delivery, best_route, best_insert_position)
-        
-        removed_pairs = unremoved_pairs
+    
         return self.solution
         
     #*****************************************************************************************************
