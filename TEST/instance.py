@@ -5,19 +5,21 @@ import numpy as np
 import pandas as pd
 
 class PDPTWInstance:
-    def __init__(self, n, map_size, speed, extra_time, seed=None):
+    def __init__(self, n, map_size, speed, extra_time, gamma, seed=None):
         """
         初始化 PDPTW 实例
         :param n: pickup 点的数量
         :param map_size: 地图大小
         :param speed: 车辆速度
         :param extra_time: delivery 点时间窗口起始时间的额外时间
+        :param gamma: 未被服务请求的惩罚系数
         :param seed: 随机数种子
         """
         self.n = n
         self.map_size = map_size
         self.speed = speed
         self.extra_time = extra_time
+        self.gamma = gamma
         # coordinates
         self.depot = (0, 0)  # depot 位于原点
         self.pickup_points = []  # pickup 点的坐标

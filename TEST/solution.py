@@ -2,6 +2,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class PDPTWSolution:
+    '''
+    structure
+    1. update_all:
+       - initialize_routes
+       - calculate_all
+         - calculate_battery_capacity_levels
+         - calculate_arrival_leave_wait_times
+         - calculate_travel_delay_wait_times
+       - update_unvisited_requests
+    2. objective_function
+    3. is_feasible:
+       - get_selected_vehicles
+       - check_capacity_constraint
+       - check_battery_constraint
+       - check_pickup_delivery_order
+    '''
     def __init__(self, instance, vehicle_capacity, battery_capacity, battery_consume_rate, routes):
         """
         初始化 PDPTWSolution 对象
@@ -13,6 +29,7 @@ class PDPTWSolution:
         """
         # unchanged parameters within the same instance
         self.instance = instance
+        self.gamma = instance.gamma
         self.vehicle_capacity = vehicle_capacity
         self.battery_capacity = battery_capacity
         self.battery_consume_rate = battery_consume_rate
@@ -31,9 +48,20 @@ class PDPTWSolution:
         self.total_travel_times = np.zeros((self.num_vehicles,))
         self.total_delay_times = np.zeros((self.num_vehicles,))
         self.total_wait_times = np.zeros((self.num_vehicles,))
+        self.unvisited_requests = set()
 
         self.initialize_routes()
         self.calculate_all()
+        self.update_unvisited_requests()
+
+    def update_all(self):
+        """
+        更新所有相关属性
+        :param new_routes: 新的路径列表
+        """
+        self.initialize_routes()
+        self.calculate_all()
+        self.update_unvisited_requests()
 
     def initialize_routes(self):
         """
@@ -56,13 +84,21 @@ class PDPTWSolution:
             self.calculate_arrival_leave_wait_times(vehicle_id)
             self.calculate_travel_delay_wait_times(vehicle_id)
     
-    def update_all(self):
+    def update_unvisited_requests(self):
         """
-        更新所有相关属性
-        :param new_routes: 新的路径列表
+        更新未被服务的请求
         """
-        self.initialize_routes()
-        self.calculate_all()
+        served_requests = set()
+        for route in self.routes:
+            for node in route:
+                if node != 0:  # 忽略depot
+                    if node <= self.instance.n:
+                        served_requests.add(node)
+                    else:
+                        served_requests.add(node - self.instance.n)
+
+        all_requests = set(range(1, self.instance.n + 1))             
+        self.unvisited_requests = all_requests - served_requests
 
     def calculate_battery_capacity_levels(self, vehicle_id):
         """
@@ -143,7 +179,8 @@ class PDPTWSolution:
         计算目标函数值
         :return: 目标函数值（总行驶时间 + 总延误时间）
         """
-        return np.sum(self.total_travel_times) + np.sum(self.total_delay_times)
+        unvisited_penalty = len(self.unvisited_requests) * self.gamma
+        return np.sum(self.total_travel_times) + np.sum(self.total_delay_times) + unvisited_penalty
 
     def is_feasible(self):
         """

@@ -264,7 +264,7 @@ class RepairOperators:
             # loop each route to find a suitable location to insert 
             for vehicle_id, route in enumerate(self.solution.routes):
                 for i in range(1, len(route)):
-                    for j in range(i, len(route) + 1):
+                    for j in range(i, len(route)):
                         temp_route = route[:i] + [pickup] + route[i:j] + [delivery] + route[j:]
                         temp_solution = deepcopy(self.solution)
                         temp_solution.routes[vehicle_id] = temp_route
@@ -288,20 +288,15 @@ class RepairOperators:
     #*****************************************************************************************************
     #Start of regret insertion
     def regret_insertion(self, removed_pairs, k):
-
+        unremoved_pairs = []
         while removed_pairs:
-            max_regret = float('-inf')
-            best_request = None
-            best_route = None
-            best_insert_position = None
-
-            for pickup, delivery in removed_pairs:
-                insertion_costs = []
-
-                # for each request, check all of feasible solution
-                for vehicle_id, route in enumerate(self.solution.routes):
+            insertion_costs = []
+            for pickup, delivery in removed_pairs: # iterate every pair
+                costs = []
+                for vehicle_id, route in enumerate(self.solution.routes): # iterate every route
+                    min_cost = float('inf')
                     for i in range(1, len(route)):
-                        for j in range(i, len(route) + 1):
+                        for j in range(i, len(route)):
                             temp_route = route[:i] + [pickup] + route[i:j] + [delivery] + route[j:]
                             temp_solution = deepcopy(self.solution)
                             temp_solution.routes[vehicle_id] = temp_route
@@ -309,34 +304,50 @@ class RepairOperators:
 
                             if temp_solution.is_feasible():
                                 cost = temp_solution.objective_function()
-                                insertion_costs.append((cost, vehicle_id, i, j))
-                
-                n = len(insertion_costs)
-                if n > 0:
-                    insertion_costs.sort(key=lambda x: x[0])
-                    if n >= k:
-                        regret = insertion_costs[k-1][0] - insertion_costs[0][0]
-                    else:
-                        if n == 1:
-                            regret = 0
-                        else:
-                            regret = insertion_costs[-1][0] - insertion_costs[0][0]
-                else:
-                    # when insertion_costs is empty
-                    regret = float('-inf')
+                                if cost < min_cost:
+                                    min_cost = cost
+                                    best_i, best_j = i,j
+                    
+                    if min_cost < float('inf'):
+                        costs.append((min_cost, vehicle_id, best_i, best_j))
+                costs.sort(key=lambda x:x[0])
+                insertion_costs.append((pickup, delivery, costs))
 
-                # update the max regret
-                if regret > max_regret:
-                    max_regret = regret
-                    best_request = (pickup, delivery)
-                    best_route = insertion_costs[0][1]
-                    best_insert_position = (insertion_costs[0][2], insertion_costs[0][3])
-                
+            
+            best_request = None
+            best_route = None
+            best_insert_position = None
+            for pickup, delivery, costs in insertion_costs:
+                # 无法被插入到任何路径，直接跳过
+                if len(costs) == 0:
+                    removed_pairs.remove((pickup, delivery))
+                    unremoved_pairs.append((pickup, delivery))
+                    continue
+                # 处理插入机会少于k的请求
+                if len(costs) > 0 and len(costs) < k:
+                    best_request =  (pickup, delivery)
+                    best_route = costs[0][1]
+                    best_insert_position = (costs[0][2], costs[0][3])
+                    break
+            
+            # 如果没有插入机会少于k的请求，则选择最大遗憾值的请求
+            if best_request is None:
+                max_regret = float('-inf')
+                for pickup, delivery, costs in insertion_costs:
+                    regret = sum(cost[0] for cost in costs[:k]) - costs[0][0]
+                    if regret > max_regret:
+                        max_regret = regret
+                        best_request = (pickup, delivery)
+                        best_route = costs[0][1]
+                        best_insert_position = (costs[0][2], costs[0][3])   
+
+            # 插入最佳请求
             if best_request is not None and best_route is not None and best_insert_position is not None:
                 removed_pairs.remove(best_request)
                 pickup, delivery = best_request
-                self.insert_single_request(pickup,delivery,best_route, best_insert_position)
-                
+                self.insert_single_request(pickup, delivery, best_route, best_insert_position)
+        
+        removed_pairs = unremoved_pairs
         return self.solution
         
     #*****************************************************************************************************
