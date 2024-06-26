@@ -8,7 +8,7 @@ class PDPTWInstance:
     def __init__(self, n, map_size, speed, extra_time, gamma, seed=None):
         """
         初始化 PDPTW 实例
-        :param n: pickup 点的数量
+        :param n: pickup点的数量
         :param map_size: 地图大小
         :param speed: 车辆速度
         :param extra_time: delivery 点时间窗口起始时间的额外时间

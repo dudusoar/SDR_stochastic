@@ -61,7 +61,6 @@ def greedy_insertion_init(instance, num_vehicles, vehicle_capacity, battery_capa
 
 
 # ALNS
-
 class ALNS:
     def __init__(self, initial_solution, 
                  params_operators,
@@ -156,12 +155,15 @@ class ALNS:
                 removal_idx = self.select_operator(self.removal_weights[segment])
                 
                 if removal_idx == 0:
-                    removed_solution, removed_pairs = removal_operators.shaw_removal(self.num_removal, self.p)
+                    removed_solution = removal_operators.shaw_removal(self.num_removal, self.p)
                 elif removal_idx == 1:
-                    removed_solution, removed_pairs = removal_operators.random_removal(self.num_removal)
+                    removed_solution = removal_operators.random_removal(self.num_removal)
                 elif removal_idx == 2:
-                    removed_solution, removed_pairs = removal_operators.worst_removal(self.num_removal)
+                    removed_solution = removal_operators.worst_removal(self.num_removal)
                 
+                removed_pairs = removed_solution.unvisited_requests
+                print(removed_pairs)
+
                 # repair
                 repair_operators = RepairOperators(removed_solution)
                 repair_idx = self.select_operator(self.repair_weights[segment])
@@ -170,9 +172,9 @@ class ALNS:
                 elif repair_idx == 1:
                     repair_solution = repair_operators.regret_insertion(removed_pairs, self.k)
                 
-                print('repair method',repair_idx)
-                print('remove_routes',removed_solution.routes)
-                print('repair_routes',repair_solution.routes)
+                # print('repair method',repair_idx)
+                # print('remove_routes',removed_solution.routes)
+                # print('repair_routes',repair_solution.routes)
 
                 # update the count
                 self.removal_theta[segment][removal_idx] += 1
@@ -260,8 +262,3 @@ class ALNS:
         plt.legend()
         plt.grid(True)
         plt.show()
-
-
-
-
-        

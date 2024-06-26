@@ -233,7 +233,7 @@ class RemovalOperators:
 
     def remove_requests(self, requests):
         new_solution = deepcopy(self.solution)
-        removed_pairs = []
+        #removed_pairs = []
         
         for request in requests:
             pickup_node, delivery_node = request, request + self.instance.n
@@ -242,10 +242,11 @@ class RemovalOperators:
                     route.remove(pickup_node)
                     route.remove(delivery_node)
 
-            removed_pairs.append((pickup_node, delivery_node))
+            #removed_pairs.append((pickup_node, delivery_node))
             new_solution.update_all() # update all of the things
         
-        return new_solution, removed_pairs
+        #return new_solution, removed_pairs
+        return new_solution
 
 class RepairOperators:
     def __init__(self, solution):

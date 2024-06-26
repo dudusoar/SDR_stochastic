@@ -48,7 +48,7 @@ class PDPTWSolution:
         self.total_travel_times = np.zeros((self.num_vehicles,))
         self.total_delay_times = np.zeros((self.num_vehicles,))
         self.total_wait_times = np.zeros((self.num_vehicles,))
-        self.unvisited_requests = set()
+        self.unvisited_requests = []
 
         self.initialize_routes()
         self.calculate_all()
@@ -97,8 +97,9 @@ class PDPTWSolution:
                     else:
                         served_requests.add(node - self.instance.n)
 
-        all_requests = set(range(1, self.instance.n + 1))             
-        self.unvisited_requests = all_requests - served_requests
+        all_requests = set(range(1, self.instance.n + 1))    
+        unvisited_requests = all_requests - served_requests
+        self.unvisited_requests = [(node, node + self.instance.n) for node in unvisited_requests]
 
     def calculate_battery_capacity_levels(self, vehicle_id):
         """
