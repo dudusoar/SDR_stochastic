@@ -161,8 +161,8 @@ class PDPTWInstance:
 
     def to_dataframe(self):
         """
-        将 PDPTW 实例转换为 pandas 数据框
-        :return: pandas 数据框
+        将 PDPTW 实例转换为 pandas表
+        :return: pandas表
         """
         data = []
 

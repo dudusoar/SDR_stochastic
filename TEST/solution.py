@@ -10,7 +10,7 @@ class PDPTWSolution:
          - calculate_battery_capacity_levels
          - calculate_arrival_leave_wait_times
          - calculate_travel_delay_wait_times
-       - update_unvisited_requests
+       - update_visit_record
     2. objective_function
     3. is_feasible:
        - get_selected_vehicles
@@ -48,11 +48,15 @@ class PDPTWSolution:
         self.total_travel_times = np.zeros((self.num_vehicles,))
         self.total_delay_times = np.zeros((self.num_vehicles,))
         self.total_wait_times = np.zeros((self.num_vehicles,))
-        self.unvisited_requests = []
+        # visited record
+        self.visited_requests = set()
+        self.unvisited_requests = set()
+        self.unvisited_pairs = []
+        self.visited_pairs = []
 
         self.initialize_routes()
         self.calculate_all()
-        self.update_unvisited_requests()
+        self.update_visit_record()
 
     def update_all(self):
         """
@@ -61,7 +65,7 @@ class PDPTWSolution:
         """
         self.initialize_routes()
         self.calculate_all()
-        self.update_unvisited_requests()
+        self.update_visit_record()
 
     def initialize_routes(self):
         """
@@ -84,22 +88,25 @@ class PDPTWSolution:
             self.calculate_arrival_leave_wait_times(vehicle_id)
             self.calculate_travel_delay_wait_times(vehicle_id)
     
-    def update_unvisited_requests(self):
+    def update_visit_record(self):
         """
         更新未被服务的请求
         """
-        served_requests = set()
+        visited_requests = set()
         for route in self.routes:
             for node in route:
                 if node != 0:  # 忽略depot
                     if node <= self.instance.n:
-                        served_requests.add(node)
+                        visited_requests.add(node)
                     else:
-                        served_requests.add(node - self.instance.n)
-
+                        visited_requests.add(node - self.instance.n)
         all_requests = set(range(1, self.instance.n + 1))    
-        unvisited_requests = all_requests - served_requests
-        self.unvisited_requests = [(node, node + self.instance.n) for node in unvisited_requests]
+        unvisited_requests = all_requests - visited_requests
+        # update
+        self.visited_requests = visited_requests
+        self.unvisited_requests = unvisited_requests 
+        self.visited_pairs = [(node, node + self.instance.n) for node in visited_requests]
+        self.unvisited_pairs = [(node, node + self.instance.n) for node in unvisited_requests]
 
     def calculate_battery_capacity_levels(self, vehicle_id):
         """
@@ -183,6 +190,7 @@ class PDPTWSolution:
         unvisited_penalty = len(self.unvisited_requests) * self.gamma
         return np.sum(self.total_travel_times) + np.sum(self.total_delay_times) + unvisited_penalty
 
+    # ================================ feasibility check ================================
     def is_feasible(self):
         """
         检查解的可行性
@@ -247,6 +255,7 @@ class PDPTWSolution:
                         return False
         return True
 
+    # ================================ plot ================================
     def plot_solution(self, vehicle_ids=None):
         """
         绘制解的路线图

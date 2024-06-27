@@ -4,12 +4,15 @@ import random
 import numpy as np
 from copy import deepcopy
 
+class NodeNotFoundError(Exception):
+    def __init__(self, node):
+        super().__init__(f"Node {node} not found in any route.")
+
 class RemovalOperators:
     def __init__(self, solution):
         self.solution = solution
         self.instance = solution.instance 
     
-
     #*****************************************************************************************************
     #Start of SISR removal
     # Main SISR removal function
@@ -142,9 +145,25 @@ class RemovalOperators:
 
     #*****************************************************************************************************
     #Start of shaw removal
+    class RemovalOperators:
+        '''
+        1.shaw removal
+        -  calculate_similarity
+        -  get_arrival_time
+        2.random removal
+        3.worst removal
+        - calculate_contribution
+        4.remove_requests
+        '''
+    def __init__(self, solution):
+        self.solution = solution
+        self.instance = solution.instance 
+        
+    #*****************************************************************************************************
+    #Start of shaw removal
     def shaw_removal(self, num_remove, p):
         removed_requests = []
-        remaining_requests = list(range(1, self.instance.n+1))
+        remaining_requests = list(self.solution.visited_requests)
 
         # Select a request randomly
         initial_request = random.choice(remaining_requests)
@@ -188,14 +207,15 @@ class RemovalOperators:
         for vehicle_id, route in enumerate(self.solution.routes):
             if node in route:
                 return self.solution.route_arrival_times[vehicle_id][route.index(node)]
-        return None
+        raise NodeNotFoundError(node)
     #*****************************************************************************************************
     #End of shaw removal
     
     #*****************************************************************************************************
     #Start of random removal
     def random_removal(self, num_remove):
-        removed_requests = random.sample(range(1, self.instance.n + 1), num_remove)
+        remaining_requests = list(self.solution.visited_requests)
+        removed_requests = random.sample(remaining_requests, num_remove)
         return self.remove_requests(removed_requests)
     #*****************************************************************************************************
     #End of random removal
@@ -203,7 +223,8 @@ class RemovalOperators:
     #*****************************************************************************************************
     #Start of worst removal
     def worst_removal(self, num_remove):
-        contributions = [(req, self.calculate_contribution(req)) for req in range(1, self.instance.n + 1)]
+        remaining_requests = list(self.solution.visited_requests)
+        contributions = [(req, self.calculate_contribution(req)) for req in remaining_requests]
         contributions.sort(key=lambda x: x[1], reverse=True)
         removed_requests = [req for req, _ in contributions[:num_remove]]
         #print(contributions)
@@ -221,7 +242,7 @@ class RemovalOperators:
                 route.remove(delivery)
 
         # update
-        temp_solution.calculate_all()
+        temp_solution.update_all()
         original_objective = self.solution.objective_function()
         new_objective = temp_solution.objective_function()
 
@@ -321,31 +342,31 @@ class RepairOperators:
                 # 无法被插入到任何路径，直接跳过
                 if len(costs) == 0:
                     removed_pairs.remove((pickup, delivery))
+                    print(f"Request ({pickup}, {delivery}) cannot be inserted into any route.")
                     continue
                 # 处理插入机会少于k的请求
-                if len(costs) > 0 and len(costs) < k:
+                elif len(costs) > 0 and len(costs) < k:
                     best_request =  (pickup, delivery)
                     best_route = costs[0][1]
                     best_insert_position = (costs[0][2], costs[0][3])
                     break
-            
-            # 如果没有插入机会少于k的请求，则选择最大遗憾值的请求
-            if best_request is None:
-                max_regret = float('-inf')
-                for pickup, delivery, costs in insertion_costs:
-                    regret = sum(cost[0] for cost in costs[:k]) - costs[0][0]
-                    if regret > max_regret:
-                        max_regret = regret
-                        best_request = (pickup, delivery)
-                        best_route = costs[0][1]
-                        best_insert_position = (costs[0][2], costs[0][3])   
+                # 如果没有插入机会少于k的请求，则选择最大遗憾值的请求
+                elif  len(costs) >= k:
+                    max_regret = float('-inf')
+                    for pickup, delivery, costs in insertion_costs:
+                        regret = sum(cost[0] for cost in costs[:k]) - costs[0][0]
+                        if regret > max_regret:
+                            max_regret = regret
+                            best_request = (pickup, delivery)
+                            best_route = costs[0][1]
+                            best_insert_position = (costs[0][2], costs[0][3])   
 
             # 插入最佳请求
             if best_request is not None and best_route is not None and best_insert_position is not None:
                 removed_pairs.remove(best_request)
                 pickup, delivery = best_request
                 self.insert_single_request(pickup, delivery, best_route, best_insert_position)
-    
+        
         return self.solution
         
     #*****************************************************************************************************

@@ -61,6 +61,13 @@ def greedy_insertion_init(instance, num_vehicles, vehicle_capacity, battery_capa
 
 
 # ALNS
+from solution import PDPTWSolution
+import random 
+import numpy as np
+from copy import deepcopy
+from collections import defaultdict
+import time
+
 class ALNS:
     def __init__(self, initial_solution, 
                  params_operators,
@@ -161,16 +168,17 @@ class ALNS:
                 elif removal_idx == 2:
                     removed_solution = removal_operators.worst_removal(self.num_removal)
                 
-                removed_pairs = removed_solution.unvisited_requests
-                print(removed_pairs)
+                removed_solution.update_all()
+                unvisited_pairs = removed_solution.unvisited_pairs
+                print(unvisited_pairs)
 
                 # repair
                 repair_operators = RepairOperators(removed_solution)
                 repair_idx = self.select_operator(self.repair_weights[segment])
                 if repair_idx == 0:
-                    repair_solution = repair_operators.greedy_insertion(removed_pairs)
+                    repair_solution = repair_operators.greedy_insertion(unvisited_pairs)
                 elif repair_idx == 1:
-                    repair_solution = repair_operators.regret_insertion(removed_pairs, self.k)
+                    repair_solution = repair_operators.regret_insertion(unvisited_pairs, self.k)
                 
                 # print('repair method',repair_idx)
                 # print('remove_routes',removed_solution.routes)
