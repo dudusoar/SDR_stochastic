@@ -145,16 +145,16 @@ class RemovalOperators:
 
     #*****************************************************************************************************
     #Start of shaw removal
-    class RemovalOperators:
-        '''
-        1.shaw removal
-        -  calculate_similarity
-        -  get_arrival_time
-        2.random removal
-        3.worst removal
-        - calculate_contribution
-        4.remove_requests
-        '''
+class RemovalOperators:
+    '''
+    1.shaw removal
+    -  calculate_similarity
+    -  get_arrival_time
+    2.random removal
+    3.worst removal
+    - calculate_contribution
+    4.remove_requests
+    '''
     def __init__(self, solution):
         self.solution = solution
         self.instance = solution.instance 
