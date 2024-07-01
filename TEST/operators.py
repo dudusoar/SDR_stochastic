@@ -273,7 +273,7 @@ class RepairOperators:
     def __init__(self, solution):
         self.solution = deepcopy(solution)
         self.instance = solution.instance
-        self.insertion_log = []  # record
+        # self.insertion_log = []  # record
 
     #*****************************************************************************************************
     #Start of greedy insertion
@@ -353,13 +353,12 @@ class RepairOperators:
                 # 如果没有插入机会少于k的请求，则选择最大遗憾值的请求
                 elif  len(costs) >= k:
                     max_regret = float('-inf')
-                    for pickup, delivery, costs in insertion_costs:
-                        regret = sum(cost[0] for cost in costs[:k]) - costs[0][0]
-                        if regret > max_regret:
-                            max_regret = regret
-                            best_request = (pickup, delivery)
-                            best_route = costs[0][1]
-                            best_insert_position = (costs[0][2], costs[0][3])   
+                    regret = sum(cost[0] for cost in costs[:k]) - costs[0][0]
+                    if regret > max_regret:
+                        max_regret = regret
+                        best_request = (pickup, delivery)
+                        best_route = costs[0][1]
+                        best_insert_position = (costs[0][2], costs[0][3])   
 
             # 插入最佳请求
             if best_request is not None and best_route is not None and best_insert_position is not None:
@@ -377,88 +376,88 @@ class RepairOperators:
                                            + [pickup] + self.solution.routes[vehicle_id][i:j] + [delivery] \
                                            + self.solution.routes[vehicle_id][j:]
         self.solution.update_all() # update all of the things
-        self.record_insertion(vehicle_id, pickup, delivery, insert_position)  # 记录插入位置
+        # self.record_insertion(vehicle_id, pickup, delivery, insert_position)  # record the insertion position
     
-    def record_insertion(self, vehicle_id, pickup, delivery, position):
-        """
-        记录插入位置
-        vehicle_id: 车辆ID
-        pickup: 取货点
-        delivery: 送货点
-        position: 插入位置 (i, j)
-        """
-        self.insertion_log.append({
-        'vehicle_id': vehicle_id,
-        'pickup': pickup,
-        'delivery': delivery,
-        'position': position
-        })
+    # def record_insertion(self, vehicle_id, pickup, delivery, position):
+    #     """
+    #     记录插入位置
+    #     vehicle_id: 车辆ID
+    #     pickup: 取货点
+    #     delivery: 送货点
+    #     position: 插入位置 (i, j)
+    #     """
+    #     self.insertion_log.append({
+    #     'vehicle_id': vehicle_id,
+    #     'pickup': pickup,
+    #     'delivery': delivery,
+    #     'position': position
+    #     })
 
-    def get_insertion_log(self):
-        """
-        获取插入日志
-        :return: 插入日志
-        """
-        return self.insertion_log
+    # def get_insertion_log(self):
+    #     """
+    #     获取插入日志
+    #     :return: 插入日志
+    #     """
+    #     return self.insertion_log
         
 
-class ReverseOperators:
-    def __init__(self, solution):
-        self.solution = solution
-        self.instance = solution.instance
+# class ReverseOperators:
+#     def __init__(self, solution):
+#         self.solution = solution
+#         self.instance = solution.instance
 
-    def two_opt(self, max_iterations):
-        '''
-        2-opt altorithm
-        '''
-        best_solution = deepcopy(self.solution)
-        current_solution = deepcopy(self.solution)
+#     def two_opt(self, max_iterations):
+#         '''
+#         2-opt altorithm
+#         '''
+#         best_solution = deepcopy(self.solution)
+#         current_solution = deepcopy(self.solution)
 
-        for _ in range(max_iterations):
-            improved = False
+#         for _ in range(max_iterations):
+#             improved = False
 
-            for vehicle_id in range(current_solution.num_vehicles):
-                route = current_solution.routes[vehicle_id]
-                if len(route) <= 4:
-                    continue
-                for i in range(1, len(route) - 2):
-                    for j in range(i + 1, len(route) - 1):
-                        new_route = self.two_opt_swap(route, i, j)
-                        if new_route is None:
-                            continue
+#             for vehicle_id in range(current_solution.num_vehicles):
+#                 route = current_solution.routes[vehicle_id]
+#                 if len(route) <= 4:
+#                     continue
+#                 for i in range(1, len(route) - 2):
+#                     for j in range(i + 1, len(route) - 1):
+#                         new_route = self.two_opt_swap(route, i, j)
+#                         if new_route is None:
+#                             continue
 
-                        new_routes = deepcopy(current_solution.routes)
-                        new_routes[vehicle_id] = new_route
+#                         new_routes = deepcopy(current_solution.routes)
+#                         new_routes[vehicle_id] = new_route
 
-                        # 不创建新的实例，直接更新当前解
-                        current_solution.routes = new_routes
-                        current_solution.update_all()
+#                         # 不创建新的实例，直接更新当前解
+#                         current_solution.routes = new_routes
+#                         current_solution.update_all()
 
-                        if current_solution.is_feasible() and current_solution.objective_function() < best_solution.objective_function():
-                            best_solution = deepcopy(current_solution)
-                            improved = True
-                            break
+#                         if current_solution.is_feasible() and current_solution.objective_function() < best_solution.objective_function():
+#                             best_solution = deepcopy(current_solution)
+#                             improved = True
+#                             break
 
-                    if improved:
-                        break
+#                     if improved:
+#                         break
 
-            if not improved:
-                break
+#             if not improved:
+#                 break
 
-        return best_solution
+#         return best_solution
 
-    def two_opt_swap(self, route, i, j):
-        """
-        执行 2-opt 交换
-        :param route: 路径列表
-        :param i: 第一个要交换的节点的索引
-        :param j: 第二个要交换的节点的索引
-        :return: 交换后的新路径列表，如果交换无效则返回 None
-        """
-        if i == 0 or j == len(route) - 1:
-            return None
+#     def two_opt_swap(self, route, i, j):
+#         """
+#         执行 2-opt 交换
+#         :param route: 路径列表
+#         :param i: 第一个要交换的节点的索引
+#         :param j: 第二个要交换的节点的索引
+#         :return: 交换后的新路径列表，如果交换无效则返回 None
+#         """
+#         if i == 0 or j == len(route) - 1:
+#             return None
 
-        new_route = route[:i] + list(reversed(route[i:j+1])) + route[j+1:]
-        return new_route
+#         new_route = route[:i] + list(reversed(route[i:j+1])) + route[j+1:]
+#         return new_route
 
    

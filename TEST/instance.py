@@ -7,19 +7,19 @@ import pandas as pd
 class PDPTWInstance:
     def __init__(self, n, map_size, speed, extra_time, gamma, seed=None):
         """
-        初始化 PDPTW 实例
-        :param n: pickup点的数量
-        :param map_size: 地图大小
-        :param speed: 车辆速度
-        :param extra_time: delivery 点时间窗口起始时间的额外时间
-        :param gamma: 未被服务请求的惩罚系数
-        :param seed: 随机数种子
+        :param n: the number of requests(orders)
+        :param map_size: [-map_size, map_size]
+        :param speed: the costant speed of robots
+        :param extra_time: tolerance for the delivery
+        :param gamma: penalty for the unvisited requests
+        :param seed: random seed
         """
         self.n = n
         self.map_size = map_size
         self.speed = speed
         self.extra_time = extra_time
         self.gamma = gamma
+        
         # coordinates
         self.depot = (0, 0)  # depot 位于原点
         self.pickup_points = []  # pickup 点的坐标
@@ -46,7 +46,7 @@ class PDPTWInstance:
 
     def generate_points(self):
         """
-        生成 pickup 和 delivery 点
+        Generate the coordinates of pickup and delivery points
         """
         for _ in range(self.n):
             # 在地图范围内随机生成 pickup 点坐标
@@ -91,15 +91,10 @@ class PDPTWInstance:
         plt.show()
 
     def calculate_distance_matrix(self):
-        """
-        计算距离矩阵
-        :return: 距离矩阵
-        """
         points = [self.depot] + self.pickup_points + self.delivery_points
         num_points = len(points)
         distance_matrix = np.zeros((num_points, num_points))
 
-        # 计算每对点之间的欧几里得距离
         for i in range(num_points):
             for j in range(num_points):
                 distance_matrix[i][j] = np.sqrt((points[i][0] - points[j][0]) ** 2 + (points[i][1] - points[j][1]) ** 2)
@@ -107,16 +102,12 @@ class PDPTWInstance:
         return distance_matrix
 
     def calculate_time_matrix(self):
-        """
-        计算时间矩阵
-        :return: 时间矩阵
-        """
         time_matrix = (self.distance_matrix / self.speed) * 60
         return time_matrix
 
     def generate_time_windows(self):
         """
-        生成时间窗口和服务时间
+        generate the time windows and service time
         """
         time_matrix = self.calculate_time_matrix()
 
