@@ -1,0 +1,19 @@
+1.计算每一个univisited request与其他所有visited request的相似程度, 储存为矩阵
+ - 相似程度的定义：pickup点之间的距离 + delivery点之间的距离 + univisited request中pickup点的时间窗口的起始时间与visited request的pickup 点的arrival time + univisited request中delivery点的时间窗口的起始时间与visited request的delivery 点的arrival time
+ - 储存为一个矩阵，每一行是univisited request与其他所有visited request的相似程度的列表，从小到大排列
+2.对于每一个univisited request来说，计算后悔值，参数：k，代表窗口大小
+ - 后悔值定义：（第二个相似度-第一个相似度） + （第三个相似度-第一个相似度）一直加到k个为止
+ - 这个窗口可以移动（见后）
+3.选取最大后悔值对应的univisited request，执行插入操作
+ - 选取该request的相似度列表中第一个相似值对应的request（最小相似值对应的request）
+ - 尝试两种插入：插入该request的前面，插入该request的后面
+   - 插入前面：检查该车辆路径是否已经插入过充电站了
+     - 如果已经充过一次电了，检查该次插入后解是否还是可行的，如果可行，直接返回该解为当前最优解，如果不可行，那就移动充电的位置，尝试
+       找到一个可行解，取最优，如果还是没有解，就返回None
+     - 如果该路径还没充电，那么就采取greedy insertion的方法在当前解中插入充电站，如果没有找到可行解就返回None
+   - 插入后面：同上逻辑
+   - 比较两种插入的最优值
+     - 取最小目标函数的解
+     - 如果都是None，当前request没法插入，移动该unvisited request的窗口，回到步骤二，重新计算后悔值，比较所有unvisited request的后悔值
+4.如果第三步得到了一个可插入位置，执行插入操作，将这个request从unvited request中移除
+5.直到univisited requests为空
