@@ -353,7 +353,7 @@ class RepairOperators:
                 # 如果没有插入机会少于k的请求，则选择最大遗憾值的请求
                 elif  len(costs) >= k:
                     max_regret = float('-inf')
-                    regret = sum(cost[0] for cost in costs[:k]) - costs[0][0]
+                    regret = sum(cost[0] for cost in costs[:k]) - costs[0][0]*k
                     if regret > max_regret:
                         max_regret = regret
                         best_request = (pickup, delivery)
