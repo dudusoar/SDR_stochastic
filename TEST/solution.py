@@ -126,7 +126,7 @@ class PDPTWSolution:
             curr_node = route[i]
             # update the battery
             time = time_matrix[prev_node][curr_node]
-            if curr_node == 0 and i != len(route):
+            if curr_node == 0 and i != len(route) - 1:
                 battery_levels[i] = self.battery_capacity
             else:
                 battery_levels[i] = battery_levels[i - 1] - time * self.battery_consume_rate
