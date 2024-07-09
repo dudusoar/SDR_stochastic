@@ -17,3 +17,60 @@
      - 如果都是None，当前request没法插入，移动该unvisited request的窗口，回到步骤二，重新计算后悔值，比较所有unvisited request的后悔值
 4.如果第三步得到了一个可插入位置，执行插入操作，将这个request从unvited request中移除
 5.直到univisited requests为空
+
+
+
+
+Class ChargingStationInsertion:
+    Method __init__(solution, unvisited_requests, k, battery_capacity, battery_consume_rate, charging_stations):
+        Initialize attributes
+
+    Method calculate_similarity_matrix():
+        Initialize similarity_matrix as an empty list
+        For each unvisited_request in unvisited_requests:
+            Calculate similarity between unvisited_request and all visited_requests
+            Sort similarities and append to similarity_matrix
+        Return similarity_matrix
+
+    Method calculate_regret_values(similarity_matrix):
+        Initialize regret_values as an empty list
+        For each similarities in similarity_matrix:
+            Calculate regret value using the top k similarities
+            Append regret value to regret_values
+        Return regret_values
+
+    Method find_nearest_charging_station(node1, node2):
+        Initialize min_distance as infinity
+        For each station in charging_stations:
+            Calculate total distance from node1 to station to node2
+            If distance < min_distance:
+                Update min_distance and nearest_station
+        Return nearest_station
+
+    Method insert_charging_station(route, position):
+        Get prev_node and next_node from route based on position
+        Find nearest charging_station between prev_node and next_node
+        Insert charging_station into route at position
+
+    Method find_best_insertion_point(unvisited_request, similar_request, vehicle_id):
+        Initialize best_solution and best_objective
+        For each insertion position (before and after similar_request):
+            Create a new solution with unvisited_request inserted at position
+            If new solution is feasible:
+                Update best_solution and best_objective if objective is better
+            Else:
+                Insert charging_station and check feasibility
+                Update best_solution and best_objective if objective is better
+        Return best_solution
+
+    Method insert_requests():
+        While unvisited_requests is not empty:
+            Calculate similarity_matrix
+            Calculate regret_values
+            Select unvisited_request with maximum regret
+            Find similar_request with highest similarity
+            Find vehicle and route containing similar_request
+            Find best insertion point for unvisited_request
+            If insertion is successful:
+                Update solution and remove unvisited_request from list
+        Return updated solution
