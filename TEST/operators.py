@@ -145,7 +145,7 @@ class RemovalOperators:
 
     #*****************************************************************************************************
     #Start of shaw removal
-class RemovalOperators:
+# class RemovalOperators:
     '''
     1.shaw removal
     -  calculate_similarity
@@ -155,9 +155,9 @@ class RemovalOperators:
     - calculate_contribution
     4.remove_requests
     '''
-    def __init__(self, solution):
-        self.solution = solution
-        self.instance = solution.instance 
+    # def __init__(self, solution):
+    #     self.solution = solution
+    #     self.instance = solution.instance 
         
     #*****************************************************************************************************
     #Start of shaw removal
