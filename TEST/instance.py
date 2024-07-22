@@ -24,6 +24,7 @@ class PDPTWInstance:
         self.depot = (0, 0)  # depot 位于原点
         self.pickup_points = []  # pickup 点的坐标
         self.delivery_points = []  # delivery 点的坐标
+        self.charging = (0, 0)
         # time
         self.time_windows = []  # 时间窗口列表
         self.service_times = []  # 服务时间列表
@@ -36,7 +37,7 @@ class PDPTWInstance:
             np.random.seed(seed)
 
         # 生成所有点的索引列表
-        self.indices = [0] + list(range(1, self.n + 1)) + list(range(self.n + 1, 2 * self.n + 1))
+        self.indices = [0] + list(range(1, self.n + 1)) + list(range(self.n + 1, 2 * self.n + 1)) + [2 * self.n + 1]
 
         self.generate_points()  # 生成 pickup 和 delivery 点
         self.distance_matrix = self.calculate_distance_matrix() # 距离矩阵
@@ -81,8 +82,8 @@ class PDPTWInstance:
                          textcoords='offset points', xytext=(0, 5), ha='center')
 
         # 设置坐标轴范围
-        plt.xlim(-self.map_size - 1, self.map_size + 1)
-        plt.ylim(-self.map_size - 1, self.map_size + 1)
+        plt.xlim(-self.map_size - 0.5, self.map_size + 0.5)
+        plt.ylim(-self.map_size - 0.5, self.map_size + 0.5)
         plt.xlabel('X')
         plt.ylabel('Y')
         plt.title('PDPTW Instance')
@@ -91,7 +92,7 @@ class PDPTWInstance:
         plt.show()
 
     def calculate_distance_matrix(self):
-        points = [self.depot] + self.pickup_points + self.delivery_points
+        points = [self.depot] + self.pickup_points + self.delivery_points + [self.charging]
         num_points = len(points)
         distance_matrix = np.zeros((num_points, num_points))
 
@@ -135,6 +136,8 @@ class PDPTWInstance:
 
         # Depot 的服务时间设置为 0
         self.service_times.append(0)
+        self.time_windows.append((0, float('inf')))
+        self.service_times.append(0)
 
     def generate_demands(self):
         """
@@ -149,6 +152,8 @@ class PDPTWInstance:
         for _ in range(self.n):
             # Delivery 点的需求量为 -1
             self.demands.append(-1)
+        
+        self.demands.append(0)
 
     def to_dataframe(self):
         """
@@ -166,10 +171,17 @@ class PDPTWInstance:
                 point_type = 'cp'
                 x, y = self.pickup_points[i - 1]
                 partner_id = i + self.n
-            else:
+            elif i <= 2*self.n:
                 point_type = 'cd'
                 x, y = self.delivery_points[i - self.n - 1]
                 partner_id = i - self.n
+            else:
+                point_type = 'c'
+                x, y = self.charging
+                partner_id = 0
+            
+            self.service_times[0] = 0
+            self.service_times[2*self.n + 1] = 0
 
             data.append([
                 i,

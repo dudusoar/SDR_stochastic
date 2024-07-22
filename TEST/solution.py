@@ -18,7 +18,7 @@ class PDPTWSolution:
        - check_battery_constraint
        - check_pickup_delivery_order
     '''
-    def __init__(self, instance, vehicle_capacity, battery_capacity, battery_consume_rate, routes):
+    def __init__(self, instance, vehicle_capacity, battery_capacity, battery_consume_rate, routes, penalty):
         """
         初始化 PDPTWSolution 对象
         :param instance: PDPTWInstance 对象
@@ -30,6 +30,7 @@ class PDPTWSolution:
         # unchanged parameters within the same instance
         self.instance = instance
         self.gamma = instance.gamma
+        self.penalty = penalty
         self.vehicle_capacity = vehicle_capacity
         self.battery_capacity = battery_capacity
         self.battery_consume_rate = battery_consume_rate
@@ -48,6 +49,7 @@ class PDPTWSolution:
         self.total_travel_times = np.zeros((self.num_vehicles,))
         self.total_delay_times = np.zeros((self.num_vehicles,))
         self.total_wait_times = np.zeros((self.num_vehicles,))
+        self.total_delay_orders = np.zeros((self.num_vehicles,))
         # visited record
         self.visited_requests = set()
         self.unvisited_requests = set()
@@ -147,6 +149,7 @@ class PDPTWSolution:
         arrival_times[0] = 0
         wait_times[0] = 0
         leave_times[0] = self.instance.service_times[route[0]]
+        # leave_times[0] = 0
 
         for i in range(1, len(route)):
             prev_node = route[i - 1]
@@ -164,26 +167,33 @@ class PDPTWSolution:
         """
         route = self.routes[vehicle_id]
         leave_times = self.route_leave_times[vehicle_id]
+        arrival_times = self.route_arrival_times[vehicle_id]
         wait_times = self.route_wait_times[vehicle_id]
         time_matrix = self.instance.time_matrix
 
         travel_time = 0
         delay_time = 0
         wait_time = 0
+        delay_count = 0
 
         for i in range(len(route) - 1):
             curr_node = route[i]
             next_node = route[i + 1]
             travel_time += time_matrix[curr_node][next_node]
             
-            if self.instance.time_windows[next_node][1] != float('inf'):
-                delay_time += max(0, leave_times[i] - self.instance.time_windows[next_node][1])
+            if self.instance.time_windows[curr_node][1] != float('inf'):
+                # delay_time += max(0, leave_times[i] - self.instance.time_windows[next_node][1])
+                if (self.instance.time_windows[curr_node][1]-arrival_times[i]) < 0:
+                    delay_count += 1 
+            # if arrival_times[i] > self.instance.time_window[curr_node][1]:
+            #     delay_count += 1 
             
             wait_time += wait_times[i]
 
         self.total_travel_times[vehicle_id] = travel_time
         self.total_delay_times[vehicle_id] = delay_time
         self.total_wait_times[vehicle_id] = wait_time
+        self.total_delay_orders[vehicle_id] = delay_count
 
     def objective_function(self):
         """
@@ -191,7 +201,9 @@ class PDPTWSolution:
         :return: 目标函数值（总行驶时间 + 总延误时间）
         """
         unvisited_penalty = len(self.unvisited_requests) * self.gamma
-        return np.sum(self.total_travel_times) + np.sum(self.total_delay_times) + unvisited_penalty
+        late_penalty = np.sum(self.total_delay_orders) * self.penalty
+        # return np.sum(self.total_travel_times) + np.sum(self.total_delay_times) + unvisited_penalty
+        return np.sum(self.total_travel_times)/60*self.instance.speed + late_penalty + unvisited_penalty
 
     # ================================ feasibility check ================================
     def is_feasible(self):

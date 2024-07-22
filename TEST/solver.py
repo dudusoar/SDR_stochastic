@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 
 # 初始解
-def greedy_insertion_init(instance, num_vehicles, vehicle_capacity, battery_capacity, battery_consume_rate):
+def greedy_insertion_init(instance, num_vehicles, vehicle_capacity, battery_capacity, battery_consume_rate, penalty):
     """
     使用贪心插入法构建初始解
     :param instance: PDPTWInstance 对象
@@ -37,7 +37,7 @@ def greedy_insertion_init(instance, num_vehicles, vehicle_capacity, battery_capa
                     new_route = route
                     new_route = route[:insertion_index] + [pickup_node, delivery_node] + route[insertion_index:]
                     temp_solution = PDPTWSolution(instance, vehicle_capacity, battery_capacity, battery_consume_rate,
-                                                  [new_route])
+                                                  [new_route],penalty)
 
                     if temp_solution.is_feasible():
                         objective_value = temp_solution.objective_function()
@@ -55,7 +55,7 @@ def greedy_insertion_init(instance, num_vehicles, vehicle_capacity, battery_capa
 
         routes.append(route)
 
-    solution = PDPTWSolution(instance, vehicle_capacity, battery_capacity, battery_consume_rate, routes)
+    solution = PDPTWSolution(instance, vehicle_capacity, battery_capacity, battery_consume_rate, routes, penalty)
 
     return solution
 
