@@ -1,22 +1,22 @@
-# Removal operators
-
-import random
 import numpy as np
+import random
 from copy import deepcopy
 
 class NodeNotFoundError(Exception):
     def __init__(self, node):
         super().__init__(f"Node {node} not found in any route.")
 
+# Removal methods
 class RemovalOperators:
     def __init__(self, solution):
         self.solution = solution
         self.instance = solution.instance 
-    
+
     #*****************************************************************************************************
     #Start of SISR removal
     # Main SISR removal function
-    def SISR_removal(self, L_max, avg_remove_order, d_matrix, remaining_orders=None):
+    def SISR_removal(self, L_max, avg_remove_order, d_matrix):
+        remaining_orders = self.solution.unvisited_requests
         routes_copy = deepcopy(self.solution.routes)
         n_orders = self.instance.n
         removed_list = []
@@ -25,7 +25,9 @@ class RemovalOperators:
         k_s = min(k_s, len(routes_copy))
         for i in range(int(k_s)):
             if i == 0:
-                start_order = int(self.order_to_start(n_orders))
+                start_order = int(self.order_to_start(n_orders, remaining_orders))
+                # while any(start_order in sublist for sublist in routes_copy) is False:
+                #     start_order = int(self.order_to_start(n_orders))
                 route = self.find_lists_containing_element(routes_copy, start_order)
                 l_t = self.number_of_orders(l_s_max, route)
                 routes_copy, removed_list, deconstructed_route_list, primal_sorted_indices = self.primal_string_removal(
@@ -33,7 +35,9 @@ class RemovalOperators:
             elif primal_sorted_indices == []:
                 break
             else:
-                route, next_order = self.find_next_list(primal_sorted_indices, routes_copy)
+                route, next_order = self.find_next_list(primal_sorted_indices, routes_copy, remaining_orders)
+                if route == []:
+                    break
                 l_t = self.number_of_orders(l_s_max, route)
                 routes_copy, removed_list, deconstructed_route_list, primal_sorted_indices = self.other_string_removal(
                     d_matrix, routes_copy, route, l_t, next_order, n_orders, removed_list, deconstructed_route_list,
@@ -60,11 +64,11 @@ class RemovalOperators:
         return l_t
 
     # Generate random order to start, remove orders according to order distance matrix
-    def order_to_start(self, n_orders, remaining_order=None):
+    def order_to_start(self, n_orders, remaining_order):
         reference_order = np.floor(np.random.uniform(1, n_orders + 1))
-        if remaining_order != None:
-            while reference_order in remaining_order:
-                reference_order = np.floor(np.random.uniform(1, n_orders + 1))
+        # if remaining_order != None:
+        while reference_order in remaining_order:
+            reference_order = np.floor(np.random.uniform(1, n_orders + 1))
         return reference_order
 
     def find_lists_containing_element(self, routes, order):
@@ -85,7 +89,7 @@ class RemovalOperators:
                     removed_list.append(i + 1)
                     route_1.remove(i + 1 + n_orders)
                     removed_list.append(i + 1 + n_orders)
-                    a += 1
+                a += 1
             else:
                 break
         for order in route[1:-1]:
@@ -100,18 +104,25 @@ class RemovalOperators:
 
         return routes, removed_list, deconstructed_route_list, sorted_indices
 
-    def find_next_list(self, primal_sorted_indices, routes, remaining_order=None):
+    def find_next_list(self, primal_sorted_indices, routes, remaining_order):
         d = 0
         # print('routes:',routes)
         # print('primal_sorted_indices',primal_sorted_indices)
         i = primal_sorted_indices[d]
         next_order = i + 1
         # print('next_order',next_order)
-        if remaining_order != None:
-            while next_order in remaining_order:
-                i = primal_sorted_indices[d + 1]
-                next_order = i + 1
-        return [route for route in routes if next_order in route][0], next_order
+        # if remaining_order != None:
+        while (next_order in remaining_order) and d < len(remaining_order)-1:
+            print(primal_sorted_indices)
+            d = d + 1
+            i = primal_sorted_indices[d]
+            next_order = i + 1
+        # while any(next_order in sublist for sublist in routes) is False:
+        #             next_order = i + 1
+        if d == len(remaining_order) - 1 and len(remaining_order) > 0:
+            return [], None
+        else:
+            return [route for route in routes if next_order in route][0], next_order
 
     def other_string_removal(self, d_matrix, routes, route, l_t, reference_order, n_orders, removed_list,
                              deconstructed_route_list, primal_sorted_indices):
@@ -126,11 +137,11 @@ class RemovalOperators:
                     removed_list.append(i + 1)
                     route_1.remove(i + 1 + n_orders)
                     removed_list.append(i + 1 + n_orders)
-                    a += 1
+                a += 1
             else:
                 break
-        route_2 = deepcopy(route)
-        for order in route_2[1:-1]:
+        # route_2 = deepcopy(route)
+        for order in route[1:-1]:
             if order > n_orders:
                 continue
             else:
@@ -143,22 +154,6 @@ class RemovalOperators:
     # *****************************************************************************************
     # End of SISR removal
 
-    #*****************************************************************************************************
-    #Start of shaw removal
-# class RemovalOperators:
-    '''
-    1.shaw removal
-    -  calculate_similarity
-    -  get_arrival_time
-    2.random removal
-    3.worst removal
-    - calculate_contribution
-    4.remove_requests
-    '''
-    # def __init__(self, solution):
-    #     self.solution = solution
-    #     self.instance = solution.instance 
-        
     #*****************************************************************************************************
     #Start of shaw removal
     def shaw_removal(self, num_remove, p):
@@ -268,12 +263,13 @@ class RemovalOperators:
         
         #return new_solution, removed_pairs
         return new_solution
+    
 
+# Insertion method
 class RepairOperators:
     def __init__(self, solution):
         self.solution = deepcopy(solution)
         self.instance = solution.instance
-        # self.insertion_log = []  # record
 
     #*****************************************************************************************************
     #Start of greedy insertion
@@ -284,11 +280,12 @@ class RepairOperators:
             best_route = None
             best_insert_position = None
             # loop each route to find a suitable location to insert 
+            temp_solution = deepcopy(self.solution)
             for vehicle_id, route in enumerate(self.solution.routes):
                 for i in range(1, len(route)):
                     for j in range(i, len(route)):
                         temp_route = route[:i] + [pickup] + route[i:j] + [delivery] + route[j:]
-                        temp_solution = deepcopy(self.solution)
+                        # temp_solution = deepcopy(self.solution)
                         temp_solution.routes[vehicle_id] = temp_route
                         temp_solution.update_all()
 
@@ -316,10 +313,11 @@ class RepairOperators:
                 costs = []
                 for vehicle_id, route in enumerate(self.solution.routes): # iterate every route
                     min_cost = float('inf')
+                    temp_solution = deepcopy(self.solution)
                     for i in range(1, len(route)):
                         for j in range(i, len(route)):
                             temp_route = route[:i] + [pickup] + route[i:j] + [delivery] + route[j:]
-                            temp_solution = deepcopy(self.solution)
+                            # temp_solution = deepcopy(self.solution)
                             temp_solution.routes[vehicle_id] = temp_route
                             temp_solution.update_all()
 
@@ -342,7 +340,7 @@ class RepairOperators:
                 # 无法被插入到任何路径，直接跳过
                 if len(costs) == 0:
                     removed_pairs.remove((pickup, delivery))
-                    print(f"Request ({pickup}, {delivery}) cannot be inserted into any route.")
+                    #print(f"Request ({pickup}, {delivery}) cannot be inserted into any route.")
                     continue
                 # 处理插入机会少于k的请求
                 elif len(costs) > 0 and len(costs) < k:
@@ -353,7 +351,7 @@ class RepairOperators:
                 # 如果没有插入机会少于k的请求，则选择最大遗憾值的请求
                 elif  len(costs) >= k:
                     max_regret = float('-inf')
-                    regret = sum(cost[0] for cost in costs[:k]) - costs[0][0]*k
+                    regret = sum(cost[0] for cost in costs[:k]) - costs[0][0]
                     if regret > max_regret:
                         max_regret = regret
                         best_request = (pickup, delivery)
@@ -376,88 +374,3 @@ class RepairOperators:
                                            + [pickup] + self.solution.routes[vehicle_id][i:j] + [delivery] \
                                            + self.solution.routes[vehicle_id][j:]
         self.solution.update_all() # update all of the things
-        # self.record_insertion(vehicle_id, pickup, delivery, insert_position)  # record the insertion position
-    
-    # def record_insertion(self, vehicle_id, pickup, delivery, position):
-    #     """
-    #     记录插入位置
-    #     vehicle_id: 车辆ID
-    #     pickup: 取货点
-    #     delivery: 送货点
-    #     position: 插入位置 (i, j)
-    #     """
-    #     self.insertion_log.append({
-    #     'vehicle_id': vehicle_id,
-    #     'pickup': pickup,
-    #     'delivery': delivery,
-    #     'position': position
-    #     })
-
-    # def get_insertion_log(self):
-    #     """
-    #     获取插入日志
-    #     :return: 插入日志
-    #     """
-    #     return self.insertion_log
-        
-
-# class ReverseOperators:
-#     def __init__(self, solution):
-#         self.solution = solution
-#         self.instance = solution.instance
-
-#     def two_opt(self, max_iterations):
-#         '''
-#         2-opt altorithm
-#         '''
-#         best_solution = deepcopy(self.solution)
-#         current_solution = deepcopy(self.solution)
-
-#         for _ in range(max_iterations):
-#             improved = False
-
-#             for vehicle_id in range(current_solution.num_vehicles):
-#                 route = current_solution.routes[vehicle_id]
-#                 if len(route) <= 4:
-#                     continue
-#                 for i in range(1, len(route) - 2):
-#                     for j in range(i + 1, len(route) - 1):
-#                         new_route = self.two_opt_swap(route, i, j)
-#                         if new_route is None:
-#                             continue
-
-#                         new_routes = deepcopy(current_solution.routes)
-#                         new_routes[vehicle_id] = new_route
-
-#                         # 不创建新的实例，直接更新当前解
-#                         current_solution.routes = new_routes
-#                         current_solution.update_all()
-
-#                         if current_solution.is_feasible() and current_solution.objective_function() < best_solution.objective_function():
-#                             best_solution = deepcopy(current_solution)
-#                             improved = True
-#                             break
-
-#                     if improved:
-#                         break
-
-#             if not improved:
-#                 break
-
-#         return best_solution
-
-#     def two_opt_swap(self, route, i, j):
-#         """
-#         执行 2-opt 交换
-#         :param route: 路径列表
-#         :param i: 第一个要交换的节点的索引
-#         :param j: 第二个要交换的节点的索引
-#         :return: 交换后的新路径列表，如果交换无效则返回 None
-#         """
-#         if i == 0 or j == len(route) - 1:
-#             return None
-
-#         new_route = route[:i] + list(reversed(route[i:j+1])) + route[j+1:]
-#         return new_route
-
-   
