@@ -25,7 +25,7 @@ class RealMap:
         # Features
         self.coordinates = self.generate_coordinates(dist_function, dist_params)
         self.distance_matrix = self.generate_distance_matrix() # real time matrix
-        self.all_nodes_names = self.generate_node_type()  # Save the type-to-index mapping
+        self.node_type_dict= self.generate_node_type()  # Save the type-to-index mapping
 
     def generate_coordinates(self, dist_function, dist_params)-> dict:
         '''
@@ -87,6 +87,8 @@ class RealMap:
 if __name__ == '__main__':
     # create RealMap instance，n_r restaurants and n_r customers
     real_map = RealMap(n_r=2, n_c=4, dist_function = np.random.uniform, dist_params = {'low': -1, 'high': 1})
+    print(real_map.all_nodes)
+    print(len(real_map.coordinates))
     # plot
     from utils import plot_real_map
     plot_real_map(real_map, show_index='True')

@@ -96,11 +96,11 @@ if __name__ == "__main__":
     random_params = {
         'sample_dist': {
             'function': np.random.randint,
-            'params': {'low': 1, 'high': 8}
+            'params': {'low': 1, 'high': 3}
         },
         'demand_dist': {
             'function': np.random.poisson,
-            'params': {'lam': 2}
+            'params': {'lam': 1}
         }
     }
 
