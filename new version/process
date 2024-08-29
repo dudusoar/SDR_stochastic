@@ -1,0 +1,5 @@
+
+目前进度：修改solution，以确保与instance匹配
+注意点：
+- solution使用的index list应该包括destination，但新的instance只有depot和charging
+- solution使用的time matrix是基于order index而不是real index，但现存的instance使用的time matrix是基于real index索引的
