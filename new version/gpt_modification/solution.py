@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 class PDPTWSolution:
     '''
     structure
@@ -19,18 +18,19 @@ class PDPTWSolution:
        - check_battery_constraint
        - check_pickup_delivery_order
     '''
-    def __init__(self, instance, vehicle_capacity, battery_capacity, battery_consume_rate, routes, penalty):
+    def __init__(self, instance, vehicle_capacity, battery_capacity, battery_consume_rate, routes, gamma, penalty):
         """
+        初始化 PDPTWSolution 对象
         :param instance: PDPTWInstance 对象
         :param vehicle_capacity: 车辆容量
         :param battery_capacity: 电池容量
         :param battery_consume_rate: 电池消耗率
         :param routes: 给定的路径列表
-        :param penalty: 未访问点的惩罚
         """
         # unchanged parameters within the same instance
         self.instance = instance
-        self.penalty = penalty
+        self.gamma = gamma # penalty for unvisited orders
+        self.penalty = penalty # penalty for delayed orders
         self.vehicle_capacity = vehicle_capacity
         self.battery_capacity = battery_capacity
         self.battery_consume_rate = battery_consume_rate
@@ -56,8 +56,9 @@ class PDPTWSolution:
         self.unvisited_pairs = []
         self.visited_pairs = []
 
-        # first initialization
-        self.update_all()
+        self.initialize_routes()
+        self.calculate_all()
+        self.update_visit_record()
 
     def update_all(self):
         """
@@ -88,7 +89,7 @@ class PDPTWSolution:
             self.calculate_battery_capacity_levels(vehicle_id)
             self.calculate_arrival_leave_wait_times(vehicle_id)
             self.calculate_travel_delay_wait_times(vehicle_id)
-
+    
     def update_visit_record(self):
         """
         更新未被服务的请求
@@ -101,11 +102,11 @@ class PDPTWSolution:
                         visited_requests.add(node)
                     else:
                         visited_requests.add(node - self.instance.n)
-        all_requests = set(range(1, self.instance.n + 1))
+        all_requests = set(range(1, self.instance.n + 1))    
         unvisited_requests = all_requests - visited_requests
         # update
         self.visited_requests = visited_requests
-        self.unvisited_requests = unvisited_requests
+        self.unvisited_requests = unvisited_requests 
         self.visited_pairs = [(node, node + self.instance.n) for node in visited_requests]
         self.unvisited_pairs = [(node, node + self.instance.n) for node in unvisited_requests]
 
@@ -179,14 +180,14 @@ class PDPTWSolution:
             curr_node = route[i]
             next_node = route[i + 1]
             travel_time += time_matrix[curr_node][next_node]
-
+            
             if self.instance.time_windows[curr_node][1] != float('inf'):
                 # delay_time += max(0, leave_times[i] - self.instance.time_windows[next_node][1])
-                if (self.instance.time_windows[curr_node][1] - arrival_times[i]) < 0:
-                    delay_count += 1
-                    # if arrival_times[i] > self.instance.time_window[curr_node][1]:
-            #     delay_count += 1
-
+                if (self.instance.time_windows[curr_node][1]-arrival_times[i]) < 0:
+                    delay_count += 1 
+            # if arrival_times[i] > self.instance.time_window[curr_node][1]:
+            #     delay_count += 1 
+            
             wait_time += wait_times[i]
 
         self.total_travel_times[vehicle_id] = travel_time
@@ -202,7 +203,7 @@ class PDPTWSolution:
         unvisited_penalty = len(self.unvisited_requests) * self.gamma
         late_penalty = np.sum(self.total_delay_orders) * self.penalty
         # return np.sum(self.total_travel_times) + np.sum(self.total_delay_times) + unvisited_penalty
-        return np.sum(self.total_travel_times) / 60 * self.instance.speed + late_penalty + unvisited_penalty
+        return np.sum(self.total_travel_times)/60*self.instance.speed + late_penalty + unvisited_penalty
 
     # ================================ feasibility check ================================
     def is_feasible(self):
@@ -251,7 +252,7 @@ class PDPTWSolution:
             if np.any(self.route_battery_levels[vehicle_id] < 0):
                 return False
         return True
-
+    
     def check_pickup_delivery_order(self, selected_vehicles):
         """
         检查取货-送货顺序约束
@@ -279,53 +280,47 @@ class PDPTWSolution:
         if not selected_vehicles:
             print("No vehicle is selected in the solution.")
             return
-
+    
         if vehicle_ids is None:
             vehicle_ids = selected_vehicles
         else:
             vehicle_ids = [vehicle_id for vehicle_id in vehicle_ids if vehicle_id in selected_vehicles]
-
+    
         if not vehicle_ids:
             print("No valid vehicle IDs provided.")
             return
-
+    
         plt.figure(figsize=(8, 8))
         plt.scatter(self.instance.depot[0], self.instance.depot[1], c='red', marker='s', s=100, label='Depot')
-        plt.scatter([p[0] for p in self.instance.pickup_points], [p[1] for p in self.instance.pickup_points], c='blue',
-                    marker='o', label='Pickup')
-        plt.scatter([d[0] for d in self.instance.delivery_points], [d[1] for d in self.instance.delivery_points],
-                    c='green', marker='d', label='Delivery')
-
-        plt.annotate('Depot', (self.instance.depot[0], self.instance.depot[1]), textcoords='offset points',
-                     xytext=(0, 10), ha='center')
+        plt.scatter([p[0] for p in self.instance.pickup_points], [p[1] for p in self.instance.pickup_points], c='blue', marker='o', label='Pickup')
+        plt.scatter([d[0] for d in self.instance.delivery_points], [d[1] for d in self.instance.delivery_points], c='green', marker='d', label='Delivery')
+    
+        plt.annotate('Depot', (self.instance.depot[0], self.instance.depot[1]), textcoords='offset points', xytext=(0, 10), ha='center')
         for i, pickup_point in enumerate(self.instance.pickup_points, start=1):
-            plt.annotate(f'P{i}', (pickup_point[0], pickup_point[1]), textcoords='offset points', xytext=(0, 5),
-                         ha='center')
+            plt.annotate(f'P{i}', (pickup_point[0], pickup_point[1]), textcoords='offset points', xytext=(0, 5), ha='center')
         for i, delivery_point in enumerate(self.instance.delivery_points, start=1):
-            plt.annotate(f'D{i}', (delivery_point[0], delivery_point[1]), textcoords='offset points', xytext=(0, 5),
-                         ha='center')
-
+            plt.annotate(f'D{i}', (delivery_point[0], delivery_point[1]), textcoords='offset points', xytext=(0, 5), ha='center')
+    
         color_map = plt.cm.get_cmap('viridis', len(vehicle_ids))
         for i, vehicle_id in enumerate(vehicle_ids):
             route = self.routes[vehicle_id]
             color = color_map(i)
-
+            
             route_points = [self.instance.depot]
             for node in route[1:-1]:
                 if node <= self.instance.n:
-                    route_points += [self.instance.pickup_points[node - 1]]
-                elif node != 2 * self.instance.n + 1:
-                    route_points += [self.instance.delivery_points[node - self.instance.n - 1]]
+                    route_points += [self.instance.pickup_points[node-1]]
+                elif node != 2*self.instance.n + 1:
+                    route_points += [self.instance.delivery_points[node-self.instance.n-1]]
                 else:
                     route_points += [self.instance.charging]
             route_points += [self.instance.depot]
             # route_points = [self.instance.depot] + [self.instance.pickup_points[node-1] if node <= self.instance.n else self.instance.delivery_points[node-self.instance.n-1] for node in route[1:-1]] + [self.instance.depot]
             route_x = [point[0] for point in route_points]
             route_y = [point[1] for point in route_points]
-
-            plt.plot(route_x, route_y, color=color, linestyle='-', linewidth=1.5, alpha=0.8,
-                     label=f'Vehicle {vehicle_id + 1}')
-
+            
+            plt.plot(route_x, route_y, color=color, linestyle='-', linewidth=1.5, alpha=0.8, label=f'Vehicle {vehicle_id+1}')
+    
         plt.xlabel('X')
         plt.ylabel('Y')
         plt.title('PDPTW Solution')

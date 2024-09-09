@@ -27,7 +27,6 @@ class PDPTWInstance:
         self.time_matrix = self.generate_time_matrix()
 
         # data
-        self.order_real_pairs = []
 
 
     def generate_time_matrix(self):
@@ -53,8 +52,6 @@ class PDPTWInstance:
 
                     for _ in range(orders_count):
                         count += 1
-                        self.order_real_pairs.append((pickup_real_index, delivery_real_index))
-
                         # Calculate times for delivery
                         travel_time = self.time_matrix[pickup_real_index][delivery_real_index]
                         delivery_start_time = time_start + travel_time + self.service_time + self.extra_time
@@ -89,7 +86,7 @@ class PDPTWInstance:
                             self.node_type_dict[delivery_real_index]  # RealType
                         ])
 
-        # Add depot information
+        # Add depot information to the table
         depot_real_index = 0
         depot_coordinates = self.real_coordinates[depot_real_index]
         data.append([
@@ -106,7 +103,7 @@ class PDPTWInstance:
             self.node_type_dict[depot_real_index]  # RealType
         ])
 
-        # Add charging station information
+        # Add charging station information to the table
         charging_station_real_index = len(self.real_coordinates) - 1
         charging_station_coordinates = self.real_coordinates[charging_station_real_index]
         data.append([
