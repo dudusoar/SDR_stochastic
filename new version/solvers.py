@@ -176,7 +176,7 @@ class ALNS:
 
             for iteration in range(self.segment_length):
                 # ================================== select the operators =====================================================
-                ## removal
+                ## removal 
                 removal_operators = RemovalOperators(self.current_solution)
                 removal_idx = self.select_operator(self.removal_weights[segment])
 
@@ -237,7 +237,6 @@ class ALNS:
     
 
                 #================================== Add charging insertion ==================================
-                battery = self.battery
                 if segment > 0:
                     z = 0 # number of routes which does not need charge
                     routes_charge = deepcopy(repair_solution.routes)
@@ -246,7 +245,7 @@ class ALNS:
                         
                         route_best = []
                         
-                        if self.total_distance(route_1) <= battery:
+                        if self.total_distance(route_1) <= self.battery:
                             z += 1
                             continue
                 
@@ -255,12 +254,12 @@ class ALNS:
                         for i in range(2, len(route_1) - 1):
                             route_copy = route_1[:i] + [insert_index] + route_1[i:]
 
-                            if self.total_distance(route_copy) > 2 * battery:
+                            if self.total_distance(route_copy) > 2 * self.battery:
                                 continue
                             else:
-                                # routes_temp[route_id] = route_copy
                                 self.charging_solution.routes[route_id] = route_copy
                                 self.charging_solution.update_all()
+                                # update the best objective function
                                 cr_best = self.charging_solution.objective_function()
                                 if cr_best < c_best:
                                     second_index = route_copy.index(insert_index)
@@ -268,7 +267,7 @@ class ALNS:
                                     subroute_2 = route_copy[second_index:]
                                     dist_1 = self.total_distance(subroute_1)
                                     dist_2 = self.total_distance(subroute_2)
-                                    if (dist_1 <= battery) & (dist_2 <= battery):
+                                    if (dist_1 <= self.battery) & (dist_2 <= self.battery):
                                         c_best = cr_best
                                         route_best = deepcopy(route_copy)
                                         routes_charge[route_id] = route_best
