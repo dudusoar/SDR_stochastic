@@ -1,94 +1,114 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from typing import Dict, List, Tuple, Callable
 
-
-# For generating the instances
 class RealMap:
-    '''
-    Include all of the information from the real map:
-    - Number of restaurants and customers
-    - Index lists for all nodes (for restaurants, customers)
-    - Features: coordinates, distances matrix, node-to-type dict
-    '''
-    def __init__(self, n_r, n_c, dist_function, dist_params):
-        # Number
-        self.n_r = n_r  # Number of Restaurants
-        self.n_c = n_c  # Number of Customers
-        self.n = self.n_r + self.n_c # total number of nodes in the map
+    """
+    Represents a real map with restaurants, customers, and other nodes.
 
-        # Index lists
-        # 0：depot, self.n + 1: destination, self.n + 2: charging station
-        self.all_nodes = [0] + list(range(1, self.n + 1)) + [self.n + 1, self.n + 2]
-        self.restaurants = list(range(1, self.n_r + 1))
-        self.customers = list(range(self.n_r + 1, self.n + 1))
+    Attributes:
+        N_R (int): Number of restaurants
+        N_C (int): Number of customers
+        DEPOT_INDEX (int): Index of the depot
+        DESTINATION_INDEX (int): Index of the destination
+        CHARGING_STATION_INDEX (int): Index of the charging station
+    """
+    def __init__(self, n_r: int, n_c: int, dist_function: Callable, dist_params: Dict):
+        """
+        Initialize the RealMap instance.
 
-        # Features
-        self.coordinates = self.generate_coordinates(dist_function, dist_params)
-        self.distance_matrix = self.generate_distance_matrix() # real time matrix
-        self.node_type_dict= self.generate_node_type()  # Save the type-to-index mapping
+        Args:
+            n_r (int): Number of restaurants
+            n_c (int): Number of customers
+            dist_function (Callable): Distribution function for generating coordinates
+            dist_params (Dict): Parameters for the distribution function
+        """
+        # number counts
+        self.N_R = n_r
+        self.N_C = n_c
+        self.n = self.N_R + self.N_C
 
-    def generate_coordinates(self, dist_function, dist_params)-> dict:
-        '''
-        Generate the random coordinates
-        :param dist_function: random function
-        :param dist_params: corresponding parameters
-        '''
-        # Dynamically adjust the range based on the number of nodes
-        coordinates = {}
+        # index list
+        self.DEPOT_INDEX = 0
+        self.DESTINATION_INDEX = self.n + 1
+        self.CHARGING_STATION_INDEX = self.n + 2
+        self.all_nodes: List[int] = [self.DEPOT_INDEX] + list(range(1, self.n + 1)) + [self.DESTINATION_INDEX, self.CHARGING_STATION_INDEX]
+        self.restaurants: List[int] = list(range(1, self.N_R + 1))
+        self.customers: List[int] = list(range(self.N_R + 1, self.n + 1))
 
-        # Generate coordinates for pickup and delivery nodes
-        for node in self.all_nodes[:self.n + 1]:
-            x = dist_function(**dist_params)
-            y = dist_function(**dist_params)
-            coordinates[node] = (x, y)
+        # other properties
+        self.coordinates: Dict[int, Tuple[float, float]] = self._generate_coordinates(dist_function, dist_params)
+        self.distance_matrix: np.ndarray = self._generate_distance_matrix()
+        self.node_type_dict: Dict[int, str] = self._generate_node_type()
 
-        # Depot, destination, and charging station are placed at the same location
-        coordinates[self.all_nodes[self.n + 1]] = coordinates[0]
-        coordinates[self.all_nodes[self.n + 2]] = coordinates[0]
+    def _generate_coordinates(self, dist_function: Callable, dist_params: Dict) -> Dict[int, Tuple[float, float]]:
+        """
+        Generate random coordinates for all nodes.
 
+        Args:
+            dist_function (Callable): Distribution function for generating coordinates
+            dist_params (Dict): Parameters for the distribution function
+
+        Returns:
+            Dict[int, Tuple[float, float]]: Dictionary of node indices to coordinates
+        """
+        coordinates = {node: (dist_function(**dist_params), dist_function(**dist_params)) for node in self.all_nodes[:self.n + 1]}
+        coordinates[self.DESTINATION_INDEX] = coordinates[self.DEPOT_INDEX]
+        coordinates[self.CHARGING_STATION_INDEX] = coordinates[self.DEPOT_INDEX]
         return coordinates
 
-    def generate_distance_matrix(self) -> np.ndarray:
+    def _generate_distance_matrix(self) -> np.ndarray:
         """
-        Calculate the time matrix based on Euclidean distance between nodes.
+        Calculate the distance matrix based on Euclidean distance between nodes.
+
+        Returns:
+            np.ndarray: Distance matrix
         """
-        num_nodes = len(self.all_nodes)
-        distance_matrix = np.zeros((num_nodes, num_nodes))
+        coords = np.array([self.coordinates[i] for i in self.all_nodes])
+        diff = coords[:, np.newaxis, :] - coords[np.newaxis, :, :]
+        return np.sqrt(np.sum(diff**2, axis=-1))
 
-        for i in self.all_nodes:
-            for j in self.all_nodes:
-                if i != j:
-                    dist = np.sqrt((self.coordinates[i][0] - self.coordinates[j][0])**2 +
-                                   (self.coordinates[i][1] - self.coordinates[j][1])**2)
-                    distance_matrix[i][j] = dist
-                else:
-                    distance_matrix[i][j] = 0  # Distance to self is zero
+    def _generate_node_type(self) -> Dict[int, str]:
+        """
+        Generate a dictionary mapping node indices to their types.
 
-        return distance_matrix
+        Returns:
+            Dict[int, str]: Dictionary of node indices to node types
+        """
+        return {
+            self.DEPOT_INDEX: 'depot',
+            self.DESTINATION_INDEX: 'destination',
+            self.CHARGING_STATION_INDEX: 'charging_station',
+            **{i: 'restaurant' for i in self.restaurants},
+            **{i: 'customer' for i in self.customers}
+        }
 
-    def generate_node_type(self):
-        '''
-        Generate a dictionary mapping node types to their indices.
-        Key: index, Value: type
-        Types: depot, destination, charging station, restaurant, customer
-        '''
-        node_names = {}
-        node_names[0] = 'depot'
-        node_names[self.n + 1] = 'destination'
-        node_names[self.n + 2] = 'charging_station'
-        for i in range(1, self.n_r + 1):
-            node_names[i] = 'restaurant'
-        for j in range(self.n_r + 1, self.n + 1):
-            node_names[j] = 'customer'
-        return node_names
+    def plot_map(self, show_index: bool = True):
+        """
+        Plot the map with all nodes.
 
-# Data loader
+        Args:
+            show_index (bool): Whether to show node indices on the plot
+        """
+        plt.figure(figsize=(10, 10))
+        colors = {'depot': 'red', 'destination': 'red', 'charging_station': 'green',
+                  'restaurant': 'blue', 'customer': 'orange'}
+
+        for node, (x, y) in self.coordinates.items():
+            node_type = self.node_type_dict[node]
+            plt.scatter(x, y, c=colors[node_type], s=100)
+            if show_index:
+                plt.annotate(str(node), (x, y), xytext=(5, 5), textcoords='offset points')
+
+        plt.title("Real Map")
+        plt.xlabel("X coordinate")
+        plt.ylabel("Y coordinate")
+        plt.legend(colors.keys())
+        plt.grid(True)
+        plt.show()
 
 if __name__ == '__main__':
-    # create RealMap instance，n_r restaurants and n_r customers
-    real_map = RealMap(n_r=2, n_c=4, dist_function = np.random.uniform, dist_params = {'low': -1, 'high': 1})
-    print(real_map.all_nodes)
-    print(len(real_map.coordinates))
-    # plot
-    from utils import plot_real_map
-    plot_real_map(real_map, show_index='True')
+    real_map = RealMap(n_r=2, n_c=4, dist_function=np.random.uniform, dist_params={'low': -1, 'high': 1})
+    print(f"All nodes: {real_map.all_nodes}")
+    print(f"Number of coordinates: {len(real_map.coordinates)}")
+    real_map.plot_map(show_index=True)

@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from collections import defaultdict
 
 class PDPTWSolution:
     '''
@@ -18,7 +19,8 @@ class PDPTWSolution:
        - check_battery_constraint
        - check_pickup_delivery_order
     '''
-    def __init__(self, instance, vehicle_capacity, battery_capacity, battery_consume_rate, routes, gamma, penalty):
+
+    def __init__(self, instance, vehicle_capacity, battery_capacity, battery_consume_rate, routes, penalty_unvisit, penalty_delay):
         """
         初始化 PDPTWSolution 对象
         :param instance: PDPTWInstance 对象
@@ -29,11 +31,14 @@ class PDPTWSolution:
         """
         # unchanged parameters within the same instance
         self.instance = instance
-        self.gamma = gamma # penalty for unvisited orders
-        self.penalty = penalty # penalty for delayed orders
+        ## penalty
+        self.penalty_unvisit = penalty_unvisit
+        self.penalty_delay = penalty_delay
+        ## constraints
         self.vehicle_capacity = vehicle_capacity
         self.battery_capacity = battery_capacity
         self.battery_consume_rate = battery_consume_rate
+        ## main data structure
         self.routes = routes
         self.num_vehicles = len(routes)
 
@@ -89,7 +94,7 @@ class PDPTWSolution:
             self.calculate_battery_capacity_levels(vehicle_id)
             self.calculate_arrival_leave_wait_times(vehicle_id)
             self.calculate_travel_delay_wait_times(vehicle_id)
-    
+
     def update_visit_record(self):
         """
         更新未被服务的请求
@@ -102,11 +107,11 @@ class PDPTWSolution:
                         visited_requests.add(node)
                     else:
                         visited_requests.add(node - self.instance.n)
-        all_requests = set(range(1, self.instance.n + 1))    
+        all_requests = set(range(1, self.instance.n + 1))
         unvisited_requests = all_requests - visited_requests
         # update
         self.visited_requests = visited_requests
-        self.unvisited_requests = unvisited_requests 
+        self.unvisited_requests = unvisited_requests
         self.visited_pairs = [(node, node + self.instance.n) for node in visited_requests]
         self.unvisited_pairs = [(node, node + self.instance.n) for node in unvisited_requests]
 
@@ -180,14 +185,14 @@ class PDPTWSolution:
             curr_node = route[i]
             next_node = route[i + 1]
             travel_time += time_matrix[curr_node][next_node]
-            
+
             if self.instance.time_windows[curr_node][1] != float('inf'):
                 # delay_time += max(0, leave_times[i] - self.instance.time_windows[next_node][1])
-                if (self.instance.time_windows[curr_node][1]-arrival_times[i]) < 0:
-                    delay_count += 1 
-            # if arrival_times[i] > self.instance.time_window[curr_node][1]:
-            #     delay_count += 1 
-            
+                if (self.instance.time_windows[curr_node][1] - arrival_times[i]) < 0:
+                    delay_count += 1
+                    # if arrival_times[i] > self.instance.time_window[curr_node][1]:
+            #     delay_count += 1
+
             wait_time += wait_times[i]
 
         self.total_travel_times[vehicle_id] = travel_time
@@ -195,15 +200,16 @@ class PDPTWSolution:
         self.total_wait_times[vehicle_id] = wait_time
         self.total_delay_orders[vehicle_id] = delay_count
 
+    # ================================ objective function ================================
     def objective_function(self):
         """
         计算目标函数值
         :return: 目标函数值（总行驶时间 + 总延误时间）
         """
-        unvisited_penalty = len(self.unvisited_requests) * self.gamma
-        late_penalty = np.sum(self.total_delay_orders) * self.penalty
+        unvisited_penalty = len(self.unvisited_requests) * self.penalty_unvisit
+        late_penalty = np.sum(self.total_delay_orders) * self.penalty_delay
         # return np.sum(self.total_travel_times) + np.sum(self.total_delay_times) + unvisited_penalty
-        return np.sum(self.total_travel_times)/60*self.instance.speed + late_penalty + unvisited_penalty
+        return np.sum(self.total_travel_times) / 60 * self.instance.robot_speed + late_penalty + unvisited_penalty
 
     # ================================ feasibility check ================================
     def is_feasible(self):
@@ -252,7 +258,7 @@ class PDPTWSolution:
             if np.any(self.route_battery_levels[vehicle_id] < 0):
                 return False
         return True
-    
+
     def check_pickup_delivery_order(self, selected_vehicles):
         """
         检查取货-送货顺序约束
@@ -280,50 +286,73 @@ class PDPTWSolution:
         if not selected_vehicles:
             print("No vehicle is selected in the solution.")
             return
-    
+
         if vehicle_ids is None:
             vehicle_ids = selected_vehicles
         else:
             vehicle_ids = [vehicle_id for vehicle_id in vehicle_ids if vehicle_id in selected_vehicles]
-    
+
         if not vehicle_ids:
             print("No valid vehicle IDs provided.")
             return
-    
-        plt.figure(figsize=(8, 8))
+
+        plt.figure(figsize=(12, 10))
+
+        # 创建一个字典来存储每个位置的所有订单ID
+        location_orders = defaultdict(list)
+
+        # 填充location_orders字典
+        for order_id in range(1, self.instance.n + 1):
+            pickup_coord = self.instance.pickup_points[order_id - 1]
+            delivery_coord = self.instance.delivery_points[order_id - 1]
+            location_orders[pickup_coord].append(f"P{order_id}")
+            location_orders[delivery_coord].append(f"D{order_id}")
+
+        # 绘制节点
         plt.scatter(self.instance.depot[0], self.instance.depot[1], c='red', marker='s', s=100, label='Depot')
-        plt.scatter([p[0] for p in self.instance.pickup_points], [p[1] for p in self.instance.pickup_points], c='blue', marker='o', label='Pickup')
-        plt.scatter([d[0] for d in self.instance.delivery_points], [d[1] for d in self.instance.delivery_points], c='green', marker='d', label='Delivery')
-    
-        plt.annotate('Depot', (self.instance.depot[0], self.instance.depot[1]), textcoords='offset points', xytext=(0, 10), ha='center')
-        for i, pickup_point in enumerate(self.instance.pickup_points, start=1):
-            plt.annotate(f'P{i}', (pickup_point[0], pickup_point[1]), textcoords='offset points', xytext=(0, 5), ha='center')
-        for i, delivery_point in enumerate(self.instance.delivery_points, start=1):
-            plt.annotate(f'D{i}', (delivery_point[0], delivery_point[1]), textcoords='offset points', xytext=(0, 5), ha='center')
-    
+        plt.scatter([p[0] for p in self.instance.pickup_points], [p[1] for p in self.instance.pickup_points], c='blue',
+                    marker='o', s=100, label='Pickup')
+        plt.scatter([d[0] for d in self.instance.delivery_points], [d[1] for d in self.instance.delivery_points],
+                    c='green', marker='d', s=100, label='Delivery')
+
+        if self.instance.charging != self.instance.depot:
+            plt.scatter(self.instance.charging[0], self.instance.charging[1], c='purple', marker='^', s=100,
+                        label='Charging Station')
+
+        # 添加标签
+        plt.annotate('Depot', (self.instance.depot[0], self.instance.depot[1]), textcoords='offset points',
+                     xytext=(0, 10), ha='center')
+
+        for location, orders in location_orders.items():
+            label = ', '.join(orders)
+            plt.annotate(f"[{label}]", (location[0], location[1]), textcoords='offset points', xytext=(0, 5),
+                         ha='center', fontsize=8)
+
+        # 绘制路径
         color_map = plt.cm.get_cmap('viridis', len(vehicle_ids))
         for i, vehicle_id in enumerate(vehicle_ids):
             route = self.routes[vehicle_id]
             color = color_map(i)
-            
+
             route_points = [self.instance.depot]
             for node in route[1:-1]:
                 if node <= self.instance.n:
-                    route_points += [self.instance.pickup_points[node-1]]
-                elif node != 2*self.instance.n + 1:
-                    route_points += [self.instance.delivery_points[node-self.instance.n-1]]
+                    route_points.append(self.instance.pickup_points[node - 1])
+                elif node <= 2 * self.instance.n:
+                    route_points.append(self.instance.delivery_points[node - self.instance.n - 1])
                 else:
-                    route_points += [self.instance.charging]
-            route_points += [self.instance.depot]
-            # route_points = [self.instance.depot] + [self.instance.pickup_points[node-1] if node <= self.instance.n else self.instance.delivery_points[node-self.instance.n-1] for node in route[1:-1]] + [self.instance.depot]
+                    route_points.append(self.instance.charging)
+            route_points.append(self.instance.depot)
+
             route_x = [point[0] for point in route_points]
             route_y = [point[1] for point in route_points]
-            
-            plt.plot(route_x, route_y, color=color, linestyle='-', linewidth=1.5, alpha=0.8, label=f'Vehicle {vehicle_id+1}')
-    
-        plt.xlabel('X')
-        plt.ylabel('Y')
+
+            plt.plot(route_x, route_y, color=color, linestyle='-', linewidth=1.5, alpha=0.8,
+                     label=f'Vehicle {vehicle_id + 1}')
+
+        plt.xlabel('X coordinate')
+        plt.ylabel('Y coordinate')
         plt.title('PDPTW Solution')
-        plt.legend()
+        plt.legend(loc='best')
         plt.grid(True)
         plt.show()
