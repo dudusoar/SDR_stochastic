@@ -1,6 +1,14 @@
 from operators import RemovalOperators, RepairOperators
 import matplotlib.pyplot as plt
+from solution import PDPTWSolution
+import random
+import numpy as np
+from copy import deepcopy
+from collections import defaultdict
+import time
 
+
+# ========================= Initial solution ===========================================
 def greedy_insertion_init(instance, num_vehicles, vehicle_capacity, battery_capacity, battery_consume_rate, penalty_unvisit, penalty_delay):
     """
     使用贪心插入法构建初始解
@@ -50,15 +58,7 @@ def greedy_insertion_init(instance, num_vehicles, vehicle_capacity, battery_capa
 
     return solution
 
-
-from solution import PDPTWSolution
-import random
-import numpy as np
-from copy import deepcopy
-from collections import defaultdict
-import time
-
-
+# ========================= ALNS ===========================================
 class ALNS:
     def __init__(self, initial_solution,
                  params_operators, d_matrix, dist_matrix, battery,
@@ -77,10 +77,11 @@ class ALNS:
         self.num_removal = params_operators['num_removal']
         self.p = params_operators['p']
         self.k = params_operators['k']
+        ## for SISRs
         self.L_max = params_operators['L_max']
         self.avg_remove_order = params_operators['avg_remove_order']
-
         self.d_matrix = d_matrix
+        
         self.dist_matrix = dist_matrix
         self.battery = battery
 
@@ -108,6 +109,7 @@ class ALNS:
         # Weights
         self.removal_weights = np.zeros((num_segments, len(self.removal_list)))
         self.repair_weights = np.zeros((num_segments, len(self.repair_list)))
+        ## inital weights
         self.removal_weights[0] = np.ones(len(self.removal_list)) / len(self.removal_list)
         self.repair_weights[0] = np.ones(len(self.repair_list)) / len(self.repair_list)
 
@@ -151,20 +153,18 @@ class ALNS:
         start_time = time.time()
         best_obj_diff = 100
         best_obj_list = []
-        insert_index = len(self.dist_matrix) - 1
+        insert_index = len(self.dist_matrix) - 1 # index for charging station
 
         cost_ci_best = float('inf')  # recording cost after chargning insertion
         cost_ci_obj_diff = 100
         cost_ci_best_list = []
 
-        # while segment < self.num_segments and num_no_improve < self.max_no_improve:
-        # while segment < self.num_segments and best_obj_diff > 0.00001 and cost_ci_obj_diff > 0.00001:
         while segment < self.num_segments and cost_ci_obj_diff > 0.00001:
             # (time and information)
             segment_start_time = time.time()
             print(f"Segment {segment + 1} / {self.num_segments}")
 
-            # =========== A new segment begins ===========
+            # ================================== A new segment begins ==================================
             # Update the weights for the current segment
             if segment > 0:
                 for i in range(len(self.removal_list)):
@@ -175,8 +175,8 @@ class ALNS:
                                                       + r * self.repair_scores[segment - 1][i] / max(1,self.repair_theta[segment - 1][i])
 
             for iteration in range(self.segment_length):
-                # ====== select the operators ======
-                # removal
+                # ================================== select the operators =====================================================
+                ## removal
                 removal_operators = RemovalOperators(self.current_solution)
                 removal_idx = self.select_operator(self.removal_weights[segment])
 
@@ -193,7 +193,7 @@ class ALNS:
                 unvisited_pairs = removed_solution.unvisited_pairs
                 # print(unvisited_pairs)
 
-                # repair
+                ## repair
                 repair_operators = RepairOperators(removed_solution)
                 repair_idx = self.select_operator(self.repair_weights[segment])
                 if repair_idx == 0:
@@ -205,11 +205,11 @@ class ALNS:
                 # print('remove_routes',removed_solution.routes)
                 # print('repair_routes',repair_solution.routes)
 
-                # update the count
+                # ================================== update the count ==================================
                 self.removal_theta[segment][removal_idx] += 1
                 self.repair_theta[segment][repair_idx] += 1
 
-                # ====== update the scores ======
+                # ================================== update the scores ==================================
                 repair_solution.update_all()
                 new_objective = repair_solution.objective_function()
 
@@ -234,25 +234,24 @@ class ALNS:
                         self.removal_scores[segment][removal_idx] += self.sigma3
                         self.repair_scores[segment][repair_idx] += self.sigma3
                     num_no_improve += 1
-                # best_obj_list.append(best_objective)
-                # if len(best_obj_list) >= 125:
-                #     best_obj_list = best_obj_list[-125:]
-                #     best_obj_diff = np.mean(best_obj_list) - best_objective
-                # else:
-                #     best_obj_diff = 100
+    
 
-                # Add charging insertion
+                #================================== Add charging insertion ==================================
                 battery = self.battery
                 if segment > 0:
-                    z = 0
+                    z = 0 # number of routes which does not need charge
                     routes_charge = deepcopy(repair_solution.routes)
-                    # routes_temp = deepcopy(self.current_solution.routes)
+                    
                     for route_id, route_1 in enumerate(routes_charge):
+                        
                         route_best = []
+                        
                         if self.total_distance(route_1) <= battery:
                             z += 1
                             continue
+                
                         c_best = float('inf')
+                        
                         for i in range(2, len(route_1) - 1):
                             route_copy = route_1[:i] + [insert_index] + route_1[i:]
 
@@ -311,6 +310,7 @@ class ALNS:
 
         return self.best_solution, self.best_charging_solution
 
+    # ============================================= plot ==========================================================
     def plot_scores(self):
         plt.figure(figsize=(12, 6))
         segments = range(self.removal_scores.shape[0])
