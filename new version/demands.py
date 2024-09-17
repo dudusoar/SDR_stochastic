@@ -48,7 +48,7 @@ class DemandGenerator:
 
             for sample in sampled_pairs:
                 pair = self.pairs[sample]
-                order_quantity = max(1, self.demand_dist(**self.demand_params))
+                order_quantity = max(0, self.demand_dist(**self.demand_params))
                 demand_dict[pair][idx] += order_quantity
 
         demand_table = pd.DataFrame(demand_dict, index=[f"{start}-{end}" for start, end in self.time_intervals]).T
@@ -94,3 +94,4 @@ if __name__ == "__main__":
     demand_gen = DemandGenerator(time_range, time_step, restaurants, customers, random_params)
     print(demand_gen.get_demand_table())
     demand_gen.plot_demand_heatmap()
+

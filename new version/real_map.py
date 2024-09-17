@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Callable
 
 class RealMap:
     """
@@ -104,24 +104,25 @@ class RealMap:
 class RealDataMap:
     def __init__(self, node_file: str, tt_matrix_file: str):
         """
-        初始化 RealDataMap 实例。
-        :param node_file: 节点信息文件路径
-        :param tt_matrix_file: 距离矩阵文件路径
+        Initialize the RealDataMap instance.
+        :param node_file: node info file paht
+        :param tt_matrix_file: distance matrix file path
         """
         self.node_data = self._load_node_data(node_file)
         self.tt_matrix = self._load_tt_matrix(tt_matrix_file)
         
         self.N_R = len(self.node_data[self.node_data['type'] == 'restaurant'])
-        self.N_C = len(self.node_data[self.node_data['type'] == 'apartment'])
+        self.N_C = len(self.node_data[self.node_data['type'].isin(['apartment', 'university building'])])
         self.n = self.N_R + self.N_C
 
-        self.DEPOT_INDEX = self.node_data[self.node_data['type'] == 'restaurant'].index[0]
-        self.DESTINATION_INDEX = self.DEPOT_INDEX  # 假设目的地与仓库相同
+        #self.DEPOT_INDEX = self.node_data[self.node_data['type'] == 'restaurant'].index[0]
+        self.DEPOT_INDEX = 15 # index
+        self.DESTINATION_INDEX = self.DEPOT_INDEX       # 假设目的地与仓库相同
         self.CHARGING_STATION_INDEX = self.DEPOT_INDEX  # 假设充电站与仓库相同
 
         self.all_nodes = list(range(len(self.node_data)))
         self.restaurants = list(self.node_data[self.node_data['type'] == 'restaurant'].index)
-        self.customers = list(self.node_data[self.node_data['type'] == 'apartment'].index)
+        self.customers = list(self.node_data[self.node_data['type'].isin(['apartment', 'university building'])].index)
 
         self.coordinates = self._generate_coordinates()
         self.distance_matrix = self.tt_matrix
@@ -133,8 +134,11 @@ class RealDataMap:
         return df.set_index('index')
 
     def _load_tt_matrix(self, file_path: str) -> np.ndarray:
-        """加载距离矩阵"""
-        return np.loadtxt(file_path, delimiter=',')
+        """加载距离矩阵，默认单位是m"""
+        matrix_meters = np.loadtxt(file_path, delimiter=',')
+        # 转化成 mile
+        matrix_miles = matrix_meters  / 1609.34
+        return matrix_miles 
 
     def _generate_coordinates(self) -> Dict[int, Tuple[float, float]]:
         """生成坐标字典"""
@@ -144,34 +148,107 @@ class RealDataMap:
         """生成节点类型字典"""
         return dict(zip(self.node_data.index, self.node_data['type']))
 
-    def plot_map(self, show_index: bool = True):
+    def plot_map(self, show_index: bool = True, show_legend: bool = True, 
+                 figsize: Tuple[int, int] = (15, 15), 
+                 node_size: int = 50, 
+                 font_size: int = 8,
+                 highlight_depot: bool = True):
         """
-        绘制地图，显示所有节点
+        绘制详细的地图，显示所有节点
+        :param show_index: 是否显示节点索引
+        :param show_legend: 是否显示图例
+        :param figsize: 图的大小
+        :param node_size: 节点的大小
+        :param font_size: 字体大小
+        :param highlight_depot: 是否高亮显示 DEPOT
         """
-        plt.figure(figsize=(15, 15))
-        colors = {'restaurant': 'red', 'apartment': 'blue', 'university building': 'green'}
-
+        plt.figure(figsize=figsize)
+        
+        colors = {
+            'restaurant': 'red',
+            'apartment': 'blue',
+            'university building': 'green'
+        }
+        
         for node_type, group in self.node_data.groupby('type'):
-            plt.scatter(group['longitude'], group['latitude'], c=colors.get(node_type, 'gray'), 
-                        label=node_type, s=50, alpha=0.7)
+            plt.scatter(group['longitude'], group['latitude'], 
+                        c=colors.get(node_type, 'gray'), 
+                        label=node_type, s=node_size, alpha=0.7)
+
+        if highlight_depot:
+            depot_node = self.node_data.loc[self.DEPOT_INDEX]
+            plt.scatter(depot_node['longitude'], depot_node['latitude'], 
+                        c='yellow', s=node_size*4, marker='*', 
+                        edgecolors='black', linewidth=1, label='Depot')
 
         if show_index:
             for idx, row in self.node_data.iterrows():
-                plt.annotate(str(idx), (row['longitude'], row['latitude']), xytext=(3, 3), 
-                             textcoords='offset points', fontsize=8)
+                plt.annotate(str(idx), (row['longitude'], row['latitude']), 
+                             xytext=(3, 3), textcoords='offset points', 
+                             fontsize=font_size)
 
-        plt.title("Real Data Map")
-        plt.xlabel("Longitude")
-        plt.ylabel("Latitude")
-        plt.legend()
+        plt.title("Real Data Map", fontsize=font_size*2)
+        plt.xlabel("Longitude", fontsize=font_size*1.5)
+        plt.ylabel("Latitude", fontsize=font_size*1.5)
+        
+        if show_legend:
+            plt.legend(fontsize=font_size)
+        
         plt.grid(True)
+        plt.tight_layout()
         plt.show()
 
 
 
 
 if __name__ == '__main__':
-    real_map = RealMap(n_r=2, n_c=4, dist_function=np.random.uniform, dist_params={'low': -1, 'high': 1})
-    print(f"All nodes: {real_map.all_nodes}")
-    print(f"Number of coordinates: {len(real_map.coordinates)}")
-    real_map.plot_map(show_index=True)
+    
+    # === test real map
+    #real_map = RealMap(n_r=2, n_c=4, dist_function=np.random.uniform, dist_params={'low': -1, 'high': 1})
+    # print(f"All nodes: {real_map.all_nodes}")
+    # print(f"Number of coordinates: {len(real_map.coordinates)}")
+    # real_map.plot_map(show_index=True)
+    # print(real_map.restaurants)
+    # print(real_map.customers)
+    
+    
+    # === test real data map
+    import os
+    print("Current working directory:", os.getcwd())
+    print("Files in the current directory:", os.listdir())
+
+    # 获取当前脚本的目录
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # 构建文件的完整路径
+    node_file = os.path.join(current_dir, 'data/purdue_node_info.csv')
+    tt_matrix_file = os.path.join(current_dir, 'data/tt_matrix.csv')
+
+    print(f"Attempting to load files:")
+    print(f"Node file: {node_file}")
+    print(f"TT matrix file: {tt_matrix_file}")
+
+    real_data_map = RealDataMap(node_file, tt_matrix_file)
+    print(f"Number of restaurants: {real_data_map.N_R}")
+    print(f"Number of customers: {real_data_map.N_C}")
+    print(f"Total number of nodes: {len(real_data_map.all_nodes)}")
+    print(f"Number of customer nodes: {len(real_data_map.customers)}")
+    print(f"Depot index: {real_data_map.DEPOT_INDEX}")
+    print(f"Depot info: {real_data_map.node_data.loc[real_data_map.DEPOT_INDEX].to_dict()}")
+    
+    print(real_data_map.restaurants)
+    print(real_data_map.customers)
+    # 使用默认参数绘图
+    real_data_map.plot_map()
+    
+    # # 使用自定义参数绘图
+    # real_data_map.plot_map(
+    #     show_index=False,
+    #     show_legend=True,
+    #     figsize=(20, 20),
+    #     node_size=100,
+    #     font_size=10,
+    #     highlight_depot=True
+    # )
+    
+    
