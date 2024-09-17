@@ -27,6 +27,7 @@ class OrderGenerator:
         self.time_window_length: int = time_params['time_window_length']
         self.service_time: int = time_params['service_time']
         self.extra_time: int = time_params['extra_time']
+        self.big_time: int = time_params['big_time'] # replace 'inf'
         # robot speed
         self.robot_speed: float = robot_speed
 
@@ -84,7 +85,7 @@ class OrderGenerator:
             self.real_coordinates[pickup_real_index][1],
             1,
             time_start,
-            float('inf'),
+            self.big_time,
             self.service_time,
             count + self.total_number_orders,
             pickup_real_index,
@@ -117,7 +118,7 @@ class OrderGenerator:
             depot_coordinates[1],
             0,
             0,
-            float('inf'),
+            self.big_time,
             0,
             0,
             depot_real_index,
@@ -133,7 +134,7 @@ class OrderGenerator:
             destination_coordinates[1],
             0,
             0,
-            float('inf'),
+            self.big_time,
             0,
             self.total_number_orders * 2 + 1,
             destination_real_index,
@@ -149,7 +150,7 @@ class OrderGenerator:
             charging_station_coordinates[1],
             0,
             0,
-            float('inf'),
+            self.big_time,
             0,
             self.total_number_orders * 2 + 2,
             charging_station_real_index,
@@ -224,7 +225,7 @@ if __name__ == "__main__":
                               customers=realMap.customers, random_params=random_params)
 
     # Create PDPTWInstance
-    time_params = {'time_window_length': 30, 'service_time': 5, 'extra_time': 10}
+    time_params = {'time_window_length': 30, 'service_time': 5, 'extra_time': 10, 'big_time': 1000}
     pdptw_order = OrderGenerator(realMap, demands.demand_table, time_params, robot_speed=4)
 
     # Generate and display the whole table

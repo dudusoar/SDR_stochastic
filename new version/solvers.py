@@ -61,7 +61,7 @@ def greedy_insertion_init(instance, num_vehicles, vehicle_capacity, battery_capa
 # ========================= ALNS ===========================================
 class ALNS:
     def __init__(self, initial_solution,
-                 params_operators, d_matrix, dist_matrix, battery,
+                 params_operators, dist_matrix, battery,
                  max_no_improve, segment_length, num_segments, r, sigma,
                  start_temp, cooling_rate):
 
@@ -69,7 +69,7 @@ class ALNS:
         self.current_solution = deepcopy(initial_solution)
         self.best_solution = deepcopy(initial_solution)
         self.charging_solution = deepcopy(initial_solution)
-        self.charging_solution.battery_capacity = battery * 2 / self.current_solution.instance.speed * 60
+        self.charging_solution.battery_capacity = battery * 2 / self.current_solution.instance.robot_speed * 60
 
         self.best_charging_route = []
 
@@ -80,7 +80,7 @@ class ALNS:
         ## for SISRs
         self.L_max = params_operators['L_max']
         self.avg_remove_order = params_operators['avg_remove_order']
-        self.d_matrix = d_matrix
+        self.d_matrix = params_operators['d_matrix']
         
         self.dist_matrix = dist_matrix
         self.battery = battery
@@ -144,9 +144,7 @@ class ALNS:
             dist += self.dist_matrix[route[i]][route[i + 1]]
         return dist
 
-    def run(self, seeding):
-        random.seed(seeding)
-        np.random.seed(seeding)
+    def run(self):
         num_no_improve = 0
         segment = 0
         r = self.r

@@ -82,4 +82,5 @@ class PDPTWInstance:
     def _extract_charging_coordinates(self):
         charging_row = self.order_table[self.order_table['Type'] == 'charging'].iloc[0]
         return (charging_row['X'], charging_row['Y'])
+    
 
