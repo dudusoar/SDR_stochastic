@@ -287,7 +287,7 @@ class ALNS:
                 else:
                     cost_ci_obj_diff = 100
 
-            print(best_objective, best_obj_diff, cost_ci_best, cost_ci_obj_diff)
+            print(best_objective, cost_ci_best, cost_ci_obj_diff)
 
             # (time spent on this segment)
             segment_end_time = time.time()
