@@ -92,6 +92,7 @@ def run_single_scenario(params):
     print(f"Initial solution objective value: {initial_solution.objective_function():.2f}")
 
     d_matrix = generate_d_matrix(pdptw_instance)
+    params['params_operators']['d_matrix'] = d_matrix
     
     alns = ALNS(
         initial_solution=initial_solution,
@@ -123,7 +124,7 @@ def run_single_scenario(params):
 
     return results
 
-# Helper functions (you need to implement these based on your existing code)
+# Helper functions
 def battery_relaxation(battery, dist_matrix, robot_speed, indicator):
     if indicator:
         battery_capacity = (battery - np.mean(dist_matrix[0][1:-1]))*2/robot_speed*60
@@ -197,16 +198,19 @@ if __name__ == "__main__":
         'cooling_rate': 0.99,
         
         # Default values for the variables we'll be changing
-        'average_order': 10,
-        'num_vehicles': 3,
-        'battery': 4
+        'average_order': 40,
+        'num_vehicles': 7,
+        'battery': 8
     }
 
-    # Sensitivity analysis for battery capacity
-    run_sensitivity_analysis('battery', [6, 7, 8, 9, 10], fixed_params, num_scenarios=5)
-
+    # # Sensitivity analysis for battery capacity
+    # run_sensitivity_analysis('battery', [6, 7, 8, 9, 10], fixed_params, num_scenarios=5)
+    #
     # # Sensitivity analysis for number of vehicles
     # run_sensitivity_analysis('num_vehicles', [7, 8, 9, 10, 11], fixed_params, num_scenarios=5)
 
-    # # Sensitivity analysis for average order
-    # run_sensitivity_analysis('average_order', [40, 50, 60, 70, 80], fixed_params, num_scenarios=5)
+    # Sensitivity analysis for average order
+    run_sensitivity_analysis('average_order', [40], fixed_params, num_scenarios=5)
+
+
+
