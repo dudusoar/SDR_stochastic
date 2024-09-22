@@ -210,7 +210,7 @@ if __name__ == "__main__":
     # run_sensitivity_analysis('num_vehicles', [7, 8, 9, 10, 11], fixed_params, num_scenarios=5)
 
     # Sensitivity analysis for average order
-    run_sensitivity_analysis('average_order', [40], fixed_params, num_scenarios=5)
+    run_sensitivity_analysis('average_order', [40], fixed_params, num_scenarios=30)
 
 
 
