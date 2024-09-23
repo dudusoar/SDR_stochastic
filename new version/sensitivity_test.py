@@ -198,8 +198,8 @@ if __name__ == "__main__":
         'cooling_rate': 0.99,
         
         # Default values for the variables we'll be changing
-        'average_order': 40,
-        'num_vehicles': 7,
+        'average_order': 60,
+        'num_vehicles': 8,
         'battery': 8
     }
 
@@ -210,7 +210,6 @@ if __name__ == "__main__":
     # run_sensitivity_analysis('num_vehicles', [7, 8, 9, 10, 11], fixed_params, num_scenarios=5)
 
     # Sensitivity analysis for average order
-    run_sensitivity_analysis('average_order', [40], fixed_params, num_scenarios=30)
-
+    run_sensitivity_analysis('average_order', [40,50], fixed_params, num_scenarios=90)
 
 
