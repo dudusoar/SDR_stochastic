@@ -157,7 +157,7 @@ class ALNS:
         cost_ci_obj_diff = 100
         cost_ci_best_list = []
 
-        while segment < self.num_segments and cost_ci_obj_diff > 0.00001:
+        while segment < self.num_segments and cost_ci_obj_diff > 0.1:
             # (time and information)
             segment_start_time = time.time()
             print(f"Segment {segment + 1} / {self.num_segments}")

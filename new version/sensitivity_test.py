@@ -45,7 +45,7 @@ def run_sensitivity_analysis(variable_to_change, values_to_test, fixed_params, n
 
     # Save results
     df = pd.DataFrame(results)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y%m%d")
     filename = f"sensitivity_analysis_{variable_to_change}_{timestamp}.csv"
     df.to_csv(filename, index=False)
     print(f"Results saved to {filename}")
@@ -119,7 +119,7 @@ def run_single_scenario(params):
         'obj_uncharge': best_solution.objective_function(),
         'obj_charge': best_charging_solution.objective_function(),
         'num_veh': len([sublist for sublist in best_charging_solution.routes if sublist != [0,0]]),
-        'battery_swapping': sum(2*(best_charging_solution.instance.n)+1 in route for route in best_charging_solution.routes)
+        'battery_swapping': sum(2*(best_charging_solution.instance.n)+2 in route for route in best_charging_solution.routes)
     }
 
     return results
@@ -198,18 +198,18 @@ if __name__ == "__main__":
         'cooling_rate': 0.99,
         
         # Default values for the variables we'll be changing
-        'average_order': 60,
-        'num_vehicles': 8,
+        'average_order': 50,
+        'num_vehicles': 5,
         'battery': 8
     }
 
     # # Sensitivity analysis for battery capacity
     # run_sensitivity_analysis('battery', [6, 7, 8, 9, 10], fixed_params, num_scenarios=5)
     #
-    # # Sensitivity analysis for number of vehicles
-    # run_sensitivity_analysis('num_vehicles', [7, 8, 9, 10, 11], fixed_params, num_scenarios=5)
+    # Sensitivity analysis for number of vehicles
+    run_sensitivity_analysis('num_vehicles', [5, 6], fixed_params, num_scenarios=90)
 
-    # Sensitivity analysis for average order
-    run_sensitivity_analysis('average_order', [40,50], fixed_params, num_scenarios=90)
+    # # Sensitivity analysis for average order
+    # run_sensitivity_analysis('average_order', [40,50], fixed_params, num_scenarios=90)
 
 
