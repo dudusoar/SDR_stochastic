@@ -1,0 +1,182 @@
+# vrp-toolkit
+
+A reusable framework for Vehicle Routing Problems (VRP) with Pickup and Delivery Time Windows (PDPTW), extracted from academic research code.
+
+> **Status**: Phase 1 Complete - Ready for installation and basic usage
+
+## 🚀 Quick Installation
+
+```bash
+# Install with uv (recommended)
+uv init vrp-toolkit
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install in development mode
+pip install -e .
+
+# Or install dependencies directly
+uv add numpy pandas matplotlib networkx
+uv add --dev pytest black ruff jupyter
+uv add osmnx geopandas  # For real-world map integration
+```
+
+## 📦 Package Structure
+
+```
+vrp-toolkit/
+├── vrp_toolkit/          # Main Python package
+│   ├── problems/         # Problem definitions
+│   │   └── pdptw.py     # PDPTW implementation
+│   ├── algorithms/       # Solving algorithms
+│   │   └── alns/        # Adaptive Large Neighborhood Search
+│   ├── data/            # Data generation and loading
+│   │   ├── generators.py # Synthetic data
+│   │   └── map.py       # Real-world map integration
+│   ├── visualization/    # Plotting utilities
+│   └── utils/           # Common utilities
+├── tutorials/           # Educational notebooks
+├── examples/           # Example scripts
+├── tests/              # Unit tests
+└── pyproject.toml      # Package configuration
+```
+
+## 🎯 Quick Example
+
+```python
+from vrp_toolkit.problems.pdptw import PDPTWInstance
+from vrp_toolkit.algorithms.alns.solver import ALNSSolver
+from vrp_toolkit.data.generators import OrderGenerator
+
+# Generate a sample instance
+generator = OrderGenerator(num_orders=20, num_vehicles=3)
+instance = generator.generate_instance()
+
+# Solve with ALNS
+solver = ALNSSolver()
+solution = solver.solve(instance)
+
+print(f"Best cost: {solution.total_cost}")
+print(f"Routes: {solution.routes}")
+```
+
+## 🏗️ Core Concepts
+
+### Problem Layer
+- **`PDPTWInstance`**: Defines a PDPTW problem with nodes, time windows, and demands
+- **`Solution`**: Represents a feasible solution with routes and costs
+- **`Node`**: Individual location with pickup/delivery constraints
+
+### Algorithm Layer
+- **`ALNSSolver`**: Adaptive Large Neighborhood Search implementation
+- **`Operator`**: Destruction and repair operators for ALNS
+- Common interface: `Solver.solve(instance) -> Solution`
+
+### Data Layer
+- **`OrderGenerator`**: Synthetic order generation
+- **`MapLoader`**: Real-world map integration via OSMnx
+- **`DistanceMatrix`**: Pre-computed distances between locations
+
+## 📊 Features
+
+### Currently Implemented
+- ✅ PDPTW problem definition
+- ✅ ALNS algorithm with configurable operators
+- ✅ Synthetic data generation
+- ✅ Basic visualization
+- ✅ Real-world map integration (OSMnx)
+- ✅ Two comprehensive tutorials
+
+### Coming Soon
+- Genetic Algorithm implementation
+- Additional VRP variants (CVRP, VRPTW)
+- Benchmark suite
+- Web visualization interface
+
+## 📚 Tutorials
+
+Start with these interactive notebooks:
+
+1. **`tutorials/01_quickstart.ipynb`** - Basic usage and problem solving
+2. **`tutorials/05_sensitivity_analysis.ipynb`** - Parameter sensitivity analysis
+
+## 🗺️ Real-World Integration
+
+```python
+from vrp_toolkit.data.map import MapLoader
+
+# Load Purdue campus street network
+map_loader = MapLoader()
+map_loader.load_area("Purdue University, West Lafayette, IN")
+
+# Create instance with real distances
+instance = map_loader.create_pdptw_instance(num_orders=15)
+```
+
+## 🔧 Development
+
+### Running Tests
+```bash
+pytest tests/
+```
+
+### Code Style
+```bash
+# Format code
+black vrp_toolkit/
+
+# Check style
+ruff check vrp_toolkit/
+```
+
+### Adding New Algorithms
+1. Create new solver class in `vrp_toolkit/algorithms/[name]/`
+2. Implement `solve(instance) -> Solution` method
+3. Add configuration options
+4. Create example in `examples/`
+
+## 📖 API Reference
+
+### Main Classes
+
+#### `PDPTWInstance`
+```python
+class PDPTWInstance:
+    nodes: List[Node]          # All nodes (depot, pickups, deliveries)
+    distance_matrix: np.ndarray # Distance between nodes
+    vehicle_capacity: float     # Vehicle capacity constraint
+    time_horizon: float        # Operating time window
+```
+
+#### `ALNSSolver`
+```python
+class ALNSSolver:
+    def __init__(self, max_iterations=1000, ...):
+        # Configuration parameters
+    
+    def solve(self, instance: PDPTWInstance) -> Solution:
+        # Main solving method
+```
+
+#### `OrderGenerator`
+```python
+class OrderGenerator:
+    def generate_instance(self, num_orders=20, num_vehicles=3) -> PDPTWInstance:
+        # Generate synthetic instance
+```
+
+## 🤝 Contributing
+
+1. Follow the three-layer architecture (Problem/Algorithm/Data)
+2. Add type hints for public APIs
+3. Include basic docstrings
+4. Add integration tests for new features
+5. Update relevant tutorials
+
+## 📄 License
+
+Intended for academic and educational use. See repository LICENSE file for details.
+
+---
+
+**Part of the VRP Toolkit project** - Transforming research code into reusable frameworks.

@@ -112,7 +112,7 @@ vrp-toolkit/
 - [x] Create CLAUDE.md and MIGRATION_LOG.md
 - [x] Create 7 custom skills for workflow automation
 - [x] Copy core files with minimal changes
-- [ ] Create basic README and quickstart tutorial
+- [x] Create basic README and quickstart tutorial
 - [ ] Make it installable (`pip install -e .`)
 
 **Phase 2: Refactoring**
@@ -131,7 +131,7 @@ vrp-toolkit/
 
 ## 🛠️ Skills Reference
 
-We have created **7 custom skills** to automate common workflows. These skills are located in `.claude/skills/` and packaged as `.skill` files.
+We have created **7 custom skills** to automate common workflows. These skills are located in `.claude/skills/` and packaged as `.skill` files (located in `skills-packages/`).
 
 ### Workflow Skills
 
@@ -344,10 +344,10 @@ For OSMnx work:
 - [x] Migrate real_map.py to vrp_toolkit/data/map.py
 - [x] Migrate test.ipynb to tutorials/01_quickstart.ipynb
 - [x] Migrate sensitivity_test.ipynb to tutorials/05_sensitivity_analysis.ipynb
-
+- [x] Create comprehensive README documentation (root and package)\n
 ### In Progress 🚧\n- [ ] Create basic `pyproject.toml`
 
-### Next Steps 📋\n1. Create basic `pyproject.toml`\n2. Make package installable (`pip install -e .`)\n3. Test installation and quickstart tutorial\n4. Write README
+### Next Steps 📋\n1. Create basic `pyproject.toml`\n2. Make package installable (`pip install -e .`)\n3. Test installation and quickstart tutorial
 
 ### Blockers 🚫
 - None currently
@@ -470,7 +470,7 @@ You: "how do routes work?"
 
 ### Short-term (Phase 1)
 - [ ] Someone can `pip install` and run quickstart in 5 min
-- [ ] README clearly explains what this is
+- [x] README clearly explains what this is
 - [x] At least 1 working tutorial
 - [x] All 9 files successfully migrated
 
