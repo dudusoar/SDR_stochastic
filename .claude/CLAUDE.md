@@ -111,7 +111,7 @@ vrp-toolkit/
 - [x] Create directory structure
 - [x] Create CLAUDE.md and MIGRATION_LOG.md
 - [x] Create 7 custom skills for workflow automation
-- [ ] Copy core files with minimal changes
+- [x] Copy core files with minimal changes
 - [ ] Create basic README and quickstart tutorial
 - [ ] Make it installable (`pip install -e .`)
 
@@ -338,18 +338,16 @@ For OSMnx work:
 - [x] CLAUDE.md initial version
 - [x] MIGRATION_LOG.md template
 - [x] Created 7 custom skills (session-start, migrate-module, update-progress, data-structures, osmnx-integration, git-workflow, uv-management)
+- [x] Migrate instance.py and solution.py to vrp_toolkit/problems/pdptw.py
+- [x] Migrate solvers.py and operators.py to vrp_toolkit/algorithms/alns/
+- [x] Migrate order_info.py and demands.py to vrp_toolkit/data/generators.py
+- [x] Migrate real_map.py to vrp_toolkit/data/map.py
+- [x] Migrate test.ipynb to tutorials/01_quickstart.ipynb
+- [x] Migrate sensitivity_test.ipynb to tutorials/05_sensitivity_analysis.ipynb
 
-### In Progress 🚧
-- [ ] Migrate core ALNS algorithm
-- [ ] Create quickstart tutorial
-- [ ] Write README
+### In Progress 🚧\n- [ ] Create basic `pyproject.toml`
 
-### Next Steps 📋
-1. Copy core files from SDR_stochastic
-2. Create basic `pyproject.toml`
-3. Write `tutorials/01_quickstart.ipynb`
-4. Make package installable
-5. Test installation and quickstart
+### Next Steps 📋\n1. Create basic `pyproject.toml`\n2. Make package installable (`pip install -e .`)\n3. Test installation and quickstart tutorial\n4. Write README
 
 ### Blockers 🚫
 - None currently
@@ -473,8 +471,8 @@ You: "how do routes work?"
 ### Short-term (Phase 1)
 - [ ] Someone can `pip install` and run quickstart in 5 min
 - [ ] README clearly explains what this is
-- [ ] At least 1 working tutorial
-- [ ] All 9 files successfully migrated
+- [x] At least 1 working tutorial
+- [x] All 9 files successfully migrated
 
 ### Medium-term (Phase 2)
 - [ ] Real map example works

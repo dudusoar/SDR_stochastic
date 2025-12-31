@@ -95,36 +95,96 @@ Formula: `Completion Rate = (Completed / Total Files) * 100`
 
 ### 2. Add Migration Entry
 
-Add a new entry at the **top** of the Migration History section (most recent first):
+Add a new entry at the **top** of the Migration History section (most recent first). Use the detailed template below to capture comprehensive migration details:
 
 ```markdown
 ## Migration History
 
-### 2025-12-30 15:45 - instance.py → pdptw.py
+### YYYY-MM-DD HH:MM - [Original File] → [New Location]
 
-**Status:** ✅ Completed
+**Status:** ✅ Completed / 🚧 In Progress / ⚠️ Issues / ❌ Failed  
+**Time Spent:** [e.g., 45 minutes]  
+**Migration Complexity:** [Low/Medium/High]
 
-**Source:** `/Users/yuchendu/Desktop/Github/heuristic in VRP/SDR_stochastic/new version/instance.py`
-**Destination:** `vrp_toolkit/problems/pdptw.py`
+**Source:** `[path/to/original/file.py]`  
+**Destination:** `[path/to/new/file.py]`
 
-**Refactoring Done:**
-- [x] Extracted hardcoded values to parameters
-- [x] Decoupled from paper-specific logic
-- [x] Added docstrings
-- [x] Updated imports
-- [x] Created test case
-- [x] Verified functionality
+#### 📋 Migration Summary
+- **Original Purpose:** [Brief description of original file's purpose]
+- **Target Architecture Layer:** [Problem/Algorithm/Data/Visualization]
+- **Key Changes Made:** [2-3 sentence overview]
 
-**Issues Encountered:**
-- Circular import between Instance and Solution classes
+#### 🔧 Specific Code Changes
+**Added/Modified Functions/Classes:**
+- [List specific functions/classes changed with brief descriptions]
 
-**Resolution:**
-- Moved Solution class to same file as Instance
-- Used forward references in type hints
+**Code Snippets (Before/After):**
+```python
+# Before: [Brief description]
+[Code snippet showing original implementation]
 
-**Notes:**
-- Battery constraint handling is well-designed
-- Minimal changes needed to original structure
+# After: [Brief description]
+[Code snippet showing refactored implementation]
+```
+
+#### 🏗️ Architectural Refactoring
+- [ ] **Extracted hardcoded values:** [Describe what was extracted]
+- [ ] **Decoupled from paper-specific logic:** [Describe generalization]
+- [ ] **Added docstrings:** [Type/style used]
+- [ ] **Updated imports:** [Changes made to import statements]
+- [ ] **Created test case:** [Test file/function names]
+- [ ] **Verified functionality:** [How verification was done]
+
+**Additional Architectural Improvements:**
+- [ ] **Type hints:** [Coverage level]
+- [ ] **Error handling:** [Improvements made]
+- [ ] **Configuration:** [Parameterization added]
+- [ ] **Performance optimizations:** [If any were made]
+
+#### ⚠️ Issues Encountered & Solutions
+**Issue 1: [Issue Title]**
+- **Description:** [Detailed description of the issue]
+- **Impact:** [How it affected migration]
+- **Solution:** [Specific solution implemented]
+- **Rationale:** [Why this solution was chosen]
+
+[Add more issues as needed...]
+
+#### ✅ Verification & Testing
+**Tests Created:**
+- [List test functions created]
+
+**Verification Steps:**
+1. [ ] **Code Compilation:** [Result]
+2. [ ] **Import Test:** [Result]
+3. [ ] **Type Check:** [Result]
+4. [ ] **Runtime Test:** [Result]
+5. [ ] **Integration Test:** [Result]
+
+#### 📊 File Statistics
+**Original File(s):**
+- `[filename]`: [line count] lines
+
+**New File:**
+- `[filename]`: [line count] lines
+
+**Changes:**
+- **Lines Added:** [number] lines
+- **Lines Modified:** [number] lines
+- **Lines Removed:** [number] lines
+
+#### 💡 Design Decisions & Rationale
+1. **[Decision 1]:** [Rationale]
+2. **[Decision 2]:** [Rationale]
+3. **[Decision 3]:** [Rationale]
+
+#### 🔮 Follow-up Tasks Identified
+- [ ] [Task 1]
+- [ ] [Task 2]
+- [ ] [Task 3]
+
+#### 📝 Notes & Observations
+- [Any additional observations, surprises, or lessons learned]
 
 ---
 
@@ -168,17 +228,44 @@ At the bottom of MIGRATION_LOG.md:
 
 ## Migration Entry Checklist
 
-Use this to ensure complete logging:
+Use this comprehensive checklist to ensure detailed and complete logging:
 
+### Essential Updates
 - [ ] Updated progress summary (numbers and percentage)
-- [ ] Added migration entry with timestamp
+- [ ] Added migration entry with timestamp (YYYY-MM-DD HH:MM)
 - [ ] Marked status (✅ Completed / 🚧 In Progress / ⚠️ Issues / ❌ Failed)
-- [ ] Listed all refactoring done with checkmarks
-- [ ] Documented any issues encountered
-- [ ] Described resolution for issues
-- [ ] Added notes/observations
 - [ ] Updated files remaining checklist
-- [ ] Updated last modified date
+- [ ] Updated last modified date in both CLAUDE.md and MIGRATION_LOG.md
+
+### Migration Entry Content
+- [ ] **Basic Information:** Source, destination, time spent, complexity rating
+- [ ] **Migration Summary:** Original purpose, target layer, key changes overview
+- [ ] **Specific Code Changes:** Listed functions/classes modified with descriptions
+- [ ] **Code Snippets:** Before/after examples showing key refactoring
+- [ ] **Architectural Refactoring:** All refactoring checkboxes completed
+- [ ] **Issues & Solutions:** Each issue with description, impact, solution, rationale
+- [ ] **Verification & Testing:** Tests created and verification steps documented
+- [ ] **File Statistics:** Line counts for original and new files
+- [ ] **Design Decisions:** Key decisions with rationale explained
+- [ ] **Follow-up Tasks:** Identified tasks for future work
+- [ ] **Notes & Observations:** Lessons learned and observations
+
+### Quality Checks
+- [ ] **Specificity:** Used concrete examples, not vague descriptions
+- [ ] **Context:** Explained why decisions were made, not just what was done
+- [ ] **Completeness:** All major changes documented
+- [ ] **Clarity:** Entry is readable and well-organized
+- [ ] **Future Value:** Information would be useful 3-6 months from now
+
+### Examples of Good vs Bad Logging
+**Good:** "Extracted `battery_capacity=100` to constructor parameter with default value"
+**Bad:** "Made battery configurable"
+
+**Good:** "Moved matplotlib import inside plot_solution() to avoid top-level dependency"
+**Bad:** "Fixed import issue"
+
+**Good:** "Added column mapping system to support alternative data formats while maintaining backward compatibility"
+**Bad:** "Generalized column names"
 
 ## Status Symbols
 
