@@ -3,7 +3,21 @@ name = "vrp-toolkit"
 version = "0.1.0"
 description = "Reusable VRP/PDPTW solving framework with ALNS algorithm and real-world map integration"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.8"
+authors = [
+    {name = "Yuchendu", email = "yuchendu@example.com"}
+]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = [
     "numpy>=1.24.0",
     "pandas>=2.0.0",

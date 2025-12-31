@@ -365,7 +365,6 @@ git commit -m "feat(migration): migrate instance.py to pdptw.py
 - Add type hints and docstrings
 - Create basic test suite
 
-🤖 Generated with Claude Code"
 ```
 
 ### Update Progress Commits
