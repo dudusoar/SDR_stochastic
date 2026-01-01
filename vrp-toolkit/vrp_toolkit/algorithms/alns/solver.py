@@ -15,6 +15,7 @@ import time
 # Local imports
 from .operators import RemovalOperators, RepairOperators
 from vrp_toolkit.problems.pdptw import PDPTWInstance, PDPTWSolution
+from vrp_toolkit.algorithms.base import ConfigurableSolver, PDPTWProblemAdapter, PDPTWSolutionAdapter
 
 
 @dataclass
@@ -459,3 +460,128 @@ class ALNS:
         plt.legend()
         plt.grid(True)
         plt.show()
+
+
+class ALNSSolver(ConfigurableSolver):
+    """ALNS solver implementing the unified Solver interface.
+
+    This class provides a clean interface for solving PDPTW problems using ALNS,
+    following the problem-algorithm separation principle.
+    """
+
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """Initialize ALNS solver with configuration.
+
+        Args:
+            config: Configuration dictionary for ALNS algorithm
+        """
+        super().__init__(config)
+        self.alns_instance = None
+        self.solution_history = []
+
+    def solve(
+        self,
+        problem: PDPTWInstance,
+        num_vehicles: int = 4,
+        vehicle_capacity: float = 6.0,
+        battery_capacity: float = 8.0,
+        battery_consume_rate: float = 1.0,
+        penalty_unvisited: float = 100.0,
+        penalty_delayed: float = 15.0,
+        **kwargs
+    ) -> PDPTWSolution:
+        """Solve a PDPTW problem instance using ALNS.
+
+        Args:
+            problem: PDPTW problem instance to solve
+            num_vehicles: Number of available vehicles
+            vehicle_capacity: Maximum capacity per vehicle
+            battery_capacity: Battery capacity for vehicles
+            battery_consume_rate: Battery consumption rate per distance unit
+            penalty_unvisited: Penalty for unvisited nodes
+            penalty_delayed: Penalty for time window delays
+            **kwargs: Additional parameters passed to ALNS configuration
+
+        Returns:
+            Best solution found
+        """
+        # Generate initial solution using greedy insertion
+        initial_solution = greedy_insertion_initial_solution(
+            instance=problem,
+            num_vehicles=num_vehicles,
+            vehicle_capacity=vehicle_capacity,
+            battery_capacity=battery_capacity,
+            battery_consume_rate=battery_consume_rate,
+            penalty_unvisit=penalty_unvisited,
+            penalty_delay=penalty_delayed
+        )
+
+        # Create ALNS configuration from parameters
+        alns_config = self._create_alns_config(**kwargs)
+
+        # Create ALNS instance
+        self.alns_instance = ALNS(
+            initial_solution=initial_solution,
+            config=alns_config,
+            dist_matrix=problem.distance_matrix,
+            battery_capacity=battery_capacity
+        )
+
+        # Run ALNS algorithm
+        best_solution, _ = self.alns_instance.run()
+
+        # Record solution in history
+        self.solution_history.append((best_solution, best_solution.objective_function()))
+
+        return best_solution
+
+    def _create_alns_config(self, **kwargs) -> ALNSConfig:
+        """Create ALNSConfig from configuration parameters.
+
+        Args:
+            **kwargs: Configuration parameters
+
+        Returns:
+            ALNSConfig instance
+        """
+        # Map common parameter names to ALNSConfig fields
+        param_mapping = {
+            'max_iterations': 'max_no_improve',
+            'segment_length': 'segment_length',
+            'num_segments': 'num_segments',
+            'start_temp': 'start_temp',
+            'cooling_rate': 'cooling_rate',
+            'num_removal': 'num_removal',
+        }
+
+        # Start with default config
+        config_dict = {}
+
+        # Update with solver configuration
+        config_dict.update(self.config)
+
+        # Update with provided kwargs (mapping names if needed)
+        for key, value in kwargs.items():
+            if key in param_mapping:
+                config_dict[param_mapping[key]] = value
+            else:
+                config_dict[key] = value
+
+        # Create ALNSConfig instance
+        return ALNSConfig(**config_dict)
+
+    def get_solution_history(self) -> List[Tuple[PDPTWSolution, float]]:
+        """Get history of solutions explored during search.
+
+        Returns:
+            List of (solution, objective_value) pairs
+        """
+        return self.solution_history
+
+    def get_alns_instance(self) -> Optional[ALNS]:
+        """Get the underlying ALNS instance for advanced operations.
+
+        Returns:
+            ALNS instance if solve() has been called, None otherwise
+        """
+        return self.alns_instance

@@ -1,7 +1,7 @@
 # VRP Toolkit - Claude Context Document
 
-**Last Updated:** 2025-12-31
-**Status:** Phase 1 - Initial Setup
+**Last Updated:** 2026-01-01
+**Status:** Phase 2 - Refactoring (in progress)
 
 ---
 
@@ -348,16 +348,21 @@ For OSMnx work:
 - [x] Create basic `pyproject.toml`
 - [x] Make package installable (`pip install -e .`)
 - [x] Test installation and package import
+- [x] Test quickstart tutorial execution
+- [x] Fix import issues in generators.py and add missing DemandGenerator class
+- [x] Analyze coupling between PDPTWInstance and ALNS classes
+- [x] Design unified Solver interface for problem-algorithm separation (VRPProblem, VRPSolution, Solver base classes)
+- [x] Adapt ALNS to use new Solver interface (ALNSSolver class)
+- [x] Update quickstart tutorial to use new architecture
 
 ### In Progress 🚧
 - None
 
 ### Next Steps 📋
-1. Test quickstart tutorial execution
-2. Begin Phase 2 refactoring: separate problem definition from algorithm
-3. Create unified Solver interface
-4. Add configuration file support
-5. Improve visualization
+1. Refactor PDPTWInstance to remove algorithm-specific logic
+2. Add configuration file support
+3. Improve visualization
+4. Create comprehensive test suite for new architecture
 
 ### Blockers 🚫
 - None currently

@@ -5,7 +5,7 @@ solving PDPTW problems with battery constraints.
 """
 
 from .operators import RemovalOperators, RepairOperators, NodeNotFoundError
-from .solver import ALNS, ALNSConfig, greedy_insertion_initial_solution
+from .solver import ALNS, ALNSConfig, greedy_insertion_initial_solution, ALNSSolver
 
 __all__ = [
     "RemovalOperators",
@@ -14,4 +14,5 @@ __all__ = [
     "ALNS",
     "ALNSConfig",
     "greedy_insertion_initial_solution",
+    "ALNSSolver",
 ]
