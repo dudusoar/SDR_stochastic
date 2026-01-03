@@ -4,6 +4,41 @@
 
 ## Recent Commits (newest first)
 
+### 2026-01-03 - feat(paper): restructure paper code into organized directory
+**Hash:** 53372aa517a4abd770843400b9e2f1a5b238efd6
+**Author:** YuChen Du
+**Date:** 2026-01-03 15:13:38 -0500
+
+**Changes:**
+- Create 'paper code/' directory to organize original research code
+- Move all paper-related files (demands.py, instance.py, operators.py, etc.)
+- Include original data files (Purdue campus datasets)
+- Preserve sensitivity analysis results and documentation
+- Maintain original structure for reproducibility
+
+**Files modified:**
+- paper code/data/purdue_node_info.csv
+- paper code/data/tt_matrix.csv
+- paper code/demands.py
+- paper code/docs/task.xlsx
+- paper code/instance.py
+- paper code/operators.py
+- paper code/order_info.py
+- paper code/process
+- paper code/real_map.py
+- paper code/results/sensitivity_analysis_average_order_20240922_150308.csv
+- paper code/results/sensitivity_analysis_average_order_20240922_163157.csv
+- paper code/results/sensitivity_analysis_num_vehicles_20240923.csv
+- paper code/results/sensitivity_analysis_num_vehicles_20240924.csv
+- paper code/results/sensitivity_analysis_num_vehicles_20240925.csv
+- paper code/sensitivity_test.ipynb
+- paper code/sensitivity_test.py
+- paper code/solution.py
+- paper code/solvers.py
+- paper code/test.ipynb
+
+---
+
 ### 2026-01-03 - chore(skills): standardize skill names and update documentation
 **Hash:** 35c258840ebd5c7aa0a4b0953a79a5ccb7a4c842
 **Author:** YuChen Du
