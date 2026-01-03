@@ -4,6 +4,114 @@
 
 ## Recent Commits (newest first)
 
+### 2026-01-03 - feat(phase2): complete architecture refactoring with tests, config, and visualization
+**Hash:** 2b57673d03d4f8bf3ea903c65c2cc59d4953208c
+**Author:** YuChen Du
+**Date:** 2026-01-03 16:26:25 -0500
+
+**Changes:**
+Phase 2 refactoring completion (90% → 95%):
+
+Core Architecture Enhancements:
+- Add bulk matrix access methods (get_distance_matrix, get_time_matrix) to VRPProblem interface
+- Improve PDPTWProblemAdapter to use instance methods instead of direct attribute access
+- Add optional matrix methods for algorithm efficiency
+
+Configuration System:
+- Implement comprehensive config system (VRPConfig, AlgorithmConfig, etc.)
+- Add YAML/JSON config file support with examples
+- Create ConfigLoader for flexible configuration management
+
+Visualization Module:
+- Implement three-layer visualization architecture
+- Add BaseVisualizer, ProblemVisualizer, AlgorithmVisualizer, DataVisualizer
+- Specialized visualizers for PDPTW, ALNS, Map, and Demand data
+
+Test Suite:
+- Complete unit test coverage (problems, algorithms, data layers)
+- Integration tests (end-to-end, tutorials, configuration, edge cases)
+- Test infrastructure (pytest.ini, conftest.py, test helpers)
+- Test runner script (run_tests.py)
+
+**Files added (31 new files):**
+- vrp-toolkit/config_example.json, config_example.yaml
+- vrp-toolkit/pytest.ini, run_tests.py
+- vrp-toolkit/tests/ (complete test suite structure with 24 test files)
+- vrp-toolkit/vrp_toolkit/utils/config.py
+- vrp-toolkit/vrp_toolkit/visualization/ (4 visualizer modules)
+
+**Files modified (11 core files):**
+- vrp-toolkit/vrp_toolkit/algorithms/base.py
+- vrp-toolkit/vrp_toolkit/algorithms/alns/solver.py, operators.py
+- vrp-toolkit/vrp_toolkit/problems/pdptw.py
+- vrp-toolkit/vrp_toolkit/data/generators.py
+- vrp-toolkit/vrp_toolkit/{algorithms,data,utils,visualization}/__init__.py
+- vrp-toolkit/tutorials/01_quickstart.ipynb
+- vrp-toolkit/pyproject.toml
+
+**Impact:** Phase 2 now 95% complete, comprehensive testing and configuration ready
+
+---
+
+### 2026-01-03 - chore: remove SDR_stochastic archive and old versions
+**Hash:** 7591a3123c3eb727d0f7d9c7ebd1293fdd0844de
+**Author:** YuChen Du
+**Date:** 2026-01-03 16:25:55 -0500
+
+**Changes:**
+Repository cleanup - all original research code preserved in 'paper code/' directory.
+Removed archived versions:
+- SDR_stochastic/archive/ (old versions v0, v1, test files, case studies)
+- SDR_stochastic/new version/ (moved to 'paper code/' in previous commit)
+
+**Files removed:** 77 files (~79,799 lines deleted)
+- 17 cache JSON files
+- 3 binary files (pkl, png)
+- 1 large OSM file (61k lines)
+- Multiple notebooks, Python modules, and CSV data files
+- Archive directories: Case study, Sensitivity, TEST - Hai, version_0, version_1
+
+**Impact:** Repository now cleaner, all research code preserved in organized 'paper code/' structure
+
+---
+
+### 2026-01-03 - feat(skills): create skills management system and refactor documentation structure
+**Hash:** daddbf16759e4c4b380def368e914ff91ac5574a
+**Author:** YuChen Du
+**Date:** 2026-01-03 16:12:30 -0500
+
+**Changes:**
+Major documentation refactoring:
+- Create manage-skills skill for meta-management (audit, compliance, tracking)
+- Extract SKILLS.md from CLAUDE.md (~240 lines → dedicated file)
+- Extract TASK_BOARD.md from CLAUDE.md (task tracking centralized)
+- Create SKILLS_LOG.md for comprehensive skill change tracking
+- Extract MIGRATION_GUIDE.md to migrate-module/references/
+
+Skills updates:
+- Fix manage-python-env compliance violation (505 → 371 lines)
+- Update build-session-context for new doc structure (now reads 7 sources)
+- Clarify skill responsibilities (eliminate overlaps)
+- Simplify CLAUDE.md Skills Reference to bullet points
+
+**Files modified:**
+- .claude/CLAUDE.md
+- .claude/SKILLS.md (new)
+- .claude/SKILLS_LOG.md (new)
+- .claude/TASK_BOARD.md (new)
+- .claude/skills/build-session-context/SKILL.md
+- .claude/skills/manage-python-env/SKILL.md
+- .claude/skills/manage-python-env/references/ (3 new files)
+- .claude/skills/manage-skills/ (complete new skill with 4 files)
+- .claude/skills/migrate-module/SKILL.md
+- .claude/skills/migrate-module/references/MIGRATION_GUIDE.md (new)
+- .claude/skills/update-migration-log/SKILL.md
+- .claude/skills/update-task-board/SKILL.md
+
+**Impact:** CLAUDE.md reduced ~308 lines total, now serves as clean entry point
+
+---
+
 ### 2026-01-03 - feat(paper): restructure paper code into organized directory
 **Hash:** 53372aa517a4abd770843400b9e2f1a5b238efd6
 **Author:** YuChen Du
@@ -180,5 +288,5 @@
 
 *Older commits will be moved here when "Recent Commits" section grows beyond 20 entries.*
 
-**Last Updated:** 2026-01-03
+**Last Updated:** 2026-01-03 16:12:30
 *This file is maintained by the git-log skill.*
