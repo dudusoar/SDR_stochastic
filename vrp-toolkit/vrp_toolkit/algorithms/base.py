@@ -105,6 +105,23 @@ class VRPProblem(ABC):
         """Index of the depot node."""
         pass
 
+    # Optional bulk matrix access methods for algorithm efficiency
+    def get_distance_matrix(self) -> Optional[np.ndarray]:
+        """Get full distance matrix if available.
+
+        Returns:
+            Distance matrix as numpy array, or None if not available
+        """
+        return None
+
+    def get_time_matrix(self) -> Optional[np.ndarray]:
+        """Get full time matrix if available.
+
+        Returns:
+            Time matrix as numpy array, or None if not available
+        """
+        return None
+
 
 class VRPSolution(ABC):
     """Abstract base class for VRP solutions.
@@ -249,31 +266,44 @@ class PDPTWProblemAdapter(VRPProblem):
         self._instance = pdptw_instance
 
     def get_distance(self, i: int, j: int) -> float:
-        return self._instance.distance_matrix[i][j]
+        return self._instance.get_distance(i, j)
 
     def get_time(self, i: int, j: int) -> float:
-        return self._instance.time_matrix[i][j]
+        return self._instance.get_time(i, j)
 
     def get_demand(self, node_id: int) -> float:
-        return self._instance.demands[node_id] if node_id < len(self._instance.demands) else 0.0
+        return self._instance.get_demand(node_id)
 
     def get_time_window(self, node_id: int) -> Tuple[float, float]:
-        return self._instance.time_windows[node_id] if node_id < len(self._instance.time_windows) else (0.0, float('inf'))
+        return self._instance.get_time_window(node_id)
 
     def get_service_time(self, node_id: int) -> float:
-        return self._instance.service_times[node_id] if node_id < len(self._instance.service_times) else 0.0
+        return self._instance.get_service_time(node_id)
 
     @property
     def num_nodes(self) -> int:
-        return len(self._instance.indices)
+        return self._instance.num_nodes
 
     @property
     def num_orders(self) -> int:
-        return self._instance.n
+        return self._instance.num_orders
 
     @property
     def depot_index(self) -> int:
-        return 0  # Assuming depot is always index 0
+        return self._instance.depot_index
+
+    # Bulk matrix access methods
+    def get_distance_matrix(self) -> Optional[np.ndarray]:
+        """Get full distance matrix if available."""
+        if hasattr(self._instance, 'get_distance_matrix'):
+            return self._instance.get_distance_matrix()
+        return None
+
+    def get_time_matrix(self) -> Optional[np.ndarray]:
+        """Get full time matrix if available."""
+        if hasattr(self._instance, 'get_time_matrix'):
+            return self._instance.get_time_matrix()
+        return None
 
     @property
     def original_instance(self) -> 'PDPTWInstance':

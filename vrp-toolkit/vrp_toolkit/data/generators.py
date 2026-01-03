@@ -30,6 +30,13 @@ COL_PARTNER_ID = 'PartnerID'
 COL_REAL_INDEX = 'RealIndex'
 COL_REAL_TYPE = 'RealType'
 
+# Default column order for generated order table
+DEFAULT_COLUMNS = [
+    COL_ID, COL_TYPE, COL_X, COL_Y, COL_DEMAND,
+    COL_START_TIME, COL_END_TIME, COL_SERVICE_TIME,
+    COL_PARTNER_ID, COL_REAL_INDEX, COL_REAL_TYPE
+]
+
 
 class OrderGenerator:
     """Generate PDPTW order table from demand data and map information.
@@ -50,14 +57,7 @@ class OrderGenerator:
         order_table: Generated order table DataFrame
     """
     
-    # Default column order for generated order table
-    DEFAULT_COLUMNS = [
-        COL_ID, COL_TYPE, COL_X, COL_Y, COL_DEMAND,
-        COL_START_TIME, COL_END_TIME, COL_SERVICE_TIME,
-        COL_PARTNER_ID, COL_REAL_INDEX, COL_REAL_TYPE
-    ]
-    
-    # Node type mappings
+    # Node type mappings (use module-level constants)
     NODE_TYPE_PICKUP = NODE_TYPE_PICKUP
     NODE_TYPE_DELIVERY = NODE_TYPE_DELIVERY
     NODE_TYPE_DEPOT = NODE_TYPE_DEPOT
@@ -290,20 +290,18 @@ class OrderGenerator:
     
     def get_order_table(self) -> pd.DataFrame:
         """Get the generated order table.
-        
+
         Returns:
             Generated order table DataFrame
         """
         return self.order_table.copy()
-    
-                    
 
-
+class DemandGenerator:
     """Generate demand data for VRP problems.
-    
+
     This class generates synthetic demand data for restaurant-customer pairs
     across time intervals, suitable for use with OrderGenerator.
-    
+
     Attributes:
         time_range: Total time range in minutes
         time_step: Step size for each time interval in minutes
@@ -317,7 +315,7 @@ class OrderGenerator:
         pairs: List of restaurant-customer pairs
         demand_table: Generated demand table DataFrame
     """
-    
+
     def __init__(
         self, 
         time_range: int, 
@@ -397,7 +395,7 @@ class OrderGenerator:
         # Create DataFrame with time intervals as columns
         demand_table = pd.DataFrame(
             demand_dict, 
-            index=[f\"{start}-{end}\" for start, end in self.time_intervals]
+            index=[f"{start}-{end}" for start, end in self.time_intervals]
         ).T
         
         # Add pickup and delivery columns
@@ -422,15 +420,15 @@ class OrderGenerator:
     
     def plot_demand_heatmap(self):
         """Plot a heatmap of the demand table.
-        
+
         Shows demand intensity across restaurant-customer pairs and time intervals.
         """
         import matplotlib.pyplot as plt
         import seaborn as sns
-        
+
         plt.figure(figsize=(12, 8))
-        sns.heatmap(self.demand_table.iloc[:, 2:], cmap=\"YlOrRd\", annot=True, fmt=\"d\")
-        plt.title(\"Demand Heatmap\")
-        plt.xlabel(\"Time Intervals\")
-        plt.ylabel(\"Restaurant-Customer Pairs\")
+        sns.heatmap(self.demand_table.iloc[:, 2:], cmap="YlOrRd", annot=True, fmt="d")
+        plt.title("Demand Heatmap")
+        plt.xlabel("Time Intervals")
+        plt.ylabel("Restaurant-Customer Pairs")
         plt.show()

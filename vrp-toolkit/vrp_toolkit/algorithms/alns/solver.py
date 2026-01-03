@@ -15,7 +15,7 @@ import time
 # Local imports
 from .operators import RemovalOperators, RepairOperators
 from vrp_toolkit.problems.pdptw import PDPTWInstance, PDPTWSolution
-from vrp_toolkit.algorithms.base import ConfigurableSolver, PDPTWProblemAdapter, PDPTWSolutionAdapter
+from vrp_toolkit.algorithms.base import ConfigurableSolver, PDPTWProblemAdapter, PDPTWSolutionAdapter, VRPProblem, VRPSolution
 
 
 @dataclass
@@ -60,19 +60,51 @@ class ALNSConfig:
             self.repair_indices = [0, 1]  # Greedy, Regret
 
 
+def _extract_pdptw_instance_from_problem(problem: VRPProblem) -> PDPTWInstance:
+    """Extract PDPTWInstance from VRPProblem (helper function).
+    
+    Args:
+        problem: VRPProblem to extract from
+        
+    Returns:
+        PDPTWInstance
+        
+    Raises:
+        TypeError: If problem cannot be converted to PDPTWInstance
+    """
+    # If it's already a PDPTWInstance, return it
+    if isinstance(problem, PDPTWInstance):
+        return problem
+    
+    # If it's a PDPTWProblemAdapter, return the original instance
+    if isinstance(problem, PDPTWProblemAdapter):
+        return problem.original_instance
+    
+    # Try to check if it has original_instance attribute
+    if hasattr(problem, 'original_instance'):
+        original = problem.original_instance
+        if isinstance(original, PDPTWInstance):
+            return original
+    
+    # If all else fails, raise error
+    raise TypeError(
+        f"Function requires a PDPTWInstance or PDPTWProblemAdapter, "
+        f"got {type(problem).__name__}"
+    )
+
 def greedy_insertion_initial_solution(
-    instance: PDPTWInstance,
+    problem: VRPProblem,
     num_vehicles: int,
     vehicle_capacity: float,
     battery_capacity: float,
     battery_consume_rate: float,
     penalty_unvisit: float,
     penalty_delay: float
-) -> PDPTWSolution:
+) -> VRPSolution:
     """Construct initial solution using greedy insertion.
     
     Args:
-        instance: PDPTW problem instance
+        problem: VRP problem instance (must be convertible to PDPTWInstance)
         num_vehicles: Number of available vehicles
         vehicle_capacity: Maximum capacity per vehicle
         battery_capacity: Maximum battery capacity
@@ -81,11 +113,14 @@ def greedy_insertion_initial_solution(
         penalty_delay: Penalty for time window delays
         
     Returns:
-        Initial feasible solution
+        Initial feasible solution (adapter-wrapped)
     """
+    # Extract PDPTW instance from VRPProblem
+    pdptw_instance = _extract_pdptw_instance_from_problem(problem)
+    
     routes = []
-    pickup_nodes = list(range(1, instance.n + 1))
-    pickup_nodes.sort(key=lambda x: instance.time_windows[x][0])  # Sort by pickup start time
+    pickup_nodes = list(range(1, pdptw_instance.n + 1))
+    pickup_nodes.sort(key=lambda x: pdptw_instance.time_windows[x][0])  # Sort by pickup start time
 
     for vehicle_id in range(num_vehicles):
         route = [0, 0]
@@ -96,11 +131,11 @@ def greedy_insertion_initial_solution(
             best_objective_value = float('inf')
 
             for pickup_node in pickup_nodes:
-                delivery_node = pickup_node + instance.n
+                delivery_node = pickup_node + pdptw_instance.n
                 for insertion_index in range(1, len(route)):
                     new_route = route[:insertion_index] + [pickup_node, delivery_node] + route[insertion_index:]
                     temp_solution = PDPTWSolution(
-                        instance, vehicle_capacity, battery_capacity, battery_consume_rate,
+                        pdptw_instance, vehicle_capacity, battery_capacity, battery_consume_rate,
                         [new_route], penalty_unvisit, penalty_delay
                     )
 
@@ -113,18 +148,19 @@ def greedy_insertion_initial_solution(
 
             if best_pickup_node is not None:
                 pickup_nodes.remove(best_pickup_node)
-                route = route[:best_insertion_index] + [best_pickup_node, best_pickup_node + instance.n] + route[best_insertion_index:]
+                route = route[:best_insertion_index] + [best_pickup_node, best_pickup_node + pdptw_instance.n] + route[best_insertion_index:]
             else:
                 break
 
         routes.append(route)
 
     solution = PDPTWSolution(
-        instance, vehicle_capacity, battery_capacity, battery_consume_rate,
+        pdptw_instance, vehicle_capacity, battery_capacity, battery_consume_rate,
         routes, penalty_unvisit, penalty_delay
     )
 
-    return solution
+    # Return adapter-wrapped solution
+    return PDPTWSolutionAdapter(solution)
 
 
 class ALNS:
@@ -479,9 +515,41 @@ class ALNSSolver(ConfigurableSolver):
         self.alns_instance = None
         self.solution_history = []
 
+    def _extract_pdptw_instance(self, problem: VRPProblem) -> PDPTWInstance:
+        """Extract PDPTWInstance from VRPProblem.
+        
+        Args:
+            problem: VRPProblem to extract from
+            
+        Returns:
+            PDPTWInstance
+            
+        Raises:
+            TypeError: If problem cannot be converted to PDPTWInstance
+        """
+        # If it's already a PDPTWInstance, return it
+        if isinstance(problem, PDPTWInstance):
+            return problem
+        
+        # If it's a PDPTWProblemAdapter, return the original instance
+        if isinstance(problem, PDPTWProblemAdapter):
+            return problem.original_instance
+        
+        # Try to check if it has original_instance attribute
+        if hasattr(problem, 'original_instance'):
+            original = problem.original_instance
+            if isinstance(original, PDPTWInstance):
+                return original
+        
+        # If all else fails, raise error
+        raise TypeError(
+            f"ALNSSolver requires a PDPTWInstance or PDPTWProblemAdapter, "
+            f"got {type(problem).__name__}"
+        )
+
     def solve(
         self,
-        problem: PDPTWInstance,
+        problem: VRPProblem,
         num_vehicles: int = 4,
         vehicle_capacity: float = 6.0,
         battery_capacity: float = 8.0,
@@ -489,25 +557,12 @@ class ALNSSolver(ConfigurableSolver):
         penalty_unvisited: float = 100.0,
         penalty_delayed: float = 15.0,
         **kwargs
-    ) -> PDPTWSolution:
-        """Solve a PDPTW problem instance using ALNS.
-
-        Args:
-            problem: PDPTW problem instance to solve
-            num_vehicles: Number of available vehicles
-            vehicle_capacity: Maximum capacity per vehicle
-            battery_capacity: Battery capacity for vehicles
-            battery_consume_rate: Battery consumption rate per distance unit
-            penalty_unvisited: Penalty for unvisited nodes
-            penalty_delayed: Penalty for time window delays
-            **kwargs: Additional parameters passed to ALNS configuration
-
-        Returns:
-            Best solution found
-        """
+    ) -> VRPSolution:        # Extract PDPTW instance from VRPProblem
+        pdptw_instance = self._extract_pdptw_instance(problem)
+        
         # Generate initial solution using greedy insertion
         initial_solution = greedy_insertion_initial_solution(
-            instance=problem,
+            problem=problem,
             num_vehicles=num_vehicles,
             vehicle_capacity=vehicle_capacity,
             battery_capacity=battery_capacity,
@@ -523,17 +578,19 @@ class ALNSSolver(ConfigurableSolver):
         self.alns_instance = ALNS(
             initial_solution=initial_solution,
             config=alns_config,
-            dist_matrix=problem.distance_matrix,
+            dist_matrix=pdptw_instance.distance_matrix,
             battery_capacity=battery_capacity
         )
 
         # Run ALNS algorithm
         best_solution, _ = self.alns_instance.run()
 
-        # Record solution in history
-        self.solution_history.append((best_solution, best_solution.objective_function()))
+        # Record solution in history (store adapter-wrapped solution)
+        solution_adapter = PDPTWSolutionAdapter(best_solution)
+        self.solution_history.append((solution_adapter, solution_adapter.objective_value()))
 
-        return best_solution
+        # Return adapter-wrapped solution
+        return solution_adapter
 
     def _create_alns_config(self, **kwargs) -> ALNSConfig:
         """Create ALNSConfig from configuration parameters.
@@ -570,7 +627,7 @@ class ALNSSolver(ConfigurableSolver):
         # Create ALNSConfig instance
         return ALNSConfig(**config_dict)
 
-    def get_solution_history(self) -> List[Tuple[PDPTWSolution, float]]:
+    def get_solution_history(self) -> List[Tuple[VRPSolution, float]]:
         """Get history of solutions explored during search.
 
         Returns:

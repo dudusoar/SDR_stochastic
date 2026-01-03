@@ -3,7 +3,7 @@ name = "vrp-toolkit"
 version = "0.1.0"
 description = "Reusable VRP/PDPTW solving framework with ALNS algorithm and real-world map integration"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 authors = [
     {name = "Yuchendu", email = "yuchendu@example.com"}
 ]

@@ -8,8 +8,10 @@ import numpy as np
 import pandas as pd
 from typing import List, Tuple, Dict, Optional, Union, Any
 
+from vrp_toolkit.algorithms.base import VRPProblem
 
-class PDPTWInstance:
+
+class PDPTWInstance(VRPProblem):
     """PDPTW problem instance with battery constraints.
     
     Represents a Pickup and Delivery Problem with Time Windows instance
@@ -125,7 +127,11 @@ class PDPTWInstance:
     def _get_column(self, column_key: str) -> str:
         """Get actual column name from key."""
         return self._column_mapping.get(column_key, column_key)
-    
+
+    def _col(self, column_key: str) -> str:
+        """Alias for _get_column for backward compatibility."""
+        return self._get_column(column_key)
+
     @property
     def _col_mapping(self) -> Dict[str, str]:
         """Backward compatibility property."""
@@ -259,11 +265,11 @@ class PDPTWInstance:
     # Compatibility methods for existing code
     def get_distance(self, i: int, j: int) -> float:
         """Get distance between nodes i and j."""
-        return self._mapped_distance_matrix[i][j]
-    
+        return self.distance_matrix[i][j]
+
     def get_time(self, i: int, j: int) -> float:
         """Get travel time between nodes i and j."""
-        return self._mapped_time_matrix[i][j]
+        return self.time_matrix[i][j]
     
     def get_demand(self, node_id: int) -> float:
         """Get demand for a node."""
@@ -276,7 +282,47 @@ class PDPTWInstance:
     def get_service_time(self, node_id: int) -> float:
         """Get service time for a node."""
         return self.service_times[node_id] if node_id < len(self.service_times) else 0.0
-    
+
+    # VRPProblem interface implementation
+    @property
+    def num_nodes(self) -> int:
+        """Number of nodes in the problem."""
+        return max(self.indices) + 1 if self.indices else 0
+
+    @property
+    def num_orders(self) -> int:
+        """Number of orders/requests in the problem."""
+        return self.n
+
+    @property
+    def depot_index(self) -> int:
+        """Index of the depot node."""
+        return 0  # Assuming depot is always index 0
+
+    # Bulk matrix access methods for algorithm efficiency
+    def get_distance_matrix(self) -> np.ndarray:
+        """Get full distance matrix for algorithms that need bulk access."""
+        return self.distance_matrix
+
+    def get_time_matrix(self) -> np.ndarray:
+        """Get full time matrix for algorithms that need bulk access."""
+        return self.time_matrix
+
+    # Node-order mapping helper methods
+    def get_pickup_node(self, order_id: int) -> int:
+        """Get node index for pickup of given order.
+
+        Assumes pickup nodes are 1-n and delivery nodes are n+1-2n.
+        """
+        return order_id  # Current assumption
+
+    def get_delivery_node(self, order_id: int) -> int:
+        """Get node index for delivery of given order.
+
+        Assumes pickup nodes are 1-n and delivery nodes are n+1-2n.
+        """
+        return order_id + self.n  # Current assumption
+
     def __repr__(self) -> str:
         """String representation of the instance."""
         return f"PDPTWInstance(n={self.n}, nodes={len(self.indices)}, speed={self.robot_speed})"

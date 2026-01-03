@@ -31,13 +31,60 @@ class RemovalOperators:
         self.solution = solution
         self.instance = solution.instance
 
+        # Compatibility layer for VRPProblem interface
+        self._distance_matrix = self._get_distance_matrix()
+        self._time_matrix = self._get_time_matrix()
+        self._n = self.instance.num_orders if hasattr(self.instance, 'num_orders') else self.instance.n
+
         # Start of SISR removal
+
+    def _get_distance_matrix(self):
+        """Get distance matrix with backward compatibility."""
+        # Try interface method first
+        if hasattr(self.instance, 'get_distance_matrix'):
+            matrix = self.instance.get_distance_matrix()
+            if matrix is not None:
+                return matrix
+
+        # Fallback to direct attribute
+        if hasattr(self.instance, 'distance_matrix'):
+            return self.instance.distance_matrix
+
+        # Last resort: build from individual calls
+        n = self.instance.num_nodes if hasattr(self.instance, 'num_nodes') else len(self.instance.indices)
+        import numpy as np
+        matrix = np.zeros((n, n))
+        for i in range(n):
+            for j in range(n):
+                matrix[i][j] = self.instance.get_distance(i, j)
+        return matrix
+
+    def _get_time_matrix(self):
+        """Get time matrix with backward compatibility."""
+        # Try interface method first
+        if hasattr(self.instance, 'get_time_matrix'):
+            matrix = self.instance.get_time_matrix()
+            if matrix is not None:
+                return matrix
+
+        # Fallback to direct attribute
+        if hasattr(self.instance, 'time_matrix'):
+            return self.instance.time_matrix
+
+        # Last resort: build from individual calls
+        n = self.instance.num_nodes if hasattr(self.instance, 'num_nodes') else len(self.instance.indices)
+        import numpy as np
+        matrix = np.zeros((n, n))
+        for i in range(n):
+            for j in range(n):
+                matrix[i][j] = self.instance.get_time(i, j)
+        return matrix
 
     # Main SISR removal function
     def SISR_removal(self, L_max, avg_remove_order, d_matrix):
         remaining_orders = self.solution.unvisited_requests
         routes_copy = deepcopy(self.solution.routes)
-        n_orders = self.instance.n
+        n_orders = self._n
         removed_list = []
         deconstructed_route_list = []
         k_s, l_s_max = self.number_of_strings(L_max, avg_remove_order, routes_copy, n_orders)
@@ -186,7 +233,7 @@ class RemovalOperators:
         remaining_requests.remove(initial_request)
 
         # Normalization factor
-        max_distance = np.max(self.instance.distance_matrix)
+        max_distance = np.max(self._distance_matrix)
         max_arrive_time = np.max([np.max(arrival_time) for arrival_time in self.solution.route_arrival_times])
 
         while len(removed_requests) < num_remove:
@@ -203,11 +250,11 @@ class RemovalOperators:
 
     def calculate_similarity(self, req1, req2, max_distance, max_arrive_time):
         '''for shaw_removal'''
-        pickup1, delivery1 = req1, req1 + self.instance.n
-        pickup2, delivery2 = req2, req2 + self.instance.n
+        pickup1, delivery1 = req1, req1 + self._n
+        pickup2, delivery2 = req2, req2 + self._n
 
-        dist_pickup = self.instance.distance_matrix[pickup1][pickup2] / max_distance
-        dist_delivery = self.instance.distance_matrix[delivery1][delivery2] / max_distance
+        dist_pickup = self._distance_matrix[pickup1][pickup2] / max_distance
+        dist_delivery = self._distance_matrix[delivery1][delivery2] / max_distance
 
         arrival_time_pickup = (self.get_arrival_time(pickup1) - self.get_arrival_time(pickup2)) / max_arrive_time
         arrival_time_delivery = (self.get_arrival_time(delivery1) - self.get_arrival_time(delivery2)) / max_arrive_time
@@ -250,7 +297,7 @@ class RemovalOperators:
     def calculate_contribution(self, req):
         '''for  worst_removal'''
         temp_solution = deepcopy(self.solution)
-        pickup, delivery = req, req + self.instance.n
+        pickup, delivery = req, req + self._n
 
         # remove the pickup and delivery points
         for route in temp_solution.routes:
@@ -274,7 +321,7 @@ class RemovalOperators:
         # removed_pairs = []
 
         for request in requests:
-            pickup_node, delivery_node = request, request + self.instance.n
+            pickup_node, delivery_node = request, request + self._n
             for route in new_solution.routes:
                 if pickup_node in route:
                     route.remove(pickup_node)
@@ -294,6 +341,8 @@ class RepairOperators:
     def __init__(self, solution):
         self.solution = deepcopy(solution)
         self.instance = solution.instance
+        # Compatibility layer for VRPProblem interface
+        self._n = self.instance.num_orders if hasattr(self.instance, 'num_orders') else self.instance.n
         self.insertion_log = []  # record
 
     # *****************************************************************************************************
