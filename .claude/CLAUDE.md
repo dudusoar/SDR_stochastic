@@ -83,261 +83,41 @@ vrp-toolkit/
 
 ---
 
-## 📋 Migration Plan from SDR_stochastic
+## 📋 Migration from SDR_stochastic
 
-### Source Code Location
-- **Original:** `/Users/yuchendu/Desktop/Github/heuristic in VRP/SDR_stochastic/new version/`
-- **New:** `/Users/yuchendu/Desktop/Github/heuristic in VRP/vrp-toolkit/`
+**Objective:** Transform research code into reusable toolkit
 
-### File Mapping
+**Status:** 9/9 files migrated, Phase 2 refactoring 90% complete
 
-| Original File | New Location | Refactoring Needed |
-|--------------|--------------|-------------------|
-| `instance.py` | `vrp_toolkit/problems/pdptw.py` | Extract generic parts |
-| `solution.py` | `vrp_toolkit/problems/pdptw.py` | Keep solution class |
-| `solvers.py` | `vrp_toolkit/algorithms/alns/solver.py` | Extract ALNS core |
-| `operators.py` | `vrp_toolkit/algorithms/alns/operators.py` | Modularize operators |
-| `order_info.py` | `vrp_toolkit/data/generators.py` | Rename to OrderGenerator |
-| `real_map.py` | `vrp_toolkit/data/map.py` | Keep as-is initially |
-| `demands.py` | `vrp_toolkit/data/generators.py` | Merge with generators |
-| `test.ipynb` | `tutorials/01_quickstart.ipynb` | Clean up for tutorial |
-| `sensitivity_test.ipynb` | `tutorials/05_sensitivity_analysis.ipynb` | Polish |
+**For detailed migration guide, see:**
+- Technical guide: [migrate-module skill](skills/migrate-module/) → `references/MIGRATION_GUIDE.md`
+- File mapping and refactoring guidelines
+- Migration phases and workflow
+- Common patterns and issues
 
-**Total: 9 files to migrate**
-
-### Migration Phases
-
-**Phase 1: Minimal Migration** (CURRENT)
-- [x] Create directory structure
-- [x] Create CLAUDE.md and MIGRATION_LOG.md
-- [x] Create 7 custom skills for workflow automation
-- [x] Copy core files with minimal changes
-- [x] Create basic README and quickstart tutorial
-- [ ] Make it installable (`pip install -e .`)
-
-**Phase 2: Refactoring**
-- [x] Separate problem definition from algorithm (ALNSSolver now accepts VRPProblem interface)
-- [x] Create unified Solver interface (VRPProblem, VRPSolution, Solver base classes implemented)
-- [ ] Add configuration file support
-- [ ] Improve visualization
-
-**Phase 3: Extension**
-- [ ] OSMnx integration
-- [ ] Add second algorithm (GA or TabuSearch)
-- [ ] Benchmark suite
-- [ ] Website project page content
+**Migration tracking:**
+- Detailed history: [MIGRATION_LOG.md](MIGRATION_LOG.md)
+- Task progress: [TASK_BOARD.md](TASK_BOARD.md)
 
 ---
 
 ## 🛠️ Skills Reference
 
-We have created **9 custom skills** to automate common workflows. These skills are located in `.claude/skills/` and packaged as `.skill` files (located in `skills-packages/`).
+We have created **10 custom skills** to automate common workflows. Skills are located in `.claude/skills/` as source directories.
 
-### Workflow Skills
+**All Skills:**
+1. **build-session-context** - Extract project status from logs for token-efficient session startup
+2. **migrate-module** - Guide file migration from SDR_stochastic to vrp-toolkit with refactoring
+3. **update-migration-log** - Log migration entries and progress to MIGRATION_LOG.md
+4. **integrate-road-network** - Integrate real-world street networks using OSMnx
+5. **log-debug-issue** - Track bugs and debugging processes in DEBUG_LOG.md
+6. **update-task-board** - Sync TASK_BOARD.md based on evidence from all logs
+7. **maintain-data-structures** - Reference for data structures (Problem/Algorithm/Data layers)
+8. **git-log** - Generate commit messages and maintain GIT_LOG.md
+9. **manage-python-env** - UV package manager reference and environment setup
+10. **manage-skills** - Audit, check compliance, and maintain skills documentation
 
-#### 1. **build-session-context** - Begin Work Session
-**When to use:** Starting work, returning after a break, or checking project status
-
-**What it does:**
-- Reads and summarizes CLAUDE.md current status
-- Shows migration progress (X/9 files completed)
-- Displays in-progress tasks and next priorities
-- Shows recent Git commits
-- Suggests specific next action
-
-**Trigger:** Say "start work", "project status", or "what should I do next?"
-
----
-
-#### 2. **migrate-module** - Migrate Code Files
-**When to use:** Migrating files from SDR_stochastic to vrp-toolkit
-
-**What it does:**
-- Guides through 5-step migration workflow
-- Identifies and extracts hardcoded values
-- Decouples architecture layers
-- Adds documentation and tests
-- Validates migration completion
-
-**Trigger:** Say "migrate [filename]" or "migrate instance.py"
-
-**References:**
-- File mapping: `.claude/skills/migrate-module/references/migration_map.md`
-- Architecture: `.claude/skills/migrate-module/references/architecture.md`
-
----
-
-#### 3. **update-migration-log** - Log Completed Work
-**When to use:** After completing a migration or task
-
-**What it does:**
-- Updates CLAUDE.md status sections
-- Logs migration details to MIGRATION_LOG.md
-- Updates progress percentages
-- Records issues and resolutions
-- Suggests next task
-
-**Trigger:** Say "update progress" or "log this migration"
-
-**Updates:**
-- CLAUDE.md → Completed tasks, In Progress, Next Steps
-- MIGRATION_LOG.md → Detailed migration entries
-
----
-
-#### 4. **integrate-road-network** - Real-World Map Integration
-**When to use:** Creating instances with actual street networks
-
-**What it does:**
-- Guides through 8-step OSMnx integration
-- Loads street networks from OpenStreetMap
-- Maps locations to network nodes
-- Computes network-based distances
-- Creates PDPTW instances with real data
-
-**Trigger:** Say "integrate OSMnx", "use real map", or "create Purdue campus instance"
-
-**References:**
-- Examples: `.claude/skills/integrate-road-network/references/osmnx_examples.md` (10 examples)
-- Troubleshooting: `.claude/skills/integrate-road-network/references/troubleshooting.md`
-
----
-
-#### 5. **log-debug-issue** - Problem & Bug Tracking
-**When to use:** Recording issues, bugs, and debugging processes with solutions
-
-**What it does:**
-- Logs problems and bugs with structured templates
-- Tracks debugging processes and solutions
-- Maintains DEBUG_LOG.md with active/resolved issues
-- Identifies recurring patterns for prevention
-
-**Trigger:** Say "log bug", "debug issue", or when encountering problems during development
-
-**Integration:**
-- Works with update-task-board to convert active issues to blockers
-- Provides context for git-log commit messages
-- Supplies data for build-session-context status summary
-
----
-
-#### 6. **update-task-board** - Task Status Synchronization
-**When to use:** Updating CLAUDE.md task status based on actual progress
-
-**What it does:**
-- Reads multiple log files to assess actual progress
-- Updates CLAUDE.md task status (Completed/In Progress/Next Steps)
-- Ensures consistency across all project documentation
-- Identifies discrepancies between planned and actual work
-
-**Trigger:** Say "update tasks", "sync status", or after completing work
-
-**Integration:**
-- Uses evidence from MIGRATION_LOG.md, DEBUG_LOG.md, GIT_LOG.md
-- Provides accurate status for build-session-context
-- Works with update-migration-log for migration tracking
-
----
-
-### Reference Skills
-
-#### 7. **maintain-data-structures** - Data Structure Reference
-**When to use:** Need to understand data structures without reading code
-
-**What it provides:**
-- Problem layer structures (Instance, Solution, Node)
-- Algorithm layer structures (Solver, ALNS, Operators)
-- Data layer structures (OSMnx, distance matrices)
-- Runtime formats (routes as lists, time windows as tuples)
-
-**Trigger:** Automatic when other skills need structure info, or say "what is [structure name]?"
-
-**References:**
-- Problem layer: `problem_layer.md` (~300 lines)
-- Algorithm layer: `algorithm_layer.md` (~350 lines)
-- Data layer: `data_layer.md` (~300 lines)
-- Runtime formats: `runtime_formats.md` (~400 lines)
-
-**Value:** Saves 50-70% tokens by avoiding repeated code reading
-
----
-
-### Utility Skills
-
-#### 8. **git-log** - Commit Message Generator & Git Log Maintenance
-**When to use:** Generating appropriate commit messages and maintaining git log documentation
-
-**What it provides:**
-- Commit message generation following Conventional Commits format
-- Git log documentation maintenance (GIT_LOG.md)
-- Analysis of changes to determine commit type and scope
-- Integration with other skills for consistent tracking
-- Quick reference for common git commands
-
-**Trigger:** Say "commit changes", "generate commit message", or when preparing to commit
-
-**Key Features:**
-- Structured commit message templates for VRP project
-- Automatic extraction of commit information for GIT_LOG.md
-- Support for project-specific scopes (architecture, migration, setup, etc.)
-- Integration with update-task-board and log-debug-issue for context
-
-**Value:** Ensures consistent commit history and comprehensive change documentation
-
----
-
-#### 9. **manage-python-env** - UV Package Manager Reference
-**When to use:** Setting up Python environment, installing packages, managing dependencies
-
-**What it provides:**
-- UV installation and project initialization
-- Virtual environment creation and activation
-- Package management (add, remove, update)
-- VRP-specific pyproject.toml template
-- Comparison with pip/venv workflows
-- Troubleshooting dependency issues
-
-**Trigger:** Say "setup environment", "install packages", or "create venv with uv"
-
-**VRP Project Setup:**
-```bash
-uv init vrp-toolkit
-uv venv
-source .venv/bin/activate
-uv add numpy pandas matplotlib networkx
-uv add --dev pytest black ruff jupyter
-uv add osmnx geopandas
-```
-
-**Value:** Fast environment setup (10-100x faster than pip), includes complete pyproject.toml template
-
----
-
-### Skills Workflow
-
-Typical daily workflow using skills:
-
-```
-1. build-session-context
-   ↓ Shows status and suggests next task
-   ↓
-2. migrate-module
-   ↓ Executes migration (auto-uses maintain-data-structures as needed)
-   ↓
-3. update-migration-log
-   ↓ Logs completion and updates docs
-   ↓
-4. Back to build-session-context for next task
-```
-
-For OSMnx work:
-```
-1. integrate-road-network
-   ↓ Creates real-world instance (auto-uses maintain-data-structures)
-   ↓
-2. update-migration-log
-   ↓ Logs the work done
-```
+**For detailed documentation, see [SKILLS.md](SKILLS.md)**
 
 ---
 
@@ -369,42 +149,26 @@ For OSMnx work:
 
 ## 📊 Current Status
 
-### Completed ✅
-- [x] Directory structure created
-- [x] CLAUDE.md initial version
-- [x] MIGRATION_LOG.md template
-- [x] Created 7 custom skills (build-session-context, migrate-module, update-migration-log, maintain-data-structures, integrate-road-network, git-log, manage-python-env)
-- [x] Migrate instance.py and solution.py to vrp_toolkit/problems/pdptw.py
-- [x] Migrate solvers.py and operators.py to vrp_toolkit/algorithms/alns/
-- [x] Migrate order_info.py and demands.py to vrp_toolkit/data/generators.py
-- [x] Migrate real_map.py to vrp_toolkit/data/map.py
-- [x] Migrate test.ipynb to tutorials/01_quickstart.ipynb
-- [x] Migrate sensitivity_test.ipynb to tutorials/05_sensitivity_analysis.ipynb
-- [x] Create comprehensive README documentation (root and package)
-- [x] Create basic `pyproject.toml`
-- [x] Make package installable (`pip install -e .`)
-- [x] Test installation and package import
-- [x] Test quickstart tutorial execution
-- [x] Fix import issues in generators.py and add missing DemandGenerator class
-- [x] Analyze coupling between PDPTWInstance and ALNS classes
-- [x] Design unified Solver interface for problem-algorithm separation (VRPProblem, VRPSolution, Solver base classes)
-- [x] Adapt ALNS to use new Solver interface (ALNSSolver class)
-- [x] Update quickstart tutorial to use new architecture
-- [x] Decouple ALNSSolver from PDPTWInstance using VRPProblem/VRPSolution interfaces
-- [x] Testing refactoring with existing tutorials to ensure backward compatibility
-- [x] Add configuration file support
-- [x] Improve visualization
-- [x] Enhance test suite for new architecture interface validation
+**Phase:** Phase 2 - Refactoring (90% complete)
 
-### In Progress 🚧
-- Creating comprehensive test suite for new architecture
+**Progress:**
+- ✅ Phase 1: Minimal Migration (100% complete)
+- 🚧 Phase 2: Refactoring (90% complete - test suite in progress)
+- ⏳ Phase 3: Extension (not started)
 
-### Next Steps 📋
-1. Complete test suite with edge cases and integration tests
-2. Test ALNSSolver with other VRPProblem implementations beyond PDPTW
+**Current Focus:** Creating comprehensive test suite for new architecture
 
-### Blockers 🚫
-- None currently
+**For detailed task tracking, see [TASK_BOARD.md](TASK_BOARD.md)**
+
+### Quick Summary
+
+| Category | Status |
+|----------|--------|
+| All 9 files migrated | ✅ Complete |
+| Architecture refactored | ✅ Complete |
+| Skills system (10 skills) | ✅ Complete |
+| Documentation structure | ✅ Complete |
+| Testing suite | 🚧 In Progress |
 
 ---
 

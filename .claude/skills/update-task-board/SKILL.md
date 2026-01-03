@@ -1,280 +1,285 @@
 ---
 name: update-task-board
-description: Update CLAUDE.md task status and read logs to maintain accurate project tracking. Use when tasks are completed, when progress is made, or when needing to sync project status across documentation files. Maintains coherent task tracking across all project logs.
+description: Manage TASK_BOARD.md by reading project logs and synchronizing task status. Use when tasks are completed, when progress is made, or when needing to sync task tracking. Reads MIGRATION_LOG.md, DEBUG_LOG.md, GIT_LOG.md to assess actual progress and updates TASK_BOARD.md accordingly. Does NOT modify CLAUDE.md or MIGRATION_LOG.md.
 ---
 
-# Task Manager
+# Task Board Manager
 
-Keep CLAUDE.md task status synchronized with actual project progress by reading various log files and updating task tracking accordingly.
+Manage TASK_BOARD.md by synchronizing it with actual project progress from various log files.
+
+## Core Responsibility
+
+**Manage TASK_BOARD.md ONLY** - This skill:
+- ✅ Reads: MIGRATION_LOG.md, DEBUG_LOG.md, GIT_LOG.md, git status
+- ✅ Updates: TASK_BOARD.md
+- ❌ Does NOT modify: CLAUDE.md, MIGRATION_LOG.md, or other files
+
+**Clear separation:**
+- `update-task-board` → Manages TASK_BOARD.md
+- `update-migration-log` → Manages MIGRATION_LOG.md only
+- CLAUDE.md → Entry point, rarely modified
 
 ## When to Use
 
 Use this skill when:
-- Completing a task and needing to update CLAUDE.md
-- Starting a new task and wanting to track it properly
-- Syncing project status across multiple log files
+- Completing tasks and need to update task board
+- Starting new tasks and want to track them
+- Syncing project status after work sessions
 - Reviewing overall project progress
-- Preparing project status reports
-- Identifying inconsistencies between logs and task status
+- Preparing status reports
+- Identifying task-log inconsistencies
 
 ## Workflow
 
-### Step 1: Read Current Status
-Read all relevant project documentation to understand current state:
+### Step 1: Read All Logs
+
+Read project documentation to understand current state:
 
 **Files to read:**
-1. **CLAUDE.md** - Current task status (Completed, In Progress, Next Steps, Blockers)
-2. **MIGRATION_LOG.md** - Migration progress and recent entries
-3. **DEBUG_LOG.md** - Active and resolved issues
-4. **GIT_LOG.md** - Recent commits and changes
-5. **Git status** - Uncommitted changes and current branch
+1. **TASK_BOARD.md** - Current task status
+2. **MIGRATION_LOG.md** - Migration progress
+3. **DEBUG_LOG.md** - Active/resolved issues
+4. **GIT_LOG.md** - Recent commits
+5. **Git status** - Uncommitted changes
 
 ### Step 2: Analyze Progress
-Compare documented task status with actual progress:
+
+Compare documented tasks with actual progress:
 
 **Check for:**
-- **Completed tasks** in CLAUDE.md that have corresponding completion evidence in logs
-- **In-progress tasks** that may be completed based on log entries
-- **New tasks** mentioned in logs but not tracked in CLAUDE.md
-- **Blockers** that may be resolved based on DEBUG_LOG.md entries
-- **Migration progress** updates needed based on MIGRATION_LOG.md
+- Completed tasks with log evidence
+- In-progress tasks that may be complete
+- New tasks mentioned in logs
+- Resolved blockers
+- Migration progress updates
 
-### Step 3: Update Task Status
-Update CLAUDE.md sections based on analysis:
+### Step 3: Update TASK_BOARD.md
 
-**Sections to update:**
-- **Completed ✅:** Move tasks from "In Progress" here when evidence shows completion
-- **In Progress 🚧:** Add new tasks being worked on, remove completed ones
-- **Next Steps 📋:** Update based on project priorities and recent progress
-- **Blockers 🚫:** Add new blockers, remove resolved ones
-- **Current Status:** Update phase if milestones reached
-- **Last Updated:** Always update to current date
+Update sections based on analysis:
+
+**Sections:**
+- **Completed ✅** - Move finished tasks here
+- **In Progress 🚧** - Current work
+- **Next Steps 📋** - Upcoming priorities
+- **Blockers 🚫** - Issues preventing progress
 
 ### Step 4: Verify Consistency
-Ensure all documentation files tell a consistent story:
+
+Ensure logs and task board tell consistent story:
 
 **Cross-reference:**
-- Migration entries in MIGRATION_LOG.md should match completed migration tasks
-- Resolved issues in DEBUG_LOG.md should match fixed blockers
-- Recent commits in GIT_LOG.md should relate to completed tasks
-- No contradictions between different status indicators
+- Migration entries match completed migration tasks
+- Resolved DEBUG_LOG issues match removed blockers
+- Recent commits relate to completed tasks
+- No contradictions
 
-## CLAUDE.md Parsing Guide
+## TASK_BOARD.md Structure
 
-### Task Status Detection
-CLAUDE.md uses specific sections for task tracking:
+### Task Status Sections
 
-**Completed section:**
+**Completed:**
 ```markdown
 ### Completed ✅
+
+**Phase 1: Minimal Migration**
 - [x] Task description
+- [x] Another completed task
+
+**Phase 2: Refactoring**
+- [x] Architecture refactored
 ```
 
-**In Progress section:**
+**In Progress:**
 ```markdown
-### In Progress 🚧
-- [ ] Task description
+### 🚧 In Progress
+
+### Current Focus
+- [ ] Task being worked on
+
+### Details
+- Subtask details
+- Progress notes
 ```
 
-**Next Steps section:**
+**Next Steps:**
 ```markdown
-### Next Steps 📋
-1. Task description
+### 📋 Next Steps
+
+### Phase 2 Completion
+1. [ ] Task to do next
+2. [ ] Another upcoming task
+
+### Phase 3 Planning
+1. [ ] Future work
 ```
 
-**Blockers section:**
+**Blockers:**
 ```markdown
-### Blockers 🚫
-- Description of blocker
+### 🚫 Blockers
+
+**Current:** Description of active blocker
+
+**Resolved:**
+- ~~Previous blocker~~ - Fixed YYYY-MM-DD
 ```
 
-### Update Patterns
+## Log Integration
 
-**Marking task as completed:**
-1. Find task in "In Progress 🚧" section
-2. Move to "Completed ✅" section
-3. Change `[ ]` to `[x]`
-4. Add completion date or reference if appropriate
+### MIGRATION_LOG.md
 
-**Adding new task:**
-1. Determine if task is "In Progress" or "Next Steps"
-2. Add to appropriate section with correct formatting
-3. Include brief description and context
+**Extract:**
+- Recent migration entries
+- Files completed
+- Issues encountered
 
-**Resolving blocker:**
-1. Find blocker in "Blockers 🚫" section
-2. Remove or mark as resolved
-3. Add note about resolution if appropriate
+**Actions:**
+- Mark migration tasks complete
+- Add migration-related blockers
+- Update phase progress
 
-## Log File Integration
+### DEBUG_LOG.md
 
-### Reading MIGRATION_LOG.md
-**Key information to extract:**
-- Total files migrated vs. completed (from progress summary)
-- Recent migration entries (last 3-5)
-- Any issues flagged in migration entries
-- Completion percentage
+**Extract:**
+- Active issues
+- Resolved issues
+- Issue severity
 
-**Action items:**
-- Update migration progress in CLAUDE.md if changed
-- Mark migration tasks as completed if new entries exist
-- Add migration-related blockers if issues reported
+**Actions:**
+- Add significant issues to Blockers
+- Remove resolved blockers
+- Track debugging tasks
 
-### Reading DEBUG_LOG.md
-**Key information to extract:**
-- Active issues (status: Investigating, Needs Fix, Waiting)
-- Recently resolved issues
-- Common patterns that might indicate systemic issues
+### GIT_LOG.md
 
-**Action items:**
-- Add active issues to CLAUDE.md "Blockers" if significant
-- Move resolved issues out of "Blockers" if previously listed
-- Consider adding debugging tasks to "In Progress" if major investigation needed
+**Extract:**
+- Recent commits
+- Modified files
+- Commit patterns
 
-### Reading GIT_LOG.md
-**Key information to extract:**
-- Recent commit messages (indicate completed work)
-- Files modified in recent commits
-- Patterns of activity (e.g., lots of documentation commits)
+**Actions:**
+- Identify completed work
+- Cross-reference with tasks
+- Add untracked completed work
 
-**Action items:**
-- Use commit messages to identify completed tasks
-- Cross-reference with CLAUDE.md tasks
-- Update task status based on commit evidence
+## Update Patterns
 
-## Update Templates
+### Task Completion
 
-### Task Completion Update
-When a task is completed based on log evidence:
+When log evidence shows task is done:
 
-**CLAUDE.md update:**
 ```markdown
-### Completed ✅
-- [x] Implement unified Solver interface for problem-algorithm separation
-  *Completed on 2026-01-01, see migration entry for details*
+**Before (In Progress):**
+- [ ] Implement unified Solver interface
+
+**After (Completed):**
+- [x] Implement unified Solver interface
 ```
 
-**Additional updates:**
-- Update "Last Updated" date
-- Remove from "In Progress" if present
-- Update any related statistics (e.g., migration progress)
+Add to appropriate phase section in Completed.
 
-### New Task Addition
-When a new task is identified from logs:
+### New Task
 
-**CLAUDE.md update:**
+When new task identified:
+
 ```markdown
-### In Progress 🚧
+### 🚧 In Progress
+
+### Current Focus
 - [ ] Fix matplotlib import issues on Windows
-  *Identified from DEBUG_LOG.md, investigating platform compatibility*
+
+### Details
+- Identified from DEBUG_LOG.md
+- Platform compatibility issue
 ```
 
 ### Blocker Resolution
-When a blocker is resolved:
 
-**CLAUDE.md update:**
+When blocker is fixed:
+
 ```markdown
-### Blockers 🚫
-- ~~Dependency conflict between numpy 1.24 and pandas 2.0~~ RESOLVED
-  *Fixed by pinning numpy to 1.23.5, see DEBUG_LOG.md for details*
+**Resolved:**
+- ~~Dependency conflict numpy/pandas~~ - Fixed 2026-01-03
 ```
+
+Move from "Current" to "Resolved" in Blockers section.
 
 ## Integration with Other Skills
 
-**update-progress:** After migration tasks are completed, task-manager ensures CLAUDE.md reflects the completion.
+**Works with:**
+- `update-migration-log` - Reads MIGRATION_LOG.md for evidence
+- `log-debug-issue` - Reads DEBUG_LOG.md for blockers
+- `git-log` - Reads GIT_LOG.md for commits
+- `build-session-context` - Reads TASK_BOARD.md for status
 
-**git-log:** Commit messages provide evidence for task completion that task-manager can use.
+**Does NOT interfere with:**
+- CLAUDE.md management (not this skill's job)
+- Migration logging (update-migration-log handles)
+- Debug logging (log-debug-issue handles)
 
-**log-debug-issue:** Active issues become blockers, resolved issues are removed from blockers.
+## Evidence-Based Updates
 
-**build-session-context:** Task-manager provides accurate current status for build-session-context to display.
+**Principles:**
+- Only mark complete with log evidence
+- Cite sources when updating
+- Be conservative - when uncertain, keep in-progress
+- Cross-reference multiple logs
 
-**migrate-module:** When migration completes, task-manager updates CLAUDE.md task status.
-
-## Automation Guidelines
-
-When AI uses this skill, it should:
-
-### Regular Status Sync
-1. **Read all logs:** CLAUDE.md, MIGRATION_LOG.md, DEBUG_LOG.md, GIT_LOG.md
-2. **Identify discrepancies:** Tasks marked incomplete but evidence shows completion
-3. **Update CLAUDE.md:** Move tasks between sections, update status
-4. **Maintain consistency:** Ensure all files tell the same story
-
-### Evidence-Based Updates
-- **Require evidence:** Only mark tasks complete if logs show completion
-- **Cite sources:** Reference specific log entries when updating status
-- **Be conservative:** When in doubt, leave task as in-progress
-
-### Proactive Monitoring
-- **Check for new work:** Recent commits may indicate unlogged tasks
-- **Monitor blockers:** Active issues in DEBUG_LOG.md may need escalation
-- **Track progress:** Migration percentage changes should update CLAUDE.md
+**Example:**
+```
+Task: "Migrate instance.py"
+Evidence: MIGRATION_LOG.md entry dated 2026-01-01
+Action: Move to Completed ✅ with date reference
+```
 
 ## Usage Examples
 
-### Example 1: Migration Completion
-**Situation:** MIGRATION_LOG.md shows new entry for "instance.py migration completed"
+### Example 1: Migration Complete
 
-**Task-manager actions:**
-1. Read MIGRATION_LOG.md, find new completion entry
-2. Check CLAUDE.md for "Migrate instance.py" task
-3. Move task from "In Progress" to "Completed"
-4. Update migration progress statistics
-5. Update "Last Updated" date
+**Situation:** MIGRATION_LOG.md shows "instance.py migration completed"
 
-### Example 2: Bug Resolution
-**Situation:** DEBUG_LOG.md shows "ImportError: cannot import name 'RealMap'" marked as resolved
+**Actions:**
+1. Find task in TASK_BOARD.md "In Progress"
+2. Move to "Completed" under appropriate phase
+3. Mark [x] as complete
+4. Update "Last Updated" date in TASK_BOARD.md
+5. Update progress metrics
 
-**Task-manager actions:**
-1. Read DEBUG_LOG.md, find resolved issue
-2. Check CLAUDE.md "Blockers" for related issue
-3. Remove or mark blocker as resolved
-4. Add note about fix
+### Example 2: Bug Resolved
 
-### Example 3: New Feature Development
-**Situation:** GIT_LOG.md shows recent commits for "feat(visualization): add interactive map plotting"
+**Situation:** DEBUG_LOG.md shows issue marked "Resolved"
 
-**Task-manager actions:**
-1. Read GIT_LOG.md, identify new feature commits
-2. Check CLAUDE.md for corresponding task
-3. If not tracked, add to "Completed" or "In Progress" as appropriate
-4. Update task description based on commit details
+**Actions:**
+1. Find blocker in TASK_BOARD.md "Blockers" section
+2. Move to "Resolved" subsection
+3. Add resolution date
+4. Update "Last Updated"
 
-## Maintenance Schedule
+### Example 3: New Work Started
 
-### Daily (during active development)
-- Quick sync: Check for obvious completions/inconsistencies
-- Update based on most recent work
+**Situation:** GIT_LOG.md shows commits for new feature
 
-### Weekly
-- Comprehensive review of all logs
-- Deep consistency check
-- Update progress statistics
+**Actions:**
+1. Check if task exists in TASK_BOARD.md
+2. If not, add to "In Progress" with details
+3. If complete, add to "Completed"
+4. Update "Last Updated"
 
-### Project Milestones
-- Full status audit
-- Generate progress reports
-- Archive completed tasks if CLAUDE.md gets too long
+## File References
 
-## Troubleshooting
+- **Manages:** `.claude/TASK_BOARD.md`
+- **Reads:** `.claude/MIGRATION_LOG.md`, `.claude/DEBUG_LOG.md`, `.claude/GIT_LOG.md`
+- **Does NOT modify:** `.claude/CLAUDE.md`, `.claude/MIGRATION_LOG.md`
 
-### Inconsistent Status
-If logs contradict each other:
-1. Check dates/timestamps
-2. Look for incomplete log entries
-3. Ask user for clarification
-4. Default to most recent evidence
+## Maintenance Notes
 
-### Missing Log Files
-If a log file doesn't exist:
-1. Create minimal version if needed
-2. Note absence in status report
-3. Suggest creating it with relevant skill
+**Update frequency:**
+- After completing tasks
+- After work sessions
+- Weekly for comprehensive review
+- At project milestones
 
-### Ambiguous Task Boundaries
-When it's unclear if a task is complete:
-1. Look for explicit completion markers in logs
-2. Check if all subtasks are done
-3. When in doubt, leave in-progress with note
-4. Ask user for clarification
+**Keep TASK_BOARD.md:**
+- Up to date with logs
+- Consistent across sections
+- Clear and actionable
+- Evidence-based

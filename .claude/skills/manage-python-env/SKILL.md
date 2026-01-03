@@ -334,128 +334,27 @@ uv run python -c "import numpy; print(numpy.__version__)"
 - 🐍 Python version management
 - 📦 Cleaner dependency specification in pyproject.toml
 
-## Troubleshooting
+## Additional Resources
 
-### UV Not Found After Install
-```bash
-# Add to PATH (add to ~/.zshrc or ~/.bashrc)
-export PATH="$HOME/.cargo/bin:$PATH"
+### Troubleshooting
+Common issues and solutions: **See [troubleshooting.md](references/troubleshooting.md)**
+- UV not found after install
+- Wrong Python version
+- Dependency conflicts
+- Package not found
 
-# Reload shell
-source ~/.zshrc
-```
+### Advanced Usage
+Power user features: **See [advanced.md](references/advanced.md)**
+- Multiple environments
+- Dependency groups
+- Build and publish
+- Integration with other skills
 
-### Wrong Python Version
-```bash
-# Check current Python
-uv run python --version
-
-# List available versions
-uv python list
-
-# Install correct version
-uv python install 3.11
-
-# Pin to project
-uv python pin 3.11
-
-# Recreate venv
-rm -rf .venv
-uv venv
-```
-
-### Dependency Conflicts
-```bash
-# See resolution
-uv tree
-
-# Try updating
-uv sync --upgrade
-
-# Force reinstall
-rm -rf .venv uv.lock
-uv venv
-uv sync
-```
-
-### Package Not Found
-```bash
-# Make sure package name is correct
-uv add numpy  # Correct
-uv add NumPy  # Wrong (case sensitive)
-
-# Check if package exists
-pip search package-name
-
-# Or search on PyPI: https://pypi.org/
-```
-
-## Advanced Usage
-
-### Multiple Environments
-```bash
-# Create environment with different name
-uv venv .venv-dev
-
-# Activate specific environment
-source .venv-dev/bin/activate
-
-# Install different dependencies
-uv add specific-package
-```
-
-### Dependency Groups
-```bash
-# Install specific group
-uv sync --group dev
-
-# Install multiple groups
-uv sync --group dev --group osmnx
-
-# Install all groups
-uv sync --all-groups
-```
-
-### Build and Publish
-```bash
-# Build package
-uv build
-
-# Publish to PyPI (requires twine)
-uv run twine upload dist/*
-```
-
-## Integration with Other Skills
-
-**Works with:**
-- **build-session-context**: Check Python environment status
-- **migrate-module**: Ensure dependencies are installed
-- **osmnx-integration**: Install OSMnx and geo packages
-
-**Example project setup:**
-```bash
-# 1. Initialize project
-uv init vrp-toolkit
-cd vrp-toolkit
-
-# 2. Setup environment
-uv venv
-source .venv/bin/activate
-
-# 3. Install dependencies
-uv add numpy pandas matplotlib networkx
-uv add --dev pytest black ruff jupyter
-uv add osmnx geopandas  # For OSMnx integration
-
-# 4. Install in editable mode
-uv pip install -e .
-
-# 5. Verify installation
-uv run python -c "from vrp_toolkit import *; print('OK')"
-
-# 6. Start development
-uv run jupyter lab
-```
+### Migration from pip
+Convert existing projects: **See [migration.md](references/migration.md)**
+- Convert requirements.txt to pyproject.toml
+- Migrate existing project step-by-step
+- pip vs UV comparison
 
 ## Quick Reference
 
@@ -473,36 +372,3 @@ uv run jupyter lab
 | Export reqs | `uv pip freeze > requirements.txt` |
 | Python version | `uv python install 3.11` |
 | Pin Python | `uv python pin 3.11` |
-
-## Migration from pip
-
-### Convert requirements.txt to pyproject.toml
-```bash
-# 1. Read existing requirements
-cat requirements.txt
-
-# 2. Add packages one by one
-uv add package1 package2 package3
-
-# Or install and then generate pyproject.toml
-uv pip install -r requirements.txt
-uv pip freeze  # Review installed packages
-```
-
-### Migrate Existing Project
-```bash
-# 1. In existing project directory
-cd existing-project
-
-# 2. Create uv environment
-uv venv
-
-# 3. Install from requirements.txt
-uv pip install -r requirements.txt
-
-# 4. Generate pyproject.toml (manual)
-uv init --no-workspace
-
-# 5. Add dependencies to pyproject.toml
-uv add $(cat requirements.txt | grep -v '#' | cut -d'=' -f1)
-```

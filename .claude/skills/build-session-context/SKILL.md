@@ -1,6 +1,6 @@
 ---
 name: build-session-context
-description: Build concise session context by extracting key information from project logs (CLAUDE.md, MIGRATION_LOG.md, DEBUG_LOG.md, GIT_LOG.md) to provide token-efficient project status. Use when beginning work, returning after break, or needing quick project overview without reading full files.
+description: Build concise session context by extracting key information from project logs (CLAUDE.md, TASK_BOARD.md, MIGRATION_LOG.md, DEBUG_LOG.md, GIT_LOG.md, SKILLS_LOG.md) to provide token-efficient project status. Use when beginning work, returning after break, or needing quick project overview without reading full files.
 ---
 
 # Build Session Context
@@ -17,30 +17,40 @@ Extract essential information from multiple project documentation files and pres
 
 Read each file and extract only the most critical information:
 
-**1. CLAUDE.md (Project Overview)**
-- **Phase:** Current project phase
+**1. CLAUDE.md (Project Entry Point)**
+- **Phase:** Current project phase (e.g., "Phase 2 - Refactoring")
 - **Last Updated:** Date of last update
+- **Project Status:** High-level overview (e.g., "9/9 files migrated, 90% complete")
+- Note: CLAUDE.md is now a clean entry point; detailed tasks are in TASK_BOARD.md
+
+**2. TASK_BOARD.md (Detailed Task Tracking)**
 - **Completed Tasks:** Count and 2-3 most recent
 - **In Progress Tasks:** List (limit to 3 most important)
 - **Next Steps:** Top 2-3 priorities
-- **Blockers:** Any active blockers
+- **Blockers:** Any active blockers (critical)
+- **Progress Metrics:** Overall percentages if available
 
-**2. MIGRATION_LOG.md (Migration History)**
+**3. MIGRATION_LOG.md (Migration History)**
 - **Progress:** X/9 files completed (percentage)
 - **Recent Migrations:** Last 2-3 entries (date, title, status)
 - **Index:** Check index for quick overview if available
 
-**3. DEBUG_LOG.md (Problem Tracking)**
+**4. DEBUG_LOG.md (Problem Tracking)**
 - **Active Issues:** Count and brief descriptions
 - **Recent Resolutions:** Last 2-3 resolved issues
 - **Urgent Blockers:** Any issues marked as critical
 
-**4. GIT_LOG.md (Change History)**
+**5. GIT_LOG.md (Change History)**
 - **Recent Commits:** Last 3-5 commits (hash, message)
 - **Activity Pattern:** Type of recent work (features, fixes, docs)
 - **Last Commit Date:** When was last work done
 
-**5. Git Status (Current Workspace)**
+**6. SKILLS_LOG.md (Skills Changes) [Optional]**
+- **Recent Changes:** Last 1-2 skill updates (if within last 7 days)
+- **New Skills:** Any skills added recently
+- Only include if skills changed recently to keep context minimal
+
+**7. Git Status (Current Workspace)**
 - **Current Branch:** Which branch is active
 - **Uncommitted Changes:** Any staged/unstaged changes
 - **Untracked Files:** New files not yet in git
@@ -138,45 +148,59 @@ If summary is too long:
 - Use more abbreviations
 - Focus only on current/next actions
 
-## Integration with New Skills
+## Integration with Project Documentation
 
-**update-task-board:** Session-start uses update-task-board's parsing logic for consistent task tracking.
+**TASK_BOARD.md:** Detailed task status managed by update-task-board skill. This is the primary source for task tracking.
 
-**git-log:** Git history comes from GIT_LOG.md maintained by git-log.
+**MIGRATION_LOG.md:** Migration history maintained by update-migration-log skill. Provides evidence for task completion.
 
-**log-debug-issue:** Issue status comes from DEBUG_LOG.md maintained by log-debug-issue.
+**DEBUG_LOG.md:** Issue tracking maintained by log-debug-issue skill. Source for active blockers.
 
-**update-migration-log:** Migration progress comes from MIGRATION_LOG.md maintained by update-migration-log.
+**GIT_LOG.md:** Commit history maintained by git-log skill. Shows recent development activity.
+
+**SKILLS_LOG.md:** Skills changes maintained by manage-skills skill. Optional context for recent workflow updates.
+
+**CLAUDE.md:** High-level project overview (now simplified, points to other files for details).
+
+**Documentation Structure (post-refactoring):**
+- CLAUDE.md → Entry point (~308 lines reduced)
+- TASK_BOARD.md → Task tracking (extracted from CLAUDE.md)
+- SKILLS.md → Skills reference (extracted from CLAUDE.md)
+- MIGRATION_GUIDE.md → Migration details (in migrate-module skill)
 
 ## Example Output
 
 ```
 ## 🚀 Session Start - VRP Toolkit
-**Phase:** Phase 2 - Refactoring | **Last Updated:** 2026-01-01 | **Branch:** main
+**Phase:** Phase 2 - Refactoring (90% complete) | **Last Updated:** 2026-01-03 | **Branch:** main
 
 ## 📊 Status Snapshot
 - **Migration:** 9/9 files (100%) | **Active Issues:** 0
-- **Completed:** 15 tasks | **In Progress:** 2 tasks
+- **Tasks:** 20+ completed | 1 in progress
 - **Blockers:** None
+- **Skills:** 10 total (recently refined documentation structure)
 
 ## 🔍 Recent Activity
 **Git:** 4569fa1 feat(architecture): unified Solver interface
         9590014 feat(setup): make package installable
         0287f90 docs: comprehensive README
-**Migrations:** Phase 2: Test Suite Enhancement
-                Phase 2: Visualization System Improvement
-**Issues:** 0 active, last resolved: ImportError in generators.py
+**Tasks:** Test suite creation (in progress)
+**Docs:** CLAUDE.md simplified (~308 lines → dedicated files)
+          Created TASK_BOARD.md, SKILLS.md, MIGRATION_GUIDE.md
+**Skills:** manage-skills created, manage-python-env fixed compliance
 
 ## 🎯 Current Focus
 1. Creating comprehensive test suite for new architecture
-2. Testing ALNSSolver with other VRPProblem implementations
 
 ## 📋 Immediate Next Steps
-1. Complete test suite with edge cases
-2. Run integration tests to verify backward compatibility
+1. Complete test suite with edge cases and integration tests
+2. Test ALNSSolver with other VRPProblem implementations
 
 ## ⚠️ Active Blockers
 None - ready to proceed
+
+---
+**💡 Suggested Action:** Continue test suite development or start with `update-task-board` to sync latest progress
 ```
 
 ## Reference

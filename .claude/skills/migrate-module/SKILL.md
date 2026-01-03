@@ -7,6 +7,20 @@ description: Migrate Python modules from SDR_stochastic research code to vrp-too
 
 Automate the migration of research code modules from the SDR_stochastic project into the reusable vrp-toolkit architecture.
 
+## Migration Resources
+
+**For complete migration guide, see:**
+- **[MIGRATION_GUIDE.md](references/MIGRATION_GUIDE.md)** - Comprehensive technical guide
+  - Source code locations
+  - Complete file mapping (9 files)
+  - Migration phases (Phase 1-3)
+  - Refactoring guidelines and patterns
+  - Common issues and solutions
+
+**Quick references:**
+- [migration_map.md](references/migration_map.md) - File mappings only
+- [architecture.md](references/architecture.md) - Three-layer architecture
+
 ## Migration Workflow
 
 ### Step 1: Identify and Plan

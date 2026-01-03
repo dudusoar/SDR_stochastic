@@ -1,49 +1,45 @@
 ---
 name: update-migration-log
-description: Update project progress after completing tasks by modifying CLAUDE.md status sections and logging details to MIGRATION_LOG.md. Use when finishing a migration, completing a task, resolving a blocker, or when the user asks to update progress or log work completion.
+description: Log migration details to MIGRATION_LOG.md only. Use after completing a file migration to record details, issues, and solutions. Does NOT modify CLAUDE.md or TASK_BOARD.md - those are managed by other skills. Focused solely on maintaining detailed migration history.
 ---
 
-# Update Progress
+# Migration Logger
 
-Quickly update project documentation after completing work to maintain accurate status tracking.
+Log detailed migration history to MIGRATION_LOG.md.
+
+## Core Responsibility
+
+**Log to MIGRATION_LOG.md ONLY** - This skill:
+- ✅ Updates: MIGRATION_LOG.md
+- ❌ Does NOT modify: CLAUDE.md, TASK_BOARD.md, or other files
+
+**Clear separation:**
+- `update-migration-log` → Logs migration details to MIGRATION_LOG.md
+- `update-task-board` → Updates TASK_BOARD.md based on logs
+- CLAUDE.md → Entry point, rarely modified
 
 ## When to Use
 
 Use this skill after:
 - Completing a file migration
-- Finishing any task in CLAUDE.md
-- Resolving a blocker
-- User asks to "update progress"
+- Recording migration issues and solutions
+- User asks to "log migration" or "update migration log"
 
-## Quick Workflow
-
-### 1. Update CLAUDE.md
-- Update **"Last Updated"** date at top
-- Move completed task from **"In Progress"** to **"Completed"** section
-- Update **"Next Steps"** if needed
-- Update **"Blockers"** section
-
-### 2. Update MIGRATION_LOG.md (for migrations only)
-- Update progress summary numbers
-- **Maintain index** (add new entry to index section at top)
-- Add migration entry at top of "Migration History" section
-- Mark file as completed in checklist
-- Update **"Last Updated"** date
-
-### 3. Verify and Commit
-- Check updates are correct
-- Consider committing with progress message
+**Do NOT use for:**
+- Updating task status (use update-task-board)
+- Updating CLAUDE.md (handled separately)
+- General task completion (use update-task-board)
 
 ## Migration Entry Template
 
-For detailed migration logging, use this template (also in MIGRATION_LOG.md):
+Use this template for all migration entries:
 
 ```markdown
 ### YYYY-MM-DD - [Original File] → [New Location]
 
-**Status:** ✅ Completed
+**Status:** ✅ Completed / 🚧 In Progress / ⚠️ Issues
 **Time Spent:** [e.g., 45 minutes]
-**Complexity:** Low/Medium/High
+**Complexity:** Low / Medium / High
 
 **Source:** `[path/to/original/file.py]`
 **Destination:** `[path/to/new/file.py]`
@@ -64,80 +60,209 @@ For detailed migration logging, use this template (also in MIGRATION_LOG.md):
 - **Impact:** [Effect on migration]
 
 #### ✅ Verification
-- [ ] Code compilation
-- [ ] Import tests
+- [x] Code compilation
+- [x] Import tests
 - [ ] Runtime tests (if environment available)
 
 #### 📝 Notes
 - [Any important observations]
 ```
 
-## Index Maintenance
+## MIGRATION_LOG.md Structure
 
-To keep MIGRATION_LOG.md manageable as it grows, maintain an index at the top of the file:
+### Required Sections
 
-### 1. Check for Index Section
-If MIGRATION_LOG.md doesn't have an "## Index" section after the "Migration Progress Summary", add one:
-
+**1. Header**
 ```markdown
----
+# VRP Toolkit - Migration Log
 
-## Index
-
-*Recent migration entries (newest first):*
-
-- [2026-01-01] Phase 2: Test Suite Enhancement for New Architecture (✅ Completed)
-- [2025-12-31] Validation test and bug fixes (✅ Completed)
-- [2025-12-30] README creation and git push (✅ Completed)
+**Last Updated:** YYYY-MM-DD
+**Total Files Migrated:** X/9
 ```
 
-### 2. Update Index with New Entry
-When adding a new migration entry:
-
-1. **Extract title:** Use the first line of the migration entry (e.g., "### 2026-01-01 - Phase 2: Test Suite Enhancement for New Architecture")
-2. **Extract date:** From the title (YYYY-MM-DD)
-3. **Extract status:** From the "**Status:**" line in the entry
-4. **Add to index:** Insert at the top of the index list (newest first)
-
-**Index entry format:**
+**2. Migration Progress Summary**
 ```markdown
-- [YYYY-MM-DD] [Brief title] ([status symbol] [Status])
+## 📊 Migration Progress Summary
+
+| Category | Completed | Total | Progress |
+|----------|-----------|-------|----------|
+| Core Files | X | 9 | XX% |
 ```
+
+**3. Migration History** (newest first)
+```markdown
+## 📜 Migration History
+
+### YYYY-MM-DD - file.py → new/location.py
+[Entry details...]
+```
+
+## Workflow
+
+### Step 1: Prepare Entry
+
+Gather information about the migration:
+- Original file location
+- New file location
+- Changes made
+- Issues encountered
+- Time spent
+- Complexity level
+
+### Step 2: Write Entry
+
+1. Use migration entry template
+2. Fill in all sections
+3. Be specific about changes and issues
+4. Include verification checklist results
+
+### Step 3: Update MIGRATION_LOG.md
+
+1. Update "Last Updated" date
+2. Update "Total Files Migrated" count
+3. Update progress table percentages
+4. Add entry to top of "Migration History"
+5. Keep entries in reverse chronological order (newest first)
+
+### Step 4: Save
+
+No further action needed - other skills will read this log.
+
+## Entry Guidelines
+
+### Summary Section
+
+**Be concise but informative:**
+- Original purpose: 1 sentence
+- Target layer: One of Problem/Algorithm/Data/Visualization
+- Key changes: 2-3 sentences covering main refactoring
 
 **Example:**
 ```markdown
-- [2026-01-01] Phase 2: Test Suite Enhancement for New Architecture (✅ Completed)
+#### 📋 Migration Summary
+- **Original Purpose:** Instance class for PDPTW with battery constraints
+- **Target Architecture Layer:** Problem
+- **Key Changes Made:** Extracted hardcoded depot location and vehicle capacity into parameters. Separated solution validation from instance definition. Added type hints and comprehensive docstrings.
 ```
 
-### 3. Keep Index Manageable
-- **Limit size:** Keep only the last 10-15 entries in the main index
-- **Archive old entries:** If the log grows very large, consider moving older entries to a separate "Archive Index" section
-- **Link to entries:** Use Markdown anchor links if needed (e.g., `[2026-01-01](#2026-01-01---phase-2-test-suite-enhancement-for-new-architecture)`)
+### Key Changes Section
 
-### 4. Automated Index Updates
-When using this skill, the AI should:
-1. Check if index exists, create if missing
-2. Add new entry to top of index
-3. Trim index if it exceeds 15 entries
-4. Update the MIGRATION_LOG.md file
+**List specific technical changes:**
+- Parameters extracted from hardcoded values
+- Decoupling from paper-specific logic
+- Documentation improvements
+- API changes
 
-## Quick Reference
+**Example:**
+```markdown
+#### 🔧 Key Changes
+- **Extracted hardcoded values:** Depot location (0,0), vehicle capacity (15), max battery (100)
+- **Decoupled from paper logic:** Removed SISR-specific validation, generalized time window checks
+- **Added/improved:** Full docstrings for all public methods, type hints for function signatures
+```
 
-### Status Symbols
-- ✅ **Completed** - Successfully finished
-- 🚧 **In Progress** - Currently working
-- ⚠️ **Issues** - Done but has known issues
-- ❌ **Failed** - Could not complete
+### Issues & Solutions Section
 
-### Integration with Other Skills
-- After updating: Suggest `build-session-context` to see updated status
-- For migrations: Use `migrate-module` skill first
-- For setup: Use `manage-python-env` for environment
+**Document problems encountered:**
+- Import errors
+- Circular dependencies
+- API incompatibilities
+- Logic errors
 
-### Tips
-- Be specific: "Extracted `battery_capacity=100` to parameter" not "made configurable"
-- Include context: Why decisions were made
-- Note surprises: What was easier/harder than expected
+**For each issue:**
+- Clear description
+- Solution implemented
+- Impact on migration
 
-## Reference
-For detailed templates, see [update_templates.md](references/update_templates.md) or check existing entries in MIGRATION_LOG.md.
+**Example:**
+```markdown
+#### ⚠️ Issues & Solutions
+**Issue 1:** Circular import between Instance and Solution classes
+- **Solution:** Moved Solution to separate module, used TYPE_CHECKING for type hints
+- **Impact:** Required restructuring module organization
+
+**Issue 2:** Hardcoded file paths in data loading
+- **Solution:** Added config parameter for data directory path
+- **Impact:** Minor - added one parameter to constructor
+```
+
+### Verification Section
+
+**Checklist items:**
+- [x] Code compilation (no syntax errors)
+- [x] Import tests (can import without errors)
+- [x] Runtime tests (if applicable)
+- [x] Tutorial compatibility (if applicable)
+
+Mark items complete only when verified.
+
+## Integration with Other Skills
+
+**Read by:**
+- `update-task-board` - Uses entries to update TASK_BOARD.md
+- `build-session-context` - Shows recent migrations
+- `manage-skills` - Reads for project history
+
+**Does NOT interact with:**
+- CLAUDE.md (not this skill's job)
+- TASK_BOARD.md (update-task-board handles)
+
+## Example Entry
+
+```markdown
+### 2026-01-01 - instance.py → vrp_toolkit/problems/pdptw.py
+
+**Status:** ✅ Completed
+**Time Spent:** 2 hours
+**Complexity:** High
+
+**Source:** `SDR_stochastic/new version/instance.py`
+**Destination:** `vrp-toolkit/vrp_toolkit/problems/pdptw.py`
+
+#### 📋 Migration Summary
+- **Original Purpose:** PDPTW instance class with battery constraints for SDR paper
+- **Target Architecture Layer:** Problem
+- **Key Changes Made:** Extracted all hardcoded values (depot, capacity, battery) into parameters. Separated instance definition from solving logic. Added comprehensive type hints and docstrings following Google style.
+
+#### 🔧 Key Changes
+- **Extracted hardcoded values:** Depot (0,0), vehicle capacity 15, max battery 100, charging rate 2.0
+- **Decoupled from paper logic:** Removed SISR-specific validation, separated battery simulation from instance
+- **Added/improved:** Complete docstrings, type hints, parameter validation in constructor
+
+#### ⚠️ Issues & Solutions
+**Issue 1:** Circular dependency with Solution class
+- **Solution:** Moved Solution to separate module, used forward references
+- **Impact:** Created cleaner module structure
+
+**Issue 2:** Time window validation assumed specific format
+- **Solution:** Generalized validation to accept any numeric time windows
+- **Impact:** None - more flexible API
+
+#### ✅ Verification
+- [x] Code compilation
+- [x] Import tests
+- [x] Runtime tests with sample data
+- [x] Tutorial compatibility verified
+
+#### 📝 Notes
+- Battery constraint logic may need future generalization for other problems
+- Consider adding battery capacity as instance parameter vs vehicle parameter
+```
+
+## Maintenance Notes
+
+**Keep MIGRATION_LOG.md:**
+- Chronologically ordered (newest first)
+- Detailed but focused
+- Consistent formatting
+- Evidence of progress
+
+**Update frequency:**
+- After each migration completes
+- When significant issues are resolved
+- When migration approach changes
+
+## File References
+
+- **Manages:** `.claude/MIGRATION_LOG.md`
+- **Does NOT modify:** `.claude/CLAUDE.md`, `.claude/TASK_BOARD.md`
