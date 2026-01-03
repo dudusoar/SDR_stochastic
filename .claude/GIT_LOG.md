@@ -4,6 +4,45 @@
 
 ## Recent Commits (newest first)
 
+### 2026-01-03 - chore(skills): standardize skill names and update documentation
+**Hash:** 35c258840ebd5c7aa0a4b0953a79a5ccb7a4c842
+**Author:** YuChen Du
+**Date:** 2026-01-03 15:05:57 -0500
+
+**Changes:**
+- Update SKILL.md files to have consistent name fields matching directory names
+- Fix cross-references between skills using new standardized names
+- Update CLAUDE.md skill documentation for consistency
+- Log skill name standardization work in MIGRATION_LOG.md
+
+**Files modified:**
+- .claude/CLAUDE.md
+- .claude/DEBUG_LOG.md
+- .claude/GIT_LOG.md
+- .claude/MIGRATION_LOG.md
+- .claude/skills/build-session-context/SKILL.md
+- .claude/skills/build-session-context/references/claude_md_structure.md
+- .claude/skills/git-log/SKILL.md
+- .claude/skills/git-workflow/SKILL.md
+- .claude/skills/integrate-road-network/SKILL.md
+- .claude/skills/integrate-road-network/references/osmnx_examples.md
+- .claude/skills/integrate-road-network/references/troubleshooting.md
+- .claude/skills/log-debug-issue/SKILL.md
+- .claude/skills/maintain-data-structures/SKILL.md
+- .claude/skills/maintain-data-structures/references/algorithm_layer.md
+- .claude/skills/maintain-data-structures/references/data_layer.md
+- .claude/skills/maintain-data-structures/references/problem_layer.md
+- .claude/skills/maintain-data-structures/references/runtime_formats.md
+- .claude/skills/manage-python-env/SKILL.md
+- .claude/skills/session-start/SKILL.md
+- .claude/skills/update-migration-log/SKILL.md
+- .claude/skills/update-migration-log/references/update_templates.md
+- .claude/skills/update-progress/SKILL.md
+- .claude/skills/update-progress/references/update_templates.md
+- .claude/skills/update-task-board/SKILL.md
+
+---
+
 ### 2026-01-01 - feat(architecture): implement unified Solver interface for problem-algorithm separation
 **Hash:** 4569fa12cac9a0815799ae86372d7a90a7f115cf
 **Author:** YuChen Du
@@ -107,4 +146,4 @@
 *Older commits will be moved here when "Recent Commits" section grows beyond 20 entries.*
 
 **Last Updated:** 2026-01-03
-*This file is maintained by the git-workflow skill.*
+*This file is maintained by the git-log skill.*
