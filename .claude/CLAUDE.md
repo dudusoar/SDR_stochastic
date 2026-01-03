@@ -1,6 +1,6 @@
 # VRP Toolkit - Claude Context Document
 
-**Last Updated:** 2026-01-01
+**Last Updated:** 2026-01-03
 **Status:** Phase 2 - Refactoring (in progress)
 
 ---
@@ -34,13 +34,13 @@ vrp-toolkit/
 │   ├── CLAUDE.md               # This file - Project overview
 │   ├── MIGRATION_LOG.md        # Detailed migration history
 │   └── skills/                 # Custom skills (7 total)
-│       ├── session-start/
+│       ├── build-session-context/
 │       ├── migrate-module/
-│       ├── update-progress/
-│       ├── data-structures/
-│       ├── osmnx-integration/
-│       ├── git-workflow/
-│       └── uv-management/
+│       ├── update-migration-log/
+│       ├── maintain-data-structures/
+│       ├── integrate-road-network/
+│       ├── git-log/
+│       └── manage-python-env/
 │
 ├── vrp_toolkit/                # Main package
 │   ├── problems/               # Problem definitions (PDPTW, VRP, CVRP)
@@ -69,17 +69,17 @@ vrp-toolkit/
 
 1. **Problem Layer** (`vrp_toolkit/problems/`)
    - Defines problem instances independent of solving algorithms
-   - See **data-structures skill** → problem_layer.md for details
+   - See **maintain-data-structures skill** → problem_layer.md for details
 
 2. **Algorithm Layer** (`vrp_toolkit/algorithms/`)
    - Implements solving algorithms with common `Solver.solve(instance) -> Solution` interface
-   - See **data-structures skill** → algorithm_layer.md for details
+   - See **maintain-data-structures skill** → algorithm_layer.md for details
 
 3. **Data Layer** (`vrp_toolkit/data/`)
    - Data generation, loading, and OSMnx integration
-   - See **data-structures skill** → data_layer.md for details
+   - See **maintain-data-structures skill** → data_layer.md for details
 
-**For detailed data structure documentation**, use the **data-structures** skill.
+**For detailed data structure documentation**, use the **maintain-data-structures** skill.
 
 ---
 
@@ -116,8 +116,8 @@ vrp-toolkit/
 - [ ] Make it installable (`pip install -e .`)
 
 **Phase 2: Refactoring**
-- [ ] Separate problem definition from algorithm
-- [ ] Create unified Solver interface
+- [x] Separate problem definition from algorithm (ALNSSolver now accepts VRPProblem interface)
+- [x] Create unified Solver interface (VRPProblem, VRPSolution, Solver base classes implemented)
 - [ ] Add configuration file support
 - [ ] Improve visualization
 
@@ -131,11 +131,11 @@ vrp-toolkit/
 
 ## 🛠️ Skills Reference
 
-We have created **7 custom skills** to automate common workflows. These skills are located in `.claude/skills/` and packaged as `.skill` files (located in `skills-packages/`).
+We have created **9 custom skills** to automate common workflows. These skills are located in `.claude/skills/` and packaged as `.skill` files (located in `skills-packages/`).
 
 ### Workflow Skills
 
-#### 1. **session-start** - Begin Work Session
+#### 1. **build-session-context** - Begin Work Session
 **When to use:** Starting work, returning after a break, or checking project status
 
 **What it does:**
@@ -167,7 +167,7 @@ We have created **7 custom skills** to automate common workflows. These skills a
 
 ---
 
-#### 3. **update-progress** - Log Completed Work
+#### 3. **update-migration-log** - Log Completed Work
 **When to use:** After completing a migration or task
 
 **What it does:**
@@ -185,7 +185,7 @@ We have created **7 custom skills** to automate common workflows. These skills a
 
 ---
 
-#### 4. **osmnx-integration** - Real-World Map Integration
+#### 4. **integrate-road-network** - Real-World Map Integration
 **When to use:** Creating instances with actual street networks
 
 **What it does:**
@@ -198,14 +198,50 @@ We have created **7 custom skills** to automate common workflows. These skills a
 **Trigger:** Say "integrate OSMnx", "use real map", or "create Purdue campus instance"
 
 **References:**
-- Examples: `.claude/skills/osmnx-integration/references/osmnx_examples.md` (10 examples)
-- Troubleshooting: `.claude/skills/osmnx-integration/references/troubleshooting.md`
+- Examples: `.claude/skills/integrate-road-network/references/osmnx_examples.md` (10 examples)
+- Troubleshooting: `.claude/skills/integrate-road-network/references/troubleshooting.md`
+
+---
+
+#### 5. **log-debug-issue** - Problem & Bug Tracking
+**When to use:** Recording issues, bugs, and debugging processes with solutions
+
+**What it does:**
+- Logs problems and bugs with structured templates
+- Tracks debugging processes and solutions
+- Maintains DEBUG_LOG.md with active/resolved issues
+- Identifies recurring patterns for prevention
+
+**Trigger:** Say "log bug", "debug issue", or when encountering problems during development
+
+**Integration:**
+- Works with update-task-board to convert active issues to blockers
+- Provides context for git-log commit messages
+- Supplies data for build-session-context status summary
+
+---
+
+#### 6. **update-task-board** - Task Status Synchronization
+**When to use:** Updating CLAUDE.md task status based on actual progress
+
+**What it does:**
+- Reads multiple log files to assess actual progress
+- Updates CLAUDE.md task status (Completed/In Progress/Next Steps)
+- Ensures consistency across all project documentation
+- Identifies discrepancies between planned and actual work
+
+**Trigger:** Say "update tasks", "sync status", or after completing work
+
+**Integration:**
+- Uses evidence from MIGRATION_LOG.md, DEBUG_LOG.md, GIT_LOG.md
+- Provides accurate status for build-session-context
+- Works with update-migration-log for migration tracking
 
 ---
 
 ### Reference Skills
 
-#### 5. **data-structures** - Data Structure Reference
+#### 7. **maintain-data-structures** - Data Structure Reference
 **When to use:** Need to understand data structures without reading code
 
 **What it provides:**
@@ -228,29 +264,29 @@ We have created **7 custom skills** to automate common workflows. These skills a
 
 ### Utility Skills
 
-#### 6. **git-workflow** - Git Operations Reference
-**When to use:** Performing Git operations, committing, branching, or managing repository
+#### 8. **git-log** - Commit Message Generator & Git Log Maintenance
+**When to use:** Generating appropriate commit messages and maintaining git log documentation
 
 **What it provides:**
-- Common Git command patterns (status, commit, branch, merge)
-- VRP project-specific workflows (feature development, migration commits)
-- Conventional commit message formats
-- Token-saving shortcuts table
-- Troubleshooting common Git issues
+- Commit message generation following Conventional Commits format
+- Git log documentation maintenance (GIT_LOG.md)
+- Analysis of changes to determine commit type and scope
+- Integration with other skills for consistent tracking
+- Quick reference for common git commands
 
-**Trigger:** Say "how to commit?", "git workflow", or automatic when performing Git operations
+**Trigger:** Say "commit changes", "generate commit message", or when preparing to commit
 
-**Key Patterns:**
-- Feature development workflow
-- Migration commit format: `feat(migration): migrate [file]`
-- Progress update commits: `chore: update progress (X/9)`
-- Includes commit message template with Claude Code attribution
+**Key Features:**
+- Structured commit message templates for VRP project
+- Automatic extraction of commit information for GIT_LOG.md
+- Support for project-specific scopes (architecture, migration, setup, etc.)
+- Integration with update-task-board and log-debug-issue for context
 
-**Value:** Saves tokens by avoiding Git documentation lookups
+**Value:** Ensures consistent commit history and comprehensive change documentation
 
 ---
 
-#### 7. **uv-management** - UV Package Manager Reference
+#### 9. **manage-python-env** - UV Package Manager Reference
 **When to use:** Setting up Python environment, installing packages, managing dependencies
 
 **What it provides:**
@@ -282,24 +318,24 @@ uv add osmnx geopandas
 Typical daily workflow using skills:
 
 ```
-1. session-start
+1. build-session-context
    ↓ Shows status and suggests next task
    ↓
 2. migrate-module
-   ↓ Executes migration (auto-uses data-structures as needed)
+   ↓ Executes migration (auto-uses maintain-data-structures as needed)
    ↓
-3. update-progress
+3. update-migration-log
    ↓ Logs completion and updates docs
    ↓
-4. Back to session-start for next task
+4. Back to build-session-context for next task
 ```
 
 For OSMnx work:
 ```
-1. osmnx-integration
-   ↓ Creates real-world instance (auto-uses data-structures)
+1. integrate-road-network
+   ↓ Creates real-world instance (auto-uses maintain-data-structures)
    ↓
-2. update-progress
+2. update-migration-log
    ↓ Logs the work done
 ```
 
@@ -337,7 +373,7 @@ For OSMnx work:
 - [x] Directory structure created
 - [x] CLAUDE.md initial version
 - [x] MIGRATION_LOG.md template
-- [x] Created 7 custom skills (session-start, migrate-module, update-progress, data-structures, osmnx-integration, git-workflow, uv-management)
+- [x] Created 7 custom skills (build-session-context, migrate-module, update-migration-log, maintain-data-structures, integrate-road-network, git-log, manage-python-env)
 - [x] Migrate instance.py and solution.py to vrp_toolkit/problems/pdptw.py
 - [x] Migrate solvers.py and operators.py to vrp_toolkit/algorithms/alns/
 - [x] Migrate order_info.py and demands.py to vrp_toolkit/data/generators.py
@@ -354,15 +390,18 @@ For OSMnx work:
 - [x] Design unified Solver interface for problem-algorithm separation (VRPProblem, VRPSolution, Solver base classes)
 - [x] Adapt ALNS to use new Solver interface (ALNSSolver class)
 - [x] Update quickstart tutorial to use new architecture
+- [x] Decouple ALNSSolver from PDPTWInstance using VRPProblem/VRPSolution interfaces
+- [x] Testing refactoring with existing tutorials to ensure backward compatibility
+- [x] Add configuration file support
+- [x] Improve visualization
+- [x] Enhance test suite for new architecture interface validation
 
 ### In Progress 🚧
-- None
+- Creating comprehensive test suite for new architecture
 
 ### Next Steps 📋
-1. Refactor PDPTWInstance to remove algorithm-specific logic
-2. Add configuration file support
-3. Improve visualization
-4. Create comprehensive test suite for new architecture
+1. Complete test suite with edge cases and integration tests
+2. Test ALNSSolver with other VRPProblem implementations beyond PDPTW
 
 ### Blockers 🚫
 - None currently
@@ -414,7 +453,7 @@ For OSMnx work:
 **Quick Start:**
 ```
 You: "start work"
-→ session-start skill triggers
+→ build-session-context skill triggers
 → See current status and next task
 ```
 
@@ -428,7 +467,7 @@ You: "migrate instance.py"
 **Need Help:**
 ```
 You: "how do routes work?"
-→ data-structures skill triggers
+→ maintain-data-structures skill triggers
 → Shows runtime format documentation
 ```
 
@@ -448,7 +487,7 @@ You: "how do routes work?"
 
 **Let skills handle:**
 - Step-by-step workflows → Use skills instead
-- Data structure details → data-structures skill
+- Data structure details → maintain-data-structures skill
 - Troubleshooting → Skill reference docs
 
 ### Anti-Patterns to Avoid

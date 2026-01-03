@@ -1,5 +1,5 @@
 ---
-name: data-structures
+name: maintain-data-structures
 description: Comprehensive reference documentation for all data structures in the VRP toolkit project. Use when needing to understand data structure definitions, attributes, formats, or representations to avoid repeatedly reading code. Covers Problem layer (Instance, Solution, Node), Algorithm layer (Solver, Operators, ALNS), Data layer (OSMnx, distance matrices), and runtime formats (routes as lists, time windows as tuples).
 ---
 

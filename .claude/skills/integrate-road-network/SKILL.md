@@ -1,11 +1,11 @@
 ---
-name: osmnx-integration
-description: Integrate OpenStreetMap real-world street networks into VRP problems using OSMnx. Use when loading real map data, creating instances from actual locations, computing network-based distances, or building tutorials with real-world scenarios. Guides through installation, loading areas, extracting nodes, computing distance matrices, and creating PDPTW instances from OSMnx data.
+name: integrate-road-network
+description: Integrate real-world street networks into VRP problems using OpenStreetMap data. Use when loading real map data, creating instances from actual locations, computing network-based distances, or building tutorials with real-world scenarios. Guides through installation, loading areas, extracting nodes, computing distance matrices, and creating PDPTW instances from map data.
 ---
 
-# OSMnx Integration
+# Road Network Integration
 
-Integrate real-world street networks from OpenStreetMap into your VRP toolkit using OSMnx.
+Integrate real-world street networks from OpenStreetMap into your VRP toolkit using map data.
 
 ## Integration Workflow
 
@@ -67,7 +67,7 @@ north, south, east, west = 40.4300, 40.4200, -86.9100, -86.9250
 G = ox.graph_from_bbox(north, south, east, west, network_type='drive')
 ```
 
-**Data structure details:** See [data-structures](../data-structures/) skill → data_layer.md → OSMnx Graph
+**Data structure details:** See [maintain-data-structures](../maintain-data-structures/) skill → data_layer.md → OSMnx Graph
 
 **More examples:** See [osmnx_examples.md](references/osmnx_examples.md) → Examples 1-2
 
@@ -186,7 +186,7 @@ time_matrix_seconds = distance_matrix / average_speed_ms
 time_matrix_minutes = time_matrix_seconds / 60
 ```
 
-**Data structure details:** See [data-structures](../data-structures/) skill → runtime_formats.md → Distance Matrix
+**Data structure details:** See [maintain-data-structures](../maintain-data-structures/) skill → runtime_formats.md → Distance Matrix
 
 **Troubleshooting:** See [troubleshooting.md](references/troubleshooting.md) → Routing Issues
 
@@ -244,7 +244,7 @@ for idx, (p_node, d_node) in enumerate(zip(pickup_nodes, delivery_nodes), 1):
 print(f"Created {len(nodes)} Node objects")
 ```
 
-**Data structure details:** See [data-structures](../data-structures/) skill → problem_layer.md → Node
+**Data structure details:** See [maintain-data-structures](../maintain-data-structures/) skill → problem_layer.md → Node
 
 ### Step 7: Create PDPTW Instance
 
@@ -276,7 +276,7 @@ print("PDPTW instance created successfully!")
 
 **Complete example:** See [osmnx_examples.md](references/osmnx_examples.md) → Example 7
 
-**Data structure details:** See [data-structures](../data-structures/) skill → problem_layer.md → PDPTWInstance
+**Data structure details:** See [maintain-data-structures](../maintain-data-structures/) skill → problem_layer.md → PDPTWInstance
 
 ### Step 8: Validate and Solve
 
@@ -457,7 +457,7 @@ G = ox.graph_from_bbox(north, south, east, west)
 ## Integration with Other Skills
 
 **Works with:**
-- **data-structures**: Reference OSMnx data structures (Graph, GeoDataFrame, distance matrices)
+- **maintain-data-structures**: Reference OSMnx data structures (Graph, GeoDataFrame, distance matrices)
 - **migrate-module**: When migrating `real_map.py` from old codebase
 - **tutorial-creator**: When creating real-world VRP tutorials (when that skill exists)
 
@@ -465,7 +465,7 @@ G = ox.graph_from_bbox(north, south, east, west)
 ```
 You: "Create a real-world PDPTW instance for Purdue campus"
 → osmnx-integration skill triggers
-→ References data-structures for OSMnx Graph structure
+→ References maintain-data-structures for OSMnx Graph structure
 → Creates instance following workflow
 ```
 
@@ -473,7 +473,7 @@ You: "Create a real-world PDPTW instance for Purdue campus"
 
 - **Examples:** [osmnx_examples.md](references/osmnx_examples.md) - 10 complete examples
 - **Troubleshooting:** [troubleshooting.md](references/troubleshooting.md) - Common issues and solutions
-- **Data Structures:** See [data-structures](../data-structures/) skill for OSMnx structure details
+- **Data Structures:** See [maintain-data-structures](../maintain-data-structures/) skill for OSMnx structure details
 
 ## Key Reminders
 

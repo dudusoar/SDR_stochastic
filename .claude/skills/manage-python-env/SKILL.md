@@ -1,5 +1,5 @@
 ---
-name: uv-management
+name: manage-python-env
 description: Quick reference for uv (fast Python package manager) operations to save tokens. Use when creating virtual environments, installing packages, managing dependencies, or when user asks about uv commands. Provides concise patterns for Python project setup and package management.
 ---
 
@@ -428,7 +428,7 @@ uv run twine upload dist/*
 ## Integration with Other Skills
 
 **Works with:**
-- **session-start**: Check Python environment status
+- **build-session-context**: Check Python environment status
 - **migrate-module**: Ensure dependencies are installed
 - **osmnx-integration**: Install OSMnx and geo packages
 
