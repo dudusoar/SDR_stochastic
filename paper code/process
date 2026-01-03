@@ -1,0 +1,8 @@
+
+1 real map: real map, real data map, import data, generate coordinates, generate real index
+2 demands: demand generator, generate pairs, generate all demands
+3 order info: generate scenarios, include all time information, distance matrix (mile), time matrix (min), use real index as index
+4 instance: unpack order table, generate all data structures using order index as index
+5. solution
+6. operators, solvers
+7. sensitivity analysis
