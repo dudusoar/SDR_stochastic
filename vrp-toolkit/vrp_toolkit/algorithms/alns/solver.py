@@ -206,18 +206,32 @@ class ALNS:
         battery_capacity: float
     ):
         """Initialize ALNS solver.
-        
+
         Args:
             initial_solution: Starting solution for ALNS
             config: Algorithm configuration parameters
             dist_matrix: Distance matrix for charging insertion calculations
             battery_capacity: Battery capacity for charging constraint
+
+        Raises:
+            TypeError: If initial_solution or config is None
+            ValueError: If battery_capacity is invalid
         """
+        # Input validation
+        if initial_solution is None:
+            raise TypeError("initial_solution cannot be None")
+        if config is None:
+            raise TypeError("config cannot be None")
+        if dist_matrix is None:
+            raise TypeError("dist_matrix cannot be None")
+        if battery_capacity is None or battery_capacity < 0:
+            raise ValueError(f"battery_capacity must be non-negative, got {battery_capacity}")
+
         # Solution storage
         self.current_solution = deepcopy(initial_solution)
         self.best_solution = deepcopy(initial_solution)
         self.charging_solution = deepcopy(initial_solution)
-        
+
         # Adjust charging solution battery capacity
         robot_speed = self.current_solution.instance.robot_speed
         self.charging_solution.battery_capacity = battery_capacity * 2 / robot_speed * 60
@@ -475,6 +489,27 @@ class ALNS:
         print(f"ALNS run completed in {total_duration:.2f} seconds")
 
         return self.best_solution, self.best_charging_solution
+
+    def solve(self, problem: Optional[PDPTWInstance] = None) -> PDPTWSolution:
+        """Solve the problem using ALNS (alias for run).
+
+        Args:
+            problem: Optional problem instance (not used, for API compatibility)
+
+        Returns:
+            Best solution found
+        """
+        best_sol, best_charging_sol = self.run()
+        # Return the better of the two solutions
+        if best_charging_sol is not None:
+            if best_charging_sol.objective_function() < best_sol.objective_function():
+                return best_charging_sol
+        return best_sol
+
+    @property
+    def temperature(self) -> float:
+        """Get current temperature (for simulated annealing)."""
+        return self.current_temp
 
     # ============================================= plot ==========================================================
     def plot_scores(self):

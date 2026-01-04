@@ -5,6 +5,41 @@
 ## Active Issues 🚧
 *Issues not yet resolved or needing follow-up.*
 
+### Operator method API mismatches in ALNS tests
+**Date Opened:** 2026-01-04
+**Last Updated:** 2026-01-04
+**Status:** Investigating
+
+**Problem:**
+Multiple operator methods have signature mismatches between implementation and test expectations, causing test failures.
+
+**Symptoms:**
+- `TypeError: RemovalOperators.shaw_removal() missing 1 required positional argument: 'p'`
+- `TypeError: RemovalOperators.SISR_removal() missing 2 required positional arguments`
+- `TypeError: RemovalOperators.remove_requests() takes 2 positional arguments but 3 were given`
+- `AttributeError: 'RemovalOperators' object has no attribute 'sisr_removal'` (lowercase)
+- Methods return Solution objects instead of lists
+- RepairOperators deepcopy issue - tests expect same object reference
+
+**Environment:**
+- OS: Windows
+- Python: 3.11.12
+- Context: tests/unit/algorithms/alns/test_operators.py
+
+**Current Investigation:**
+- **Issue 1:** Operator methods need num_to_remove parameter in signatures
+- **Issue 2:** Method names inconsistent (SISR_removal vs sisr_removal)
+- **Issue 3:** Return types don't match expectations (Solution vs list)
+- **Issue 4:** RepairOperators uses deepcopy(solution) but tests expect `is` identity
+
+**Next Steps:**
+1. Analyze operator method signatures vs test expectations
+2. Consider adding wrapper methods for backward compatibility
+3. Or update tests to match current implementation
+4. Decide on deepcopy strategy for operators
+
+---
+
 ### Test suite API mismatches in ALNS implementation
 **Date Opened:** 2026-01-03
 **Last Updated:** 2026-01-03
