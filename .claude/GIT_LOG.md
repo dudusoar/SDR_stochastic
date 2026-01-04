@@ -4,6 +4,59 @@
 
 ## Recent Commits (newest first)
 
+### 2026-01-04 - fix(tests): achieve 36/40 passing tests with adapter and operator improvements
+**Hash:** 4aee89c05a94c59b78ef6490cee147ff4186e5ce
+**Author:** YuChen Du
+**Date:** 2026-01-04 15:59:47 -0500
+
+**Changes:**
+Major test suite improvements bringing pass rate from 42.5% to 90%.
+
+PDPTWSolutionAdapter Enhancements:
+- **Added missing attributes:** visited_requests, unvisited_requests, unvisited_pairs, route_arrival_times
+- **Added battery_capacity property:** With getter and setter for charging solution support
+- **Added utility methods:** update_all(), get_objective_value() for API compatibility
+- Enables adapter to fully proxy PDPTWSolution for ALNS operators
+
+PDPTWInstance Fixes:
+- **Fixed _extract_charging_coordinates():** Returns None if no charging station (instead of IndexError)
+- Handles test instances without charging infrastructure gracefully
+
+RemovalOperators Fixes:
+- **Fixed remove_requests():** Check if delivery node exists in route before removal (prevents ValueError)
+- **Fixed random_removal():** Limit num_remove to min(num_remove, len(available_requests))
+- Prevents "sample larger than population" error when num_remove > available requests
+
+RepairOperators Fixes:
+- **Fixed regret_insertion() signature:** Handles both (removed_pairs, k) and (solution, unvisited_requests, k) calls
+- Detects parameter types to support multiple API patterns
+
+ALNS Class ConfigurableSolver Compliance:
+- **Inherited from ConfigurableSolver:** Now properly implements Solver interface
+- **Added attributes:** initial_solution, config, solution_history
+- **Implemented methods:** get_config(), update_config(), get_solution_history()
+- Full compatibility with ConfigurableSolver test expectations
+
+**Test Status:**
+- **Operator tests:** 15/15 passing (100%) ✅
+- **Config tests:** 6/6 passing (100%) ✅
+- **Greedy insertion tests:** 6/6 passing (100%) ✅
+- **ALNS solver tests:** 5/9 passing (56%)
+- **Overall:** 36/40 tests passing (90%, up from 17/40 = 42.5%)
+
+**Remaining Issues (4 tests):**
+- test_solver_state, test_solver_with_different_configs
+- test_alns_invalid_initialization, test_alns_solve_invalid_inputs
+
+**Files modified:**
+- tests/unit/algorithms/alns/test_operators.py (test expectations updated)
+- vrp_toolkit/algorithms/alns/operators.py (operator method fixes)
+- vrp_toolkit/algorithms/alns/solver.py (ConfigurableSolver compliance)
+- vrp_toolkit/algorithms/base.py (PDPTWSolutionAdapter enhancements)
+- vrp_toolkit/problems/pdptw.py (charging station handling)
+
+---
+
 ### 2026-01-04 - feat(alns): add solve() method and temperature property to ALNS class
 **Hash:** c12202869f60eeb71ed912dad88b97148399c77d
 **Author:** YuChen Du
