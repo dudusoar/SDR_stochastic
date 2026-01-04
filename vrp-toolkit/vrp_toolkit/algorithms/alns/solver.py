@@ -102,7 +102,7 @@ def greedy_insertion_initial_solution(
     penalty_delay: float
 ) -> VRPSolution:
     """Construct initial solution using greedy insertion.
-    
+
     Args:
         problem: VRP problem instance (must be convertible to PDPTWInstance)
         num_vehicles: Number of available vehicles
@@ -111,15 +111,43 @@ def greedy_insertion_initial_solution(
         battery_consume_rate: Battery consumption rate per distance unit
         penalty_unvisit: Penalty for unvisited nodes
         penalty_delay: Penalty for time window delays
-        
+
     Returns:
         Initial feasible solution (adapter-wrapped)
+
+    Raises:
+        TypeError: If problem is None or not a valid VRP problem
+        ValueError: If any numerical parameter is invalid
     """
+    # Input validation
+    if problem is None:
+        raise TypeError("problem parameter cannot be None")
+
+    if not isinstance(problem, (VRPProblem, PDPTWInstance)):
+        raise TypeError(f"problem must be VRPProblem or PDPTWInstance, got {type(problem).__name__}")
+
+    if battery_capacity < 0:
+        raise ValueError(f"battery_capacity must be non-negative, got {battery_capacity}")
+
+    if vehicle_capacity < 0:
+        raise ValueError(f"vehicle_capacity must be non-negative, got {vehicle_capacity}")
+
+    if battery_consume_rate < 0:
+        raise ValueError(f"battery_consume_rate must be non-negative, got {battery_consume_rate}")
+
+    if num_vehicles <= 0:
+        raise ValueError(f"num_vehicles must be positive, got {num_vehicles}")
+
     # Extract PDPTW instance from VRPProblem
     pdptw_instance = _extract_pdptw_instance_from_problem(problem)
     
     routes = []
-    pickup_nodes = list(range(1, pdptw_instance.n + 1))
+    # Get actual pickup nodes (type 'cp') from order table
+    type_col = pdptw_instance._get_column('type')
+    id_col = pdptw_instance._get_column('id')
+    pickup_nodes = pdptw_instance.order_table[
+        pdptw_instance.order_table[type_col] == pdptw_instance.NODE_TYPE_PICKUP
+    ][id_col].tolist()
     pickup_nodes.sort(key=lambda x: pdptw_instance.time_windows[x][0])  # Sort by pickup start time
 
     for vehicle_id in range(num_vehicles):

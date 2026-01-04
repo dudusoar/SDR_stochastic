@@ -32,6 +32,28 @@ def assert_solution_feasible(solution: PDPTWSolution, check_constraints: bool = 
             assert solution.check_time_window_constraint(selected_vehicles), "Time window constraint violated"
 
 
+def assert_solution_valid(solution: Any, check_constraints: bool = True) -> None:
+    """
+    Assert that a solution is valid (exists and has proper structure).
+
+    Args:
+        solution: Solution to check (can be PDPTWSolution or VRPSolution adapter)
+        check_constraints: Whether to check feasibility constraints
+    """
+    assert solution is not None, "Solution should not be None"
+    assert hasattr(solution, 'routes'), "Solution must have routes attribute"
+
+    # If it's an adapter, extract the original solution
+    if hasattr(solution, 'original_solution'):
+        pdptw_solution = solution.original_solution
+    else:
+        pdptw_solution = solution
+
+    # Check feasibility if requested
+    if check_constraints and hasattr(pdptw_solution, 'is_feasible'):
+        assert_solution_feasible(pdptw_solution, check_constraints=True)
+
+
 def assert_solution_infeasible(solution: PDPTWSolution) -> None:
     """Assert that a solution is infeasible."""
     assert not solution.is_feasible(), f"Solution should be infeasible but is feasible. Objective: {solution.objective_function()}"

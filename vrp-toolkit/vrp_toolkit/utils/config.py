@@ -85,7 +85,7 @@ class ALNSAlgorithmConfig:
     segment_length: int = 100
     num_segments: int = 10
     r: float = 0.1  # Weight update rate
-    sigma: Tuple[float, float, float] = (33.0, 9.0, 13.0)  # Reward scores
+    sigma: List[float] = field(default_factory=lambda: [33.0, 9.0, 13.0])  # Reward scores
     
     # Simulated annealing parameters
     start_temp: float = 10000.0

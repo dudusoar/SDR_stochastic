@@ -44,14 +44,14 @@ class TestRemovalOperators:
         assert hasattr(operators, 'shaw_removal')
         assert hasattr(operators, 'random_removal')
         assert hasattr(operators, 'worst_removal')
-        assert hasattr(operators, 'sisr_removal')
+        assert hasattr(operators, 'SISR_removal')
         assert hasattr(operators, 'remove_requests')
-        
+
         # Check they are callable
         assert callable(operators.shaw_removal)
         assert callable(operators.random_removal)
         assert callable(operators.worst_removal)
-        assert callable(operators.sisr_removal)
+        assert callable(operators.SISR_removal)
         assert callable(operators.remove_requests)
     
     def test_shaw_removal(self, simple_pdptw_solution):
@@ -95,14 +95,14 @@ class TestRemovalOperators:
         assert isinstance(removed_requests, list)
         # Note: Worst removal might return different number based on algorithm
     
-    def test_sisr_removal(self, simple_pdptw_solution):
+    def test_SISR_removal(self, simple_pdptw_solution):
         """Test SISR removal operator."""
         operators = RemovalOperators(simple_pdptw_solution)
-        
+
         # Test removal of some requests
         num_to_remove = 1
-        removed_requests = operators.sisr_removal(num_to_remove)
-        
+        removed_requests = operators.SISR_removal(num_to_remove)
+
         # Should return list of requests
         assert isinstance(removed_requests, list)
         # Note: SISR is paper-specific removal operator

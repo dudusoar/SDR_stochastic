@@ -325,6 +325,10 @@ class PDPTWSolutionAdapter(VRPSolution):
     def objective_value(self) -> float:
         return self._solution.objective_function()
 
+    def objective_function(self) -> float:
+        """Backward compatibility alias for objective_value."""
+        return self._solution.objective_function()
+
     def is_feasible(self) -> bool:
         return self._solution.is_feasible()
 
@@ -340,6 +344,11 @@ class PDPTWSolutionAdapter(VRPSolution):
     @property
     def problem(self) -> VRPProblem:
         return PDPTWProblemAdapter(self._solution.instance)
+
+    @property
+    def instance(self) -> 'PDPTWInstance':
+        """Get the underlying PDPTWInstance for backward compatibility."""
+        return self._solution.instance
 
     def update(self) -> None:
         self._solution.update_all()

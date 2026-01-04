@@ -231,9 +231,9 @@ def main():
     # Print summary
     print("\n" + "=" * 60)
     if return_code == 0:
-        print("✅ All tests passed!")
+        print("[PASS] All tests passed!")
     else:
-        print("❌ Some tests failed.")
+        print("[FAIL] Some tests failed.")
     
     return return_code
 

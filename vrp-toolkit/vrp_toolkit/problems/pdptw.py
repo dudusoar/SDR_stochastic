@@ -81,7 +81,10 @@ class PDPTWInstance(VRPProblem):
         
         # Extract basic information
         self.indices = self.order_table[self._get_column('id')].tolist()
-        self.n = len([i for i in self.indices if i > 0])  # Count orders (exclude depot, charging, etc.)
+        # n = number of pickup-delivery pairs (count pickup nodes only)
+        self.n = len(self.order_table[
+            self.order_table[self._get_column('type')] == self.NODE_TYPE_PICKUP
+        ])
         
         # Extract derived data
         self.demands = self._extract_demands()
