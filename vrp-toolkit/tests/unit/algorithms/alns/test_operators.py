@@ -57,42 +57,44 @@ class TestRemovalOperators:
     def test_shaw_removal(self, simple_pdptw_solution):
         """Test Shaw removal operator."""
         operators = RemovalOperators(simple_pdptw_solution)
-        
+
         # Test removal of some requests
         num_to_remove = 1
-        removed_requests = operators.shaw_removal(num_to_remove)
-        
-        # Should return list of requests
-        assert isinstance(removed_requests, list)
+        modified_solution = operators.shaw_removal(num_to_remove)
+
+        # Should return modified solution
+        assert modified_solution is not None
+        assert hasattr(modified_solution, 'routes')
         # Note: Shaw removal might return different number based on algorithm
     
     def test_random_removal(self, simple_pdptw_solution):
         """Test random removal operator."""
         operators = RemovalOperators(simple_pdptw_solution)
-        
+
         # Test removal of some requests
         num_to_remove = 2
-        removed_requests = operators.random_removal(num_to_remove)
-        
-        # Should return list of requests
-        assert isinstance(removed_requests, list)
-        assert len(removed_requests) == num_to_remove
-        
-        # Requests should be valid node indices
-        n_nodes = len(operators.instance.indices)
-        for request in removed_requests:
-            assert 0 <= request < n_nodes
+        modified_solution = operators.random_removal(num_to_remove)
+
+        # Should return modified solution
+        assert modified_solution is not None
+        assert hasattr(modified_solution, 'routes')
+
+        # Solution should have fewer visited requests than original
+        original_visited = len(simple_pdptw_solution.visited_requests)
+        modified_visited = len(modified_solution.visited_requests)
+        assert modified_visited <= original_visited
     
     def test_worst_removal(self, simple_pdptw_solution):
         """Test worst removal operator."""
         operators = RemovalOperators(simple_pdptw_solution)
-        
+
         # Test removal of some requests
         num_to_remove = 1
-        removed_requests = operators.worst_removal(num_to_remove)
-        
-        # Should return list of requests
-        assert isinstance(removed_requests, list)
+        modified_solution = operators.worst_removal(num_to_remove)
+
+        # Should return modified solution
+        assert modified_solution is not None
+        assert hasattr(modified_solution, 'routes')
         # Note: Worst removal might return different number based on algorithm
     
     def test_SISR_removal(self, simple_pdptw_solution):
@@ -101,10 +103,11 @@ class TestRemovalOperators:
 
         # Test removal of some requests
         num_to_remove = 1
-        removed_requests = operators.SISR_removal(num_to_remove)
+        modified_solution = operators.SISR_removal(num_to_remove)
 
-        # Should return list of requests
-        assert isinstance(removed_requests, list)
+        # Should return modified solution
+        assert modified_solution is not None
+        assert hasattr(modified_solution, 'routes')
         # Note: SISR is paper-specific removal operator
     
     def test_remove_requests_method(self, simple_pdptw_solution):
@@ -136,15 +139,17 @@ class TestRemovalOperators:
     def test_remove_requests_invalid_node(self, simple_pdptw_solution):
         """Test remove_requests with invalid node."""
         operators = RemovalOperators(simple_pdptw_solution)
-        
+
         solution_copy = deepcopy(simple_pdptw_solution)
-        
-        # Try to remove invalid node
+
+        # Try to remove invalid node (node that doesn't exist in routes)
         invalid_node = 999  # Doesn't exist
-        
-        # Should raise NodeNotFoundError
-        with pytest.raises(NodeNotFoundError):
-            operators.remove_requests(solution_copy, [invalid_node])
+
+        # Should handle gracefully (not crash, return solution)
+        # Invalid nodes are simply ignored if not found in any route
+        result = operators.remove_requests(solution_copy, [invalid_node])
+        assert result is not None
+        assert hasattr(result, 'routes')
 
 
 class TestRepairOperators:

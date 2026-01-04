@@ -318,7 +318,11 @@ class RemovalOperators:
     # Start of random removal
     def random_removal(self, num_remove):
         remaining_requests = list(self.solution.visited_requests)
-        removed_requests = random.sample(remaining_requests, num_remove)
+        # Limit num_remove to available requests
+        actual_num_remove = min(num_remove, len(remaining_requests))
+        if actual_num_remove == 0:
+            return self.solution  # No requests to remove
+        removed_requests = random.sample(remaining_requests, actual_num_remove)
         return self.remove_requests(removed_requests)
 
     # *****************************************************************************************************
@@ -382,6 +386,8 @@ class RemovalOperators:
             for route in new_solution.routes:
                 if pickup_node in route:
                     route.remove(pickup_node)
+                # Delivery node might be in a different route
+                if delivery_node in route:
                     route.remove(delivery_node)
 
             # removed_pairs.append((pickup_node, delivery_node))
@@ -453,7 +459,27 @@ class RepairOperators:
 
     # *****************************************************************************************************
     # Start of greedy insertion
-    def greedy_insertion(self, removed_pairs):
+    def greedy_insertion(self, removed_pairs_or_solution, unvisited_requests=None):
+        """Greedy insertion repair operator.
+
+        Args:
+            removed_pairs_or_solution: Either list of (pickup, delivery) pairs or a solution
+            unvisited_requests: List of unvisited request IDs (if first arg is solution)
+
+        Returns:
+            Modified solution with requests inserted
+        """
+        # Handle backward compatibility
+        if unvisited_requests is not None:
+            # Called with (solution, unvisited_requests) - update self.solution and convert to pairs
+            if hasattr(removed_pairs_or_solution, 'routes'):
+                self.solution = removed_pairs_or_solution
+            # Convert unvisited requests to removed_pairs
+            removed_pairs = [(req, req + self._n) for req in unvisited_requests]
+        else:
+            # Called with just removed_pairs
+            removed_pairs = removed_pairs_or_solution
+
         # loop the removed pairs
         for pickup, delivery in removed_pairs:
             best_cost = float('inf')
@@ -487,7 +513,37 @@ class RepairOperators:
 
     # *****************************************************************************************************
     # Start of regret insertion
-    def regret_insertion(self, removed_pairs, k):
+    def regret_insertion(self, removed_pairs_or_solution, unvisited_requests_or_k=None, k=3):
+        """Regret insertion repair operator.
+
+        Args:
+            removed_pairs_or_solution: Either list of (pickup, delivery) pairs or a solution
+            unvisited_requests_or_k: Either list of unvisited request IDs, or k parameter (integer)
+            k: Regret parameter (default: 3)
+
+        Returns:
+            Modified solution with requests inserted
+        """
+        # Handle backward compatibility - multiple call signatures:
+        # regret_insertion(removed_pairs, k) - old API
+        # regret_insertion(solution, unvisited_requests, k) - test API
+        # regret_insertion(removed_pairs) - minimal API
+
+        if unvisited_requests_or_k is not None:
+            if isinstance(unvisited_requests_or_k, int):
+                # Called with (removed_pairs, k)
+                removed_pairs = removed_pairs_or_solution
+                k = unvisited_requests_or_k
+            else:
+                # Called with (solution, unvisited_requests, k)
+                if hasattr(removed_pairs_or_solution, 'routes'):
+                    self.solution = removed_pairs_or_solution
+                # Convert unvisited requests to removed_pairs
+                removed_pairs = [(req, req + self._n) for req in unvisited_requests_or_k]
+        else:
+            # Called with just (removed_pairs) or (removed_pairs, None, k)
+            removed_pairs = removed_pairs_or_solution
+
         while removed_pairs:
             insertion_costs = []
             for pickup, delivery in removed_pairs:  # iterate every pair

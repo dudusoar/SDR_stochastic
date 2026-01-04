@@ -191,9 +191,9 @@ def greedy_insertion_initial_solution(
     return PDPTWSolutionAdapter(solution)
 
 
-class ALNS:
+class ALNS(ConfigurableSolver):
     """Core ALNS algorithm implementation.
-    
+
     This class implements the Adaptive Large Neighborhood Search algorithm
     for PDPTW problems with battery constraints and charging station insertion.
     """
@@ -228,6 +228,7 @@ class ALNS:
             raise ValueError(f"battery_capacity must be non-negative, got {battery_capacity}")
 
         # Solution storage
+        self.initial_solution = initial_solution  # Store reference to original for backward compatibility
         self.current_solution = deepcopy(initial_solution)
         self.best_solution = deepcopy(initial_solution)
         self.charging_solution = deepcopy(initial_solution)
@@ -235,9 +236,15 @@ class ALNS:
         # Adjust charging solution battery capacity
         robot_speed = self.current_solution.instance.robot_speed
         self.charging_solution.battery_capacity = battery_capacity * 2 / robot_speed * 60
-        
+
         self.best_charging_solution = None
         self.best_charging_route = []
+
+        # Store config for backward compatibility
+        self.config = config
+
+        # Solution history tracking (for Solver interface)
+        self.solution_history = []
 
         # Operator parameters from config
         self.num_removal = config.num_removal
@@ -510,6 +517,48 @@ class ALNS:
     def temperature(self) -> float:
         """Get current temperature (for simulated annealing)."""
         return self.current_temp
+
+    def get_solution_history(self) -> List[Tuple[VRPSolution, float]]:
+        """Get history of solutions explored during search.
+
+        Returns:
+            List of (solution, objective_value) pairs
+        """
+        return self.solution_history
+
+    def get_config(self) -> ALNSConfig:
+        """Get current configuration.
+
+        Returns:
+            Current configuration object
+        """
+        return self.config
+
+    def update_config(self, config: ALNSConfig) -> None:
+        """Update solver configuration.
+
+        Args:
+            config: New configuration object
+
+        Note:
+            This updates the stored config but does not re-initialize internal parameters.
+            Some parameters may only take effect on the next solve() call.
+        """
+        self.config = config
+        # Update key parameters that can be changed during execution
+        self.num_removal = config.num_removal
+        self.p = config.p
+        self.k = config.k
+        self.L_max = config.L_max
+        self.avg_remove_order = config.avg_remove_order
+        self.d_matrix = config.d_matrix
+        self.max_no_improve = config.max_no_improve
+        self.segment_length = config.segment_length
+        self.num_segments = config.num_segments
+        self.r = config.r
+        self.sigma1, self.sigma2, self.sigma3 = config.sigma
+        self.start_temp = config.start_temp
+        self.cooling_rate = config.cooling_rate
 
     # ============================================= plot ==========================================================
     def plot_scores(self):

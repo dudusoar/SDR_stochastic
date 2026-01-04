@@ -329,6 +329,10 @@ class PDPTWSolutionAdapter(VRPSolution):
         """Backward compatibility alias for objective_value."""
         return self._solution.objective_function()
 
+    def get_objective_value(self) -> float:
+        """Get objective value (alias for objective_value)."""
+        return self.objective_value()
+
     def is_feasible(self) -> bool:
         return self._solution.is_feasible()
 
@@ -357,3 +361,37 @@ class PDPTWSolutionAdapter(VRPSolution):
     def original_solution(self) -> 'PDPTWSolution':
         """Get the original PDPTWSolution for advanced operations."""
         return self._solution
+
+    @property
+    def visited_requests(self) -> List[int]:
+        """Get list of visited pickup nodes (requests)."""
+        return self._solution.visited_requests
+
+    @property
+    def unvisited_requests(self) -> List[int]:
+        """Get list of unvisited pickup nodes (requests)."""
+        return self._solution.unvisited_requests
+
+    @property
+    def unvisited_pairs(self) -> List[Tuple[int, int]]:
+        """Get list of unvisited (pickup, delivery) pairs."""
+        return self._solution.unvisited_pairs
+
+    @property
+    def route_arrival_times(self) -> List[List[float]]:
+        """Get arrival times for each route."""
+        return self._solution.route_arrival_times
+
+    @property
+    def battery_capacity(self) -> float:
+        """Get battery capacity."""
+        return self._solution.battery_capacity
+
+    @battery_capacity.setter
+    def battery_capacity(self, value: float) -> None:
+        """Set battery capacity."""
+        self._solution.battery_capacity = value
+
+    def update_all(self) -> None:
+        """Update all solution attributes."""
+        self._solution.update_all()

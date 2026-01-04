@@ -258,11 +258,14 @@ class PDPTWInstance(VRPProblem):
             for _, row in delivery_rows.iterrows()
         ]
     
-    def _extract_charging_coordinates(self) -> Tuple[float, float]:
-        """Extract charging station coordinates."""
-        charging_row = self.order_table[
+    def _extract_charging_coordinates(self) -> Optional[Tuple[float, float]]:
+        """Extract charging station coordinates (returns None if no charging station)."""
+        charging_rows = self.order_table[
             self.order_table[self._col('type')] == self.NODE_TYPE_CHARGING
-        ].iloc[0]
+        ]
+        if len(charging_rows) == 0:
+            return None  # No charging station in this instance
+        charging_row = charging_rows.iloc[0]
         return (charging_row[self._col('x')], charging_row[self._col('y')])
     
     # Compatibility methods for existing code
