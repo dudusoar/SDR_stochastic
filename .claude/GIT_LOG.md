@@ -4,6 +4,45 @@
 
 ## Recent Commits (newest first)
 
+### 2026-01-04 - test(alns): complete ALNS test suite - all 40 tests passing
+**Hash:** b24e1e3a550e996d0132c49c63314771671f00f2
+**Author:** YuChen Du
+**Date:** 2026-01-04 16:23:24 -0500
+
+**Changes:**
+Fixed remaining 4 test failures to achieve 100% test suite coverage (40/40 tests passing).
+
+**Test Fixes:**
+- **test_solver_state:** Added segment_counts and operator_scores properties to ALNS class
+- **test_solver_with_different_configs:** Added seg_len alias support in ALNSConfig.__init__
+- **test_alns_invalid_initialization:** Added dist_matrix type and shape validation
+- **test_alns_solve_invalid_inputs:** Added parameter validation with Ellipsis sentinel
+
+**Implementation Changes:**
+- **ALNSConfig:** Custom __init__ to handle seg_len as alias for segment_length (backward compatibility)
+- **ALNS.__init__:** Validate dist_matrix is numpy array with correct shape
+- **ALNS.__init__:** Changed initial solution assignment (no deepcopy initially for performance)
+- **ALNS.segment_counts property:** Returns Dict with 'removal' and 'repair' operator usage counts
+- **ALNS.operator_scores property:** Returns Dict with 'removal' and 'repair' operator scores
+- **ALNS.solve():** Enhanced with Ellipsis sentinel to distinguish solve() from solve(None)
+- **ALNS.solve():** Added validation for num_vehicles, vehicle_capacity, battery_capacity, battery_consume_rate parameters
+
+**Test Results:**
+- Before: 36/40 tests passing (90%)
+- After: 40/40 tests passing (100%) ✅
+- All test suites green: Greedy Insertion (6/6), Config (6/6), Solver (9/9), Removal Operators (8/8), Repair Operators (3/3), ALNS Operators (4/4), Integration (2/2), Invalid Inputs (2/2)
+
+**Documentation:**
+- Updated TASK_BOARD.md with Phase 2 completion (100%)
+- Updated test suite status metrics
+- Updated overall project progress from ~70% to ~80% complete
+
+**Files modified:**
+- .claude/TASK_BOARD.md
+- vrp-toolkit/vrp_toolkit/algorithms/alns/solver.py
+
+---
+
 ### 2026-01-04 - fix(tests): achieve 36/40 passing tests with adapter and operator improvements
 **Hash:** 4aee89c05a94c59b78ef6490cee147ff4186e5ce
 **Author:** YuChen Du
