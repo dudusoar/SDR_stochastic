@@ -85,7 +85,7 @@ print(f"Routes: {solution.routes}")
 - ✅ Synthetic data generation
 - ✅ Basic visualization
 - ✅ Real-world map integration (OSMnx)
-- ✅ Two comprehensive tutorials
+- ✅ Seven comprehensive tutorials covering all features
 
 ### Coming Soon
 - Genetic Algorithm implementation
@@ -98,8 +98,12 @@ print(f"Routes: {solution.routes}")
 Start with these interactive notebooks:
 
 1. **`tutorials/01_quickstart.ipynb`** - Basic usage and problem solving
-2. **`tutorials/02_real_world_maps.ipynb`** - Real-world street networks with OSMnx ⭐ NEW!
-3. **`tutorials/05_sensitivity_analysis.ipynb`** - Parameter sensitivity analysis
+2. **`tutorials/02_real_world_maps.ipynb`** - Real-world street networks with OSMnx
+3. **`tutorials/03_custom_problems.ipynb`** - Creating custom PDPTW problems ⭐ NEW!
+4. **`tutorials/04_problem_variants.ipynb`** - VRP, CVRP, PDP, PDPTW variants ⭐ NEW!
+5. **`tutorials/05_sensitivity_analysis.ipynb`** - Parameter sensitivity analysis
+6. **`tutorials/06_custom_algorithms.ipynb`** - Implementing custom heuristics ⭐ NEW!
+7. **`tutorials/07_data_generation.ipynb`** - Synthetic data generation ⭐ NEW!
 
 ## 🗺️ Real-World Integration
 

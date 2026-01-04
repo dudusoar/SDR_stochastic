@@ -1,6 +1,6 @@
 # VRP Toolkit - Skills Reference
 
-**Last Updated:** 2026-01-03
+**Last Updated:** 2026-01-04
 
 Complete reference for all skills in the VRP Toolkit project.
 
@@ -8,10 +8,10 @@ Complete reference for all skills in the VRP Toolkit project.
 
 ## Overview
 
-We have created **10 custom skills** to automate common workflows. These skills are located in `.claude/skills/` as source directories.
+We have created **11 custom skills** to automate common workflows. These skills are located in `.claude/skills/` as source directories.
 
 **Categories:**
-- **Workflow Skills** (6) - Task execution and project management
+- **Workflow Skills** (7) - Task execution and project management
 - **Reference Skills** (1) - Knowledge base and documentation
 - **Utility Skills** (2) - Development tools
 - **Meta Skills** (1) - Skill management
@@ -163,9 +163,36 @@ We have created **10 custom skills** to automate common workflows. These skills 
 
 ---
 
+### 7. create-tutorial
+**Create High-Quality Tutorials**
+
+**When to use:** Creating tutorials, educational content, or learning materials for any VRP toolkit feature (problem creation, algorithm implementation, data generation, visualization, etc.)
+
+**What it does:**
+- Ensures tutorials follow best learning practices with progressive disclosure
+- Provides structured template for tutorial creation (introduction, setup, quick win, core concepts, advanced usage, real-world examples)
+- Emphasizes hands-on examples and clear explanations
+- Maintains code quality standards (runnable, realistic, minimal, commented)
+- Includes best practices and tutorial naming conventions
+
+**Key Features:**
+- **Progressive learning** - Start simple, build complexity gradually
+- **Time-to-first-win** < 10 minutes
+- **Code-to-text ratio** > 30%
+- **Student can build something** after completion
+- **All code runs** without errors
+
+**Trigger:** Say "create tutorial", "educational content", or when user requests learning materials
+
+**Value:** Creates high-quality, learner-centered tutorials that effectively teach VRP Toolkit features, following established educational principles and project standards
+
+**Location:** `.claude/skills/create-tutorial/`
+
+---
+
 ## Reference Skills
 
-### 7. maintain-data-structures
+### 8. maintain-data-structures
 **Data Structure Reference**
 
 **When to use:** Need to understand data structures without reading code
@@ -192,7 +219,7 @@ We have created **10 custom skills** to automate common workflows. These skills 
 
 ## Utility Skills
 
-### 8. git-log
+### 9. git-log
 **Commit Message Generator & Git Log Maintenance**
 
 **When to use:** Generating appropriate commit messages and maintaining git log documentation
@@ -218,7 +245,7 @@ We have created **10 custom skills** to automate common workflows. These skills 
 
 ---
 
-### 9. manage-python-env
+### 10. manage-python-env
 **UV Package Manager Reference**
 
 **When to use:** Setting up Python environment, installing packages, managing dependencies
@@ -256,7 +283,7 @@ uv add osmnx geopandas
 
 ## Meta Skills
 
-### 10. manage-skills
+### 11. manage-skills
 **Skills Management & Compliance**
 
 **When to use:** Managing skills through compliance checking, audit tracking, and documentation synchronization
@@ -346,6 +373,7 @@ uv add osmnx geopandas
 | integrate-road-network | Add real maps | "integrate OSMnx" |
 | log-debug-issue | Track bugs | "log bug" |
 | update-task-board | Sync task status | "update tasks" |
+| create-tutorial | Create educational content | "create tutorial" |
 | maintain-data-structures | Understand data | Auto-triggered |
 | git-log | Create commits | "commit changes" |
 | manage-python-env | Setup environment | "setup environment" |
