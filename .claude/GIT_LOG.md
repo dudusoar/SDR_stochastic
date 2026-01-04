@@ -4,6 +4,32 @@
 
 ## Recent Commits (newest first)
 
+### 2026-01-04 - feat(alns): add solve() method and temperature property to ALNS class
+**Hash:** c12202869f60eeb71ed912dad88b97148399c77d
+**Author:** YuChen Du
+**Date:** 2026-01-04 15:21:22 -0500
+
+**Changes:**
+Enhanced ALNS class with missing methods and input validation to improve test compatibility (groundwork for further operator fixes).
+
+ALNS Class Enhancements:
+- **Added solve() method:** Wrapper around run() for API consistency, returns best solution
+- **Added temperature property:** Read-only property for simulated annealing state checking
+- **Input validation:** TypeError for None parameters, ValueError for negative battery_capacity
+
+Remaining Issues Documented:
+- Created DEBUG_LOG.md entry for operator method API mismatches
+- RemovalOperators/RepairOperators methods have signature mismatches
+- Return types don't match test expectations (Solution vs list)
+
+**Test Status:** 17/40 passing (unchanged, but foundation laid for operator fixes)
+
+**Files modified:**
+- vrp_toolkit/algorithms/alns/solver.py (solve(), temperature, validation)
+- .claude/DEBUG_LOG.md (documented new active issue)
+
+---
+
 ### 2026-01-04 - fix(tests): resolve IndexError and improve test suite (17/40 passing)
 **Hash:** f3ffb0a5d29fabdb5f845f506d9950a4c56f6157
 **Author:** YuChen Du
