@@ -1,7 +1,7 @@
 # VRP Toolkit - Task Board
 
-**Last Updated:** 2026-01-03 (updated)
-**Current Phase:** Phase 2 - Refactoring (completed)
+**Last Updated:** 2026-01-04
+**Current Phase:** Phase 2 - Refactoring (100% complete)
 
 ---
 
@@ -44,7 +44,7 @@
 - [x] ALNSSolver decoupling from PDPTWInstance (MIGRATION_LOG.md 2026-01-01)
 - [x] Unified Solver interface implementation (MIGRATION_LOG.md 2026-01-01)
 
-**Test Suite Improvements** (DEBUG_LOG.md 2026-01-03)
+**Test Suite Improvements** (DEBUG_LOG.md 2026-01-03 & current session 2026-01-04)
 - [x] Fix PDPTWInstance.n calculation to count only pickup nodes (not all non-depot nodes)
 - [x] Add instance attribute to PDPTWSolutionAdapter for backward compatibility
 - [x] Add objective_function() method to PDPTWSolutionAdapter (alias for objective_value)
@@ -53,6 +53,17 @@
 - [x] Fix test method naming inconsistency (SISR_removal vs sisr_removal)
 - [x] Resolve IndexError in greedy_insertion_initial_solution (DEBUG_LOG.md 2026-01-03)
 - [x] TestGreedyInsertionInitialSolution: All 6 tests passing (100% success rate)
+- [x] Add PDPTWSolutionAdapter missing attributes (visited_requests, unvisited_requests, etc.)
+- [x] Fix PDPTWInstance._extract_charging_coordinates for instances without charging stations
+- [x] Fix RemovalOperators.remove_requests delivery node handling
+- [x] Fix RemovalOperators.random_removal to limit num_remove
+- [x] Fix RepairOperators.regret_insertion dual signature support
+- [x] Make ALNS inherit from ConfigurableSolver
+- [x] Add segment_counts and operator_scores properties to ALNS
+- [x] Add ALNSConfig custom __init__ for seg_len alias support
+- [x] Add dist_matrix validation in ALNS.__init__
+- [x] Add solve() method parameter validation using Ellipsis sentinel
+- [x] ALNS test suite: 40/40 tests passing (100% success rate)
 
 **Documentation & Skills Management**
 - [x] Create SKILLS.md for detailed skills reference
@@ -67,42 +78,34 @@
 ## 🚧 In Progress
 
 ### Current Focus
-- [ ] Fixing remaining ALNS test suite failures (23/40 tests failing)
+- [ ] Commit ALNS test suite fixes and update git log
 
 ### Details
-**Completed (DEBUG_LOG.md 2026-01-03):**
-- ✅ Fixed test method naming inconsistencies (SISR_removal vs sisr_removal)
-- ✅ Fixed PDPTWInstance.n calculation bug (IndexError resolved)
-- ✅ TestGreedyInsertionInitialSolution: All 6 tests passing
-- ✅ Overall improvement: 12/40 → 17/40 tests passing
+**Recently Completed (2026-01-04):**
+- ✅ Fixed all 4 remaining ALNS test failures
+- ✅ test_solver_state: Added segment_counts and operator_scores properties
+- ✅ test_solver_with_different_configs: Added seg_len alias support
+- ✅ test_alns_invalid_initialization: Added dist_matrix validation
+- ✅ test_alns_solve_invalid_inputs: Added parameter validation with Ellipsis sentinel
+- ✅ ALNS test suite: 40/40 tests passing (100% success rate)
 
-**Remaining Issues (DEBUG_LOG.md Active Issues):**
-- ❌ ALNS object missing solve() method (multiple tests expect this)
-- ❌ RemovalOperators and RepairOperators API mismatches (constructor parameters)
-- ❌ ALNS initialization failures with None parameters
-- ❌ Missing temperature attribute in ALNS class
-- ❌ Operators missing expected methods (sisr_removal vs SISR_removal confusion)
-
-**Test Status:**
-- TestGreedyInsertionInitialSolution: 6/6 passing ✅
-- TestALNSConfig: 6/6 passing ✅
-- TestRepairOperators: 1/3 passing
-- TestRemovalOperators: 2/8 passing
-- TestALNSSolver: 0/9 passing
-- TestALNSOperators: 1/4 passing
-- TestOperatorIntegration: 0/2 passing
+**Next Steps:**
+- Commit changes to git
+- Update GIT_LOG.md with completion entry
+- Update DEBUG_LOG.md to resolve active issues
 
 ---
 
 ## 📋 Next Steps
 
-### Phase 3: Extension (Starting)
-1. [ ] Fix remaining test suite API mismatches
-2. [ ] OSMnx integration preparation
-3. [ ] Plan second algorithm implementation (GA or TabuSearch)
-4. [ ] Design benchmark suite structure
-5. [ ] Create real-world map examples using OSMnx
-6. [ ] Add more VRP problem variants beyond PDPTW
+### Phase 3: Extension
+1. [ ] OSMnx integration preparation
+2. [ ] Plan second algorithm implementation (GA or TabuSearch)
+3. [ ] Design benchmark suite structure
+4. [ ] Create real-world map examples using OSMnx
+5. [ ] Add more VRP problem variants beyond PDPTW
+6. [ ] Publish package to PyPI
+7. [ ] Create project website/documentation
 
 ---
 
@@ -121,16 +124,21 @@
 | Phase | Completed | In Progress | Total | Progress |
 |-------|-----------|-------------|-------|----------|
 | Phase 1: Minimal Migration | 15 | 0 | 15 | 100% ✅ |
-| Phase 2: Refactoring | 23 | 0 | 23 | 100% ✅ |
-| Phase 3: Extension | 0 | 1 | TBD | 0% 🚧 |
+| Phase 2: Refactoring | 27 | 0 | 27 | 100% ✅ |
+| Phase 3: Extension | 0 | 0 | TBD | 0% ⏳ |
 
-**Overall Project:** ~70% complete (Phase 1 + Phase 2 complete, Phase 3 starting)
+**Overall Project:** ~80% complete (Phase 1 + Phase 2 complete, Phase 3 ready to start)
 
 **Test Suite Status:**
-- ALNS unit tests: 17/40 passing (42.5%)
+- ALNS unit tests: 40/40 passing (100%) ✅
   - Greedy Insertion: 6/6 (100%) ✅
   - ALNS Config: 6/6 (100%) ✅
-  - Operators & Solver: 5/28 (17.9%) 🚧
+  - ALNS Solver: 9/9 (100%) ✅
+  - Removal Operators: 8/8 (100%) ✅
+  - Repair Operators: 3/3 (100%) ✅
+  - ALNS Operators: 4/4 (100%) ✅
+  - Operator Integration: 2/2 (100%) ✅
+  - Invalid Inputs: 2/2 (100%) ✅
 
 ---
 

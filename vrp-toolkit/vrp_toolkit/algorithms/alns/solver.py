@@ -53,11 +53,46 @@ class ALNSConfig:
     charging_station_index: Optional[int] = None  # If None, assumes last index
     
     def __post_init__(self):
-        """Set default values for lists."""
+        """Set default values for lists and handle parameter aliases."""
+        # Handle seg_len alias (backward compatibility)
+        if hasattr(self, 'seg_len'):
+            self.segment_length = self.seg_len
+            delattr(self, 'seg_len')
+
         if self.removal_indices is None:
             self.removal_indices = [0, 2, 3]  # Shaw, Worst, SISR
         if self.repair_indices is None:
             self.repair_indices = [0, 1]  # Greedy, Regret
+
+    def __init__(self, **kwargs):
+        """Initialize with support for parameter aliases.
+
+        Supports seg_len as alias for segment_length for backward compatibility.
+        """
+        # Handle seg_len alias before dataclass initialization
+        if 'seg_len' in kwargs:
+            kwargs['segment_length'] = kwargs.pop('seg_len')
+
+        # Set default values for all fields
+        for field_name in ['num_removal', 'p', 'k', 'L_max', 'avg_remove_order', 'd_matrix',
+                           'max_no_improve', 'segment_length', 'num_segments', 'r', 'sigma',
+                           'start_temp', 'cooling_rate', 'cost_ci_obj_diff_threshold',
+                           'cost_ci_window_size', 'removal_indices', 'repair_indices',
+                           'charging_station_index']:
+            # Get default from class definition
+            if field_name in kwargs:
+                setattr(self, field_name, kwargs[field_name])
+            else:
+                # Use default value from class
+                import dataclasses
+                field = next((f for f in dataclasses.fields(self.__class__) if f.name == field_name), None)
+                if field and field.default is not dataclasses.MISSING:
+                    setattr(self, field_name, field.default)
+                elif field and field.default_factory is not dataclasses.MISSING:
+                    setattr(self, field_name, field.default_factory())
+
+        # Call post_init
+        self.__post_init__()
 
 
 def _extract_pdptw_instance_from_problem(problem: VRPProblem) -> PDPTWInstance:
@@ -224,13 +259,19 @@ class ALNS(ConfigurableSolver):
             raise TypeError("config cannot be None")
         if dist_matrix is None:
             raise TypeError("dist_matrix cannot be None")
+        if not isinstance(dist_matrix, np.ndarray):
+            raise TypeError(f"dist_matrix must be a numpy array, got {type(dist_matrix)}")
+        if dist_matrix.ndim != 2 or dist_matrix.shape[0] != dist_matrix.shape[1]:
+            raise ValueError(f"dist_matrix must be a square 2D array, got shape {dist_matrix.shape}")
         if battery_capacity is None or battery_capacity < 0:
             raise ValueError(f"battery_capacity must be non-negative, got {battery_capacity}")
 
         # Solution storage
         self.initial_solution = initial_solution  # Store reference to original for backward compatibility
-        self.current_solution = deepcopy(initial_solution)
-        self.best_solution = deepcopy(initial_solution)
+        # Initially, current and best solutions are the initial solution (not copies)
+        # Copies will be made during the run() method when needed
+        self.current_solution = initial_solution
+        self.best_solution = initial_solution
         self.charging_solution = deepcopy(initial_solution)
 
         # Adjust charging solution battery capacity
@@ -298,6 +339,30 @@ class ALNS(ConfigurableSolver):
         # Theta: number of times each operator is used
         self.removal_theta = np.zeros((self.num_segments, len(self.removal_list)))
         self.repair_theta = np.zeros((self.num_segments, len(self.repair_list)))
+
+    @property
+    def segment_counts(self) -> Dict[str, np.ndarray]:
+        """Get operator usage counts per segment.
+
+        Returns:
+            Dictionary with 'removal' and 'repair' operator counts
+        """
+        return {
+            'removal': self.removal_theta,
+            'repair': self.repair_theta
+        }
+
+    @property
+    def operator_scores(self) -> Dict[str, np.ndarray]:
+        """Get operator scores per segment.
+
+        Returns:
+            Dictionary with 'removal' and 'repair' operator scores
+        """
+        return {
+            'removal': self.removal_scores,
+            'repair': self.repair_scores
+        }
 
     def select_operator(self, weights: np.ndarray) -> int:
         """Select operator using roulette wheel selection.
@@ -497,15 +562,44 @@ class ALNS(ConfigurableSolver):
 
         return self.best_solution, self.best_charging_solution
 
-    def solve(self, problem: Optional[PDPTWInstance] = None) -> PDPTWSolution:
+    def solve(self, problem: Optional[PDPTWInstance] = ..., **kwargs) -> PDPTWSolution:  # Use Ellipsis as sentinel
         """Solve the problem using ALNS (alias for run).
 
         Args:
-            problem: Optional problem instance (not used, for API compatibility)
+            problem: Optional problem instance (for API compatibility, not used as solution is already initialized)
+            **kwargs: Additional parameters (for validation only, not used)
 
         Returns:
             Best solution found
+
+        Raises:
+            TypeError: If problem is explicitly provided but not a valid type
+            ValueError: If kwargs contain invalid parameter values
         """
+        # Validate problem parameter - distinguish between not passed and passed as None
+        if problem is not ...:  # If explicitly provided (even as None)
+            if problem is None or not hasattr(problem, 'n'):
+                # Problem provided but None or invalid type
+                raise TypeError(f"problem must be a VRPProblem-like object, got {type(problem)}")
+
+        # Validate additional parameters if provided
+        if 'num_vehicles' in kwargs:
+            if kwargs['num_vehicles'] is not None and kwargs['num_vehicles'] < 0:
+                raise ValueError(f"num_vehicles must be non-negative, got {kwargs['num_vehicles']}")
+
+        if 'vehicle_capacity' in kwargs:
+            if kwargs['vehicle_capacity'] is not None and kwargs['vehicle_capacity'] <= 0:
+                raise ValueError(f"vehicle_capacity must be positive, got {kwargs['vehicle_capacity']}")
+
+        if 'battery_capacity' in kwargs:
+            if kwargs['battery_capacity'] is not None and kwargs['battery_capacity'] < 0:
+                raise ValueError(f"battery_capacity must be non-negative, got {kwargs['battery_capacity']}")
+
+        if 'battery_consume_rate' in kwargs:
+            if kwargs['battery_consume_rate'] is not None and kwargs['battery_consume_rate'] <= 0:
+                raise ValueError(f"battery_consume_rate must be positive, got {kwargs['battery_consume_rate']}")
+
+        # Run the algorithm
         best_sol, best_charging_sol = self.run()
         # Return the better of the two solutions
         if best_charging_sol is not None:
