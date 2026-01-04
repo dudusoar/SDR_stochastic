@@ -98,19 +98,26 @@ print(f"Routes: {solution.routes}")
 Start with these interactive notebooks:
 
 1. **`tutorials/01_quickstart.ipynb`** - Basic usage and problem solving
-2. **`tutorials/05_sensitivity_analysis.ipynb`** - Parameter sensitivity analysis
+2. **`tutorials/02_real_world_maps.ipynb`** - Real-world street networks with OSMnx ⭐ NEW!
+3. **`tutorials/05_sensitivity_analysis.ipynb`** - Parameter sensitivity analysis
 
 ## 🗺️ Real-World Integration
 
+Use real street networks from OpenStreetMap:
+
 ```python
-from vrp_toolkit.data.map import MapLoader
+from vrp_toolkit.data import create_pdptw_from_osm
 
-# Load Purdue campus street network
-map_loader = MapLoader()
-map_loader.load_area("Purdue University, West Lafayette, IN")
+# Create PDPTW instance from real location
+order_table, dist_matrix, time_matrix, G, node_map = create_pdptw_from_osm(
+    place_name="Purdue University, West Lafayette, IN, USA",
+    depot_location=(40.4237, -86.9212),
+    pickup_locations=[(40.4280, -86.9145), (40.4200, -86.9180)],
+    delivery_locations=[(40.4250, -86.9100), (40.4210, -86.9220)],
+    cache_file="data/purdue_network.graphml"
+)
 
-# Create instance with real distances
-instance = map_loader.create_pdptw_instance(num_orders=15)
+# Solve and visualize routes on real streets!
 ```
 
 ## 🔧 Development
