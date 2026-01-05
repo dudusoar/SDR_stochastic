@@ -87,6 +87,133 @@ Multiple test failures due to API mismatches between test expectations and actua
 ## Resolved Issues ✅
 *Problems that have been solved.*
 
+### Playground MVP API mismatch issues - systematic interface errors
+**Date Opened:** 2026-01-05
+**Date Resolved:** 2026-01-05
+**Resolution Time:** ~2 hours
+
+**Problem:**
+During Playground MVP testing, discovered systematic API mismatches between Streamlit UI code (playground/app.py) and vrp-toolkit source code. The playground was written based on assumed/desired APIs rather than actual implemented APIs, causing cascading failures during instance generation.
+
+**Symptoms:**
+1. `TypeError: RealMap.__init__() got an unexpected keyword argument 'num_customers'`
+2. `AttributeError: 'OrderGenerator' object has no attribute 'DEFAULT_COLUMNS'`
+3. `AttributeError: 'OrderGenerator' object has no attribute 'generate'` (similar for DemandGenerator)
+4. `TypeError: PDPTWInstance.__init__() missing 3 required positional arguments`
+5. Python module caching prevented code reload after fixes
+
+**Environment:**
+- OS: Windows
+- Python: 3.11.12
+- Streamlit: 1.52.2
+- vrp-toolkit: 0.1.0 (editable install)
+- Context: playground/app.py integrating with vrp_toolkit modules
+
+**Root Cause:**
+**Systematic design flaw:** Playground code was developed independently without verifying actual API signatures in vrp-toolkit source code. This resulted in:
+1. Incorrect parameter names and types
+2. Calling non-existent methods (.generate())
+3. Accessing class attributes as instance attributes (self.DEFAULT_COLUMNS)
+4. Missing required parameters in constructors
+
+**Detailed Issues & Fixes:**
+
+**Issue 1: RealMap API mismatch**
+```python
+# ❌ Playground assumed API
+RealMap(num_customers=10, num_restaurants=3, area_size=100, seed=42)
+
+# ✅ Actual API
+RealMap(n_r=3, n_c=10, dist_function=np.random.uniform, dist_params={'low': 0, 'high': 100})
+```
+- Fixed: playground/app.py line 85-94
+- Added np.random.seed(seed) for reproducibility
+
+**Issue 2: DemandGenerator API mismatch**
+```python
+# ❌ Playground assumed API
+DemandGenerator(num_customers=10, num_restaurants=3, seed=42).generate()
+
+# ✅ Actual API
+DemandGenerator(
+    time_range=240, time_step=30,
+    restaurants=real_map.restaurants, customers=real_map.customers,
+    random_params={'sample_dist': {...}, 'demand_dist': {...}}
+)
+# Generates on __init__, access via .demand_table attribute
+```
+- Fixed: playground/app.py line 97-113
+- Removed non-existent .generate() call
+
+**Issue 3: OrderGenerator attribute access**
+```python
+# ❌ Playground assumed method
+order_table = order_gen.generate()
+
+# ✅ Actual attribute
+order_table = order_gen.order_table  # Generated on __init__
+```
+- Fixed: playground/app.py line 127
+
+**Issue 4: DEFAULT_COLUMNS reference in generators.py**
+```python
+# ❌ Code tried to access as instance attribute
+df = pd.DataFrame(data, columns=self.DEFAULT_COLUMNS)
+
+# ✅ Correct: module-level constant
+df = pd.DataFrame(data, columns=DEFAULT_COLUMNS)
+```
+- Fixed: vrp_toolkit/data/generators.py line 171
+- Required Streamlit restart to reload module
+
+**Issue 5: PDPTWInstance missing parameters**
+```python
+# ❌ Playground only passed order_table
+PDPTWInstance(order_table=order_table)
+
+# ✅ Actual required parameters
+PDPTWInstance(
+    order_table=order_table,
+    distance_matrix=real_map.distance_matrix,
+    time_matrix=order_gen.time_matrix,
+    robot_speed=1.0
+)
+```
+- Fixed: playground/app.py line 130-136
+
+**Solution:**
+1. Read actual API signatures from source code (vrp_toolkit/data/map.py, generators.py, problems/pdptw.py)
+2. Updated playground/app.py to use correct APIs
+3. Fixed generators.py module-level constant reference
+4. Restarted Streamlit to reload cached modules
+5. Verified all parameters passed correctly
+
+**Prevention:**
+This issue highlights the need for:
+1. **API Quick Reference:** Create skill or documentation with all API signatures
+2. **Contract Tests:** Write tests verifying playground ↔ vrp-toolkit interfaces
+3. **Development Workflow:** Always verify API signatures before writing integration code
+4. **Token Efficiency:** Avoid repeated source code reading by maintaining API reference
+
+**Lessons Learned:**
+1. **Don't assume APIs** - Always verify signatures from source code first
+2. **Module caching** - Python caches imported modules; restart Streamlit when changing vrp-toolkit source
+3. **Editable install** - Even with `pip install -e`, need process restart to reload
+4. **Generators on __init__** - DemandGenerator and OrderGenerator generate data in __init__, not via .generate()
+5. **Module vs instance attributes** - Be careful with class-level vs instance-level attributes
+6. **Token consumption** - Repeated API exploration is expensive; need systematic solution (skill or subagent)
+
+**Files Modified:**
+- playground/app.py (lines 85-136): Fixed all API calls
+- vrp_toolkit/data/generators.py (line 171): Fixed DEFAULT_COLUMNS reference
+
+**Next Steps:**
+1. Create `integrate-playground` skill with API quick reference to prevent future issues
+2. Write contract tests for playground-vrp interface compatibility
+3. Consider enhancing `maintain-data-structures` skill with complete API signatures
+
+---
+
 ### IndexError in greedy_insertion_initial_solution after API fixes
 **Date Opened:** 2026-01-03
 **Date Resolved:** 2026-01-03

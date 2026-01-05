@@ -8,10 +8,10 @@ Complete reference for all skills in the VRP Toolkit project.
 
 ## Overview
 
-We have created **11 custom skills** to automate common workflows. These skills are located in `.claude/skills/` as source directories.
+We have created **13 custom skills** to automate common workflows. These skills are located in `.claude/skills/` as source directories.
 
 **Categories:**
-- **Workflow Skills** (7) - Task execution and project management
+- **Workflow Skills** (9) - Task execution and project management
 - **Reference Skills** (1) - Knowledge base and documentation
 - **Utility Skills** (2) - Development tools
 - **Meta Skills** (1) - Skill management
@@ -190,9 +190,86 @@ We have created **11 custom skills** to automate common workflows. These skills 
 
 ---
 
+### 8. create-playground
+**Interactive Playground Development**
+
+**When to use:** Adding playground features, integrating new algorithms/problems, or enhancing the learning experience through interactive exploration
+
+**What it does:**
+- Creates and maintains Streamlit playground application for hands-on learning
+- Adds new interactive features (instance selection, parameter adjustment, visualization)
+- Integrates new algorithms/problem types into playground UI
+- Ensures UI consistency and educational value
+- Creates contract tests to verify playground behavior matches actual code
+
+**Key Workflow:**
+1. Analyze user needs (what to learn? which parameters to expose?)
+2. Design UI/UX (appropriate Streamlit components)
+3. Integrate vrp-toolkit modules (call correct APIs)
+4. Implement visualization (routes, convergence, metrics)
+5. Add contract tests (reproducibility, feasibility)
+6. Update documentation (README, FEATURES)
+
+**Maintains:**
+- playground/README.md - Usage guide and learning paths
+- playground/FEATURES.md - Feature tracking (✅ Stable, 🚧 Beta, 🔮 Planned)
+- playground/ARCHITECTURE.md - Technical documentation
+
+**Integration:**
+- References maintain-architecture-map for system structure
+- References maintain-data-structures for API details
+- Creates contract tests in contracts/ directory
+- Saves experiments to runs/ directory
+
+**Trigger:** Say "add playground feature", "create interactive demo", or when building UI for learning
+
+**Value:** Enables "learn by playing" instead of "learn by reading code" - interactive exploration that builds intuition
+
+**Location:** `.claude/skills/create-playground/`
+
+---
+
+### 9. maintain-architecture-map
+**System Architecture Documentation**
+
+**When to use:** When architecture changes, modules are added, or system overview needs updating
+
+**What it does:**
+- Maintains ARCHITECTURE_MAP.md (system architecture overview)
+- Documents module structure, data flows, and entry points
+- Maps dependencies between layers (Problem → Algorithm → Visualization)
+- Provides high-level system documentation (not detailed data structures)
+- Auto-scans code to extract module information
+
+**Key Sections in ARCHITECTURE_MAP.md:**
+- System Overview (2-3 paragraphs)
+- Three-Layer Architecture (Problem/Algorithm/Data/Visualization/Utils)
+- Module Guide (purpose + key exports for each module)
+- Entry Points (how to use the toolkit - code examples)
+- Data Flows (visual diagrams showing data movement)
+- Key Abstractions (VRPProblem, VRPSolution, Solver interfaces)
+- Extension Guide (how to add new problems/algorithms)
+
+**Complementary to maintain-data-structures:**
+- **maintain-data-structures:** Focuses on **what** (class attributes, methods, formats)
+- **maintain-architecture-map:** Focuses on **how** (module organization, data flows, pipelines)
+
+**Maintains:**
+- ARCHITECTURE_MAP.md - Main architecture document
+- .claude/docs/data_flows.md - Detailed data flow diagrams
+- .claude/docs/module_dependencies.md - Module dependency graph
+
+**Trigger:** Say "update architecture", "document system structure", or when adding/reorganizing modules
+
+**Value:** Provides big-picture view of system organization, helping developers understand where code lives and how modules interact
+
+**Location:** `.claude/skills/maintain-architecture-map/`
+
+---
+
 ## Reference Skills
 
-### 8. maintain-data-structures
+### 10. maintain-data-structures
 **Data Structure Reference**
 
 **When to use:** Need to understand data structures without reading code
@@ -219,7 +296,7 @@ We have created **11 custom skills** to automate common workflows. These skills 
 
 ## Utility Skills
 
-### 9. git-log
+### 11. git-log
 **Commit Message Generator & Git Log Maintenance**
 
 **When to use:** Generating appropriate commit messages and maintaining git log documentation
@@ -245,7 +322,7 @@ We have created **11 custom skills** to automate common workflows. These skills 
 
 ---
 
-### 10. manage-python-env
+### 12. manage-python-env
 **UV Package Manager Reference**
 
 **When to use:** Setting up Python environment, installing packages, managing dependencies
@@ -283,7 +360,7 @@ uv add osmnx geopandas
 
 ## Meta Skills
 
-### 11. manage-skills
+### 13. manage-skills
 **Skills Management & Compliance**
 
 **When to use:** Managing skills through compliance checking, audit tracking, and documentation synchronization
@@ -374,6 +451,8 @@ uv add osmnx geopandas
 | log-debug-issue | Track bugs | "log bug" |
 | update-task-board | Sync task status | "update tasks" |
 | create-tutorial | Create educational content | "create tutorial" |
+| create-playground | Add playground features | "add playground feature" |
+| maintain-architecture-map | Update architecture docs | "update architecture" |
 | maintain-data-structures | Understand data | Auto-triggered |
 | git-log | Create commits | "commit changes" |
 | manage-python-env | Setup environment | "setup environment" |

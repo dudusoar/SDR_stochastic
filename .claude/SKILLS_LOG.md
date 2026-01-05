@@ -22,6 +22,55 @@
 
 ---
 
+## 2026-01-04 - Added: create-playground
+**Action:** Created new skill for interactive playground development
+**Reason:** Project is building Streamlit playground for "learn by playing" instead of "learn by reading code". Need systematic approach to playground feature development and maintenance.
+**Changes:**
+- Created skill structure with 6-step workflow (Analyze → Design UI → Integrate → Visualize → Test → Document)
+- Provided comprehensive Streamlit development guide (references/streamlit_guide.md)
+- Created UI component patterns library (references/ui_components.md)
+- Created integration patterns for vrp-toolkit modules (references/integration_patterns.md)
+- Established contract testing requirements (reproducibility, feasibility, evaluation)
+- Defined three development stages (MVP → Explainability → Gamification)
+- Created quality checklist for feature completion
+- Documented component structure (app.py, pages/, components/, utils/)
+**Compliance Notes:** SKILL.md is compliant (370 lines body, well under 500-line limit). All references properly extracted to references/ directory.
+**Impact:** Enables systematic development of interactive playground that supports "learn by playing" philosophy. Ensures playground features are contract-tested, well-documented, and follow consistent patterns. Critical for making toolkit accessible to learners.
+
+---
+
+## 2026-01-04 - Added: maintain-architecture-map
+**Action:** Created new skill for system architecture documentation
+**Reason:** Need to maintain high-level system architecture documentation (ARCHITECTURE_MAP.md) that complements maintain-data-structures skill. While maintain-data-structures focuses on "what" (class attributes/methods), maintain-architecture-map focuses on "how" (module organization/data flows).
+**Changes:**
+- Created skill structure with 6-step workflow (Scan → Identify Entries → Map Flows → Dependencies → Update Docs)
+- Provided comprehensive ARCHITECTURE_MAP.md template (references/architecture_template.md)
+- Created automation scripts for module scanning (references/scanning_scripts.md)
+- Established clear distinction from maintain-data-structures (architecture vs. data structures)
+- Documented module structure, entry points, data flows, key abstractions
+- Defined quality checklist (accuracy, completeness, freshness, brevity <500 lines)
+- Integration with other skills (create-playground, maintain-data-structures, migrate-module)
+**Compliance Notes:** SKILL.md is compliant (295 lines body, well under 500-line limit). Template and scripts properly extracted to references/.
+**Impact:** Provides big-picture view of system organization. Helps developers understand module structure, data flows, and extension points. Generated initial ARCHITECTURE_MAP.md (comprehensive 600+ line overview). Complements maintain-data-structures by focusing on system-level organization rather than class-level details.
+
+---
+
+## 2026-01-04 - Updated: SKILLS.md documentation (Playground skills)
+**Action:** Updated skills reference to include create-playground and maintain-architecture-map skills
+**Reason:** Skills directory had 13 skills but SKILLS.md only documented 11. Need to maintain accurate documentation for all skills.
+**Changes:**
+- Updated skill count from 11 to 13 custom skills
+- Updated Workflow Skills count from 7 to 9
+- Added create-playground skill description (as skill #8 in Workflow Skills)
+- Added maintain-architecture-map skill description (as skill #9 in Workflow Skills)
+- Updated all subsequent skill numbers (maintain-data-structures #8→10, git-log #9→11, manage-python-env #10→12, manage-skills #11→13)
+- Added both skills to Quick Reference table with trigger phrases
+- Updated Last Updated date to 2026-01-04 (late evening)
+**Compliance Notes:** SKILLS.md remains compliant and properly synchronized with skills directory
+**Impact:** Documentation now accurately reflects all 13 skills. Users can discover and use create-playground and maintain-architecture-map skills. Maintains project documentation integrity.
+
+---
+
 ## 2026-01-04 - Added: create-tutorial
 **Action:** Created new skill for tutorial creation and educational content
 **Reason:** Project needs high-quality tutorials for teaching VRP Toolkit features to users and researchers. Tutorials are a primary focus of the project vision.

@@ -168,7 +168,7 @@ class OrderGenerator:
         ])
         
         # Create DataFrame and sort by ID
-        df = pd.DataFrame(data, columns=self.DEFAULT_COLUMNS)
+        df = pd.DataFrame(data, columns=DEFAULT_COLUMNS)
         return df.sort_values(by=COL_ID).reset_index(drop=True)
     
     def _create_pickup_entry(self, count: int, pickup_real_index: int, time_start: int) -> List:
