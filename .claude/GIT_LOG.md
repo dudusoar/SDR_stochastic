@@ -4,6 +4,41 @@
 
 ## Recent Commits (newest first)
 
+### 2026-01-04 - fix(README): correct directory structure and rename paper-code directory
+**Hash:** 66ca9f90ea8f7fd8b0b3950e6df921d3b94f26ad
+**Author:** YuChen Du
+**Date:** 2026-01-04 20:59:37 -0500
+
+**Changes:**
+- Update README.md with accurate project structure reflecting actual directories
+- Rename 'paper code/' to 'paper-code/' for better compatibility (no spaces in path)
+- Remove references to non-existent SDR_stochastic directory
+- Clarify tutorial paths in contributing guidelines
+
+**Files modified:**
+- README.md
+- paper-code/data/purdue_node_info.csv
+- paper-code/data/tt_matrix.csv
+- paper-code/demands.py
+- paper-code/docs/task.xlsx
+- paper-code/instance.py
+- paper-code/operators.py
+- paper-code/order_info.py
+- paper-code/process
+- paper-code/real_map.py
+- paper-code/results/sensitivity_analysis_average_order_20240922_150308.csv
+- paper-code/results/sensitivity_analysis_average_order_20240922_163157.csv
+- paper-code/results/sensitivity_analysis_num_vehicles_20240923.csv
+- paper-code/results/sensitivity_analysis_num_vehicles_20240924.csv
+- paper-code/results/sensitivity_analysis_num_vehicles_20240925.csv
+- paper-code/sensitivity_test.ipynb
+- paper-code/sensitivity_test.py
+- paper-code/solution.py
+- paper-code/solvers.py
+- paper-code/test.ipynb
+
+---
+
 ### 2026-01-04 - feat(project): complete Phase 2 refactoring milestone and expand tutorial system
 **Hash:** c2612db2909e595e769075998ef47840e279122d
 **Author:** YuChen Du
