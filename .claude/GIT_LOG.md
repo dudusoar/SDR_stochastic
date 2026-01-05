@@ -4,6 +4,67 @@
 
 ## Recent Commits (newest first)
 
+### 2026-01-05 - feat(playground): implement Stage 1 MVP with infrastructure and API fixes
+**Hash:** d1dc7f4ba9de72beeb1999bd521c16996443ec8e
+**Author:** YuChen Du
+**Date:** 2026-01-05 11:46:08 -0500
+
+**Changes:**
+Major milestone: Completed Playground Stage 1 MVP with complete infrastructure and systematic API fixes
+
+**Playground Stage 1 MVP:**
+- Implemented complete Streamlit app (400+ lines) with 4-step workflow
+- Problem Definition: Synthetic instance generation using RealMap, DemandGenerator, OrderGenerator
+- ALNS Configuration: 10+ configurable parameters with basic/advanced sections
+- Run Solver: ALNS execution with progress indication and error handling
+- Results Display: Routes visualization, convergence plot, route details table
+- Session state management for instance, solution, and cost_history
+
+**New Skills:**
+- create-playground: Systematic workflow for playground development
+- maintain-architecture-map: Architecture documentation maintenance
+
+**Infrastructure:**
+- playground/: Complete Streamlit app structure
+- contracts/: Contract testing framework
+- runs/: Experiment tracking system
+- ARCHITECTURE_MAP.md: System architecture documentation
+- CHANGELOG_LEARNINGS.md: Bug fixes and insights log
+
+**Critical API Fixes:**
+- Fixed RealMap initialization API (corrected parameter names: n_r, n_c, dist_function, dist_params)
+- Fixed DemandGenerator API (time_range, time_step, restaurants, customers, random_params)
+- Fixed OrderGenerator usage (access .order_table attribute, not .generate() method)
+- Fixed DEFAULT_COLUMNS reference in generators.py (module-level constant, not instance attribute)
+- Fixed PDPTWInstance initialization (added required parameters: distance_matrix, time_matrix, robot_speed)
+
+**Documentation Updates:**
+- DEBUG_LOG.md: Comprehensive documentation of all API mismatch issues and resolutions
+- TASK_BOARD.md: Updated with Playground Stage 1 MVP completion
+- SKILLS.md: Added two new skills documentation
+- SKILLS_LOG.md: Logged skill creation events
+
+**Environment:**
+- Created unified virtual environment at project root (.venv)
+- Installed streamlit 1.52.2 with all dependencies
+- Removed duplicate vrp-toolkit/.venv
+
+**Files modified/added:**
+- .claude/ARCHITECTURE_MAP.md (new)
+- .claude/CHANGELOG_LEARNINGS.md (new)
+- .claude/DEBUG_LOG.md (127+ lines added)
+- .claude/SKILLS.md (updated)
+- .claude/SKILLS_LOG.md (updated)
+- .claude/TASK_BOARD.md (updated)
+- .claude/skills/create-playground/ (new skill)
+- .claude/skills/maintain-architecture-map/ (new skill)
+- contracts/README.md (new)
+- playground/ (complete app structure)
+- runs/EXPERIMENTS_LOG.md (new)
+- vrp-toolkit/vrp_toolkit/data/generators.py (fixed DEFAULT_COLUMNS)
+
+---
+
 ### 2026-01-04 - fix(README): correct directory structure and rename paper-code directory
 **Hash:** 66ca9f90ea8f7fd8b0b3950e6df921d3b94f26ad
 **Author:** YuChen Du
