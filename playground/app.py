@@ -32,11 +32,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# Title
-st.title("🚀 VRP-Toolkit Playground")
-st.markdown("**Interactive learning environment for Vehicle Routing Problems**")
-st.markdown("---")
-
 # Initialize session state
 if 'instance' not in st.session_state:
     st.session_state.instance = None
@@ -44,6 +39,28 @@ if 'solution' not in st.session_state:
     st.session_state.solution = None
 if 'cost_history' not in st.session_state:
     st.session_state.cost_history = None
+
+# Title
+st.title("🚀 VRP-Toolkit Playground")
+st.markdown("**Interactive learning environment for Vehicle Routing Problems**")
+st.markdown("---")
+
+# Status indicator
+col1, col2, col3 = st.columns(3)
+with col1:
+    instance_status = "✅" if st.session_state.instance is not None else "⏳"
+    st.markdown(f"**Instance:** {instance_status}")
+with col2:
+    solution_status = "✅" if st.session_state.solution is not None else "⏳"
+    st.markdown(f"**Solution:** {solution_status}")
+with col3:
+    if st.session_state.instance is not None:
+        node_count = len(st.session_state.instance.indices)
+        st.markdown(f"**Nodes:** {node_count}")
+    else:
+        st.markdown("**Nodes:** --")
+
+st.markdown("---")
 
 # Step 1: Problem Definition
 st.header("📦 Step 1: Define Problem")
@@ -229,10 +246,10 @@ with col2:
         battery_capacity = st.number_input(
             "Battery Capacity",
             min_value=1.0,
-            max_value=100.0,
-            value=10.0,
-            step=0.5,
-            help="Vehicle battery capacity"
+            max_value=1000.0,
+            value=100.0,
+            step=10.0,
+            help="Vehicle battery capacity (recommended: 100.0 or higher for feasible solutions)"
         )
 
 st.markdown("---")
@@ -258,19 +275,40 @@ else:
                     num_vehicles=num_vehicles,
                     vehicle_capacity=1000,
                     battery_capacity=battery_capacity,
-                    battery_consume_rate=1.0
+                    battery_consume_rate=1.0,
+                    penalty_unvisit=1000.0,
+                    penalty_delay=100.0
                 )
 
                 if initial_solution is None:
                     st.error("❌ Failed to generate initial solution. Try increasing number of vehicles or battery capacity.")
                     st.stop()
 
+                # Check if initial solution has empty routes (no nodes inserted)
+                has_empty_routes = all(len(route) == 2 and route == [0, 0] for route in initial_solution.routes)
+                if has_empty_routes:
+                    st.error("""
+                    ❌ Initial solution has empty routes (no nodes were inserted).
+
+                    **Possible causes:**
+                    1. **Battery capacity too low** - Increase battery capacity (try 200.0 or higher)
+                    2. **Time windows too tight** - Generated instance may have infeasible time windows
+                    3. **Vehicle capacity too low** - Increase vehicle capacity
+                    4. **Distance between nodes too large** - Try generating a new instance with different seed
+
+                    **Try:** Increase battery capacity to at least 200.0 and try again.
+                    """)
+                    st.stop()
+
                 # Create ALNS config
+                # Note: ALNSConfig uses num_segments * segment_length to calculate total iterations
+                num_segments = max(1, max_iterations // segment_length)
                 config = ALNSConfig(
-                    max_iterations=max_iterations,
+                    num_segments=num_segments,
+                    segment_length=segment_length,
                     start_temp=start_temp,
                     cooling_rate=cooling_rate,
-                    segment_length=segment_length
+                    seed=seed  # Use seed from UI for reproducibility
                 )
 
                 # Run ALNS
@@ -326,6 +364,20 @@ if st.session_state.solution is not None:
             "Feasibility",
             "✅ Feasible" if is_feasible else "❌ Infeasible"
         )
+
+        # Show warning if solution is infeasible
+        if not is_feasible:
+            st.warning("""
+            Solution is infeasible (violates constraints).
+
+            This could be because:
+            - Battery capacity too low
+            - Time window violations
+            - Vehicle capacity exceeded
+            - Pickup-delivery precedence violated
+
+            Try increasing battery capacity or reducing problem size.
+            """)
 
     with col3:
         st.metric(
@@ -406,6 +458,137 @@ if st.session_state.solution is not None:
             })
 
         st.dataframe(route_data, use_container_width=True)
+
+    # Save Experiment Button
+    st.markdown("---")
+    st.subheader("💾 Save Experiment")
+
+    experiment_name = st.text_input(
+        "Experiment Name (optional)",
+        value=f"ALNS_{num_orders}_orders_{num_vehicles}_vehicles"
+    )
+
+    if st.button("💾 Save Experiment to runs/ directory"):
+        try:
+            import json
+            import pandas as pd
+            from datetime import datetime
+            import os
+
+            # Create timestamp for directory name
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            experiment_dir = os.path.join("runs", timestamp)
+            os.makedirs(experiment_dir, exist_ok=True)
+
+            # Save configuration
+            config = {
+                "experiment_name": experiment_name,
+                "timestamp": timestamp,
+                "algorithm": "ALNS",
+                "parameters": {
+                    "num_orders": num_orders,
+                    "num_vehicles": num_vehicles,
+                    "seed": seed,
+                    "max_iterations": max_iterations,
+                    "start_temp": start_temp,
+                    "cooling_rate": cooling_rate,
+                    "segment_length": segment_length,
+                    "battery_capacity": battery_capacity
+                },
+                "instance_info": {
+                    "type": "synthetic_pdptw",
+                    "n": st.session_state.instance.n if st.session_state.instance else "unknown",
+                    "total_nodes": len(st.session_state.instance.indices) if st.session_state.instance else "unknown"
+                }
+            }
+
+            config_path = os.path.join(experiment_dir, "config.json")
+            with open(config_path, 'w') as f:
+                json.dump(config, f, indent=2)
+
+            # Save solution (simplified)
+            solution_data = {
+                "routes": solution.routes,
+                "objective_value": float(solution.objective_value),
+                "is_feasible": solution.is_feasible(),
+                "num_routes": len(solution.routes)
+            }
+
+            solution_path = os.path.join(experiment_dir, "solution.json")
+            with open(solution_path, 'w') as f:
+                json.dump(solution_data, f, indent=2)
+
+            # Save metrics
+            metrics = {
+                "total_cost": float(solution.objective_value),
+                "feasibility": solution.is_feasible(),
+                "route_count": len(solution.routes),
+                "total_nodes": sum(len(route) for route in solution.routes),
+                "cost_history": cost_history.tolist() if hasattr(cost_history, 'tolist') else cost_history if cost_history is not None else []
+            }
+
+            metrics_path = os.path.join(experiment_dir, "metrics.json")
+            with open(metrics_path, 'w') as f:
+                json.dump(metrics, f, indent=2)
+
+            # Save instance info (simplified)
+            if st.session_state.instance and hasattr(st.session_state.instance, 'order_table'):
+                instance_info = {
+                    "n": st.session_state.instance.n,
+                    "depot_index": st.session_state.instance.depot_index,
+                    "node_count": len(st.session_state.instance.indices)
+                }
+                instance_path = os.path.join(experiment_dir, "instance_info.json")
+                with open(instance_path, 'w') as f:
+                    json.dump(instance_info, f, indent=2)
+
+            # Update EXPERIMENTS_LOG.md
+            # Calculate improvement if cost_history exists
+            improvement_text = ""
+            if st.session_state.cost_history is not None and len(st.session_state.cost_history) > 1:
+                initial_cost = st.session_state.cost_history[0]
+                final_cost = st.session_state.cost_history[-1]
+                if initial_cost > 0:
+                    improvement_pct = (initial_cost - final_cost) / initial_cost * 100
+                    improvement_text = f"- Improvement: {improvement_pct:.1f}%"
+
+            log_entry = f"""
+### {timestamp} - {experiment_name}
+
+**Config:**
+- Algorithm: ALNS
+- Orders: {num_orders}
+- Vehicles: {num_vehicles}
+- Max Iterations: {max_iterations}
+- Start Temperature: {start_temp}
+- Seed: {seed}
+- Battery Capacity: {battery_capacity}
+
+**Results:**
+- Best Cost: {solution.objective_value:.2f}
+- Feasible: {'✅ Yes' if solution.is_feasible() else '❌ No'}
+- Routes: {len(solution.routes)}
+{improvement_text}
+
+**Files:**
+- {experiment_dir}/config.json
+- {experiment_dir}/solution.json
+- {experiment_dir}/metrics.json
+- {experiment_dir}/instance_info.json
+
+---
+
+"""
+            log_path = os.path.join("runs", "EXPERIMENTS_LOG.md")
+            with open(log_path, 'a', encoding='utf-8') as f:
+                f.write(log_entry)
+
+            st.success(f"✅ Experiment saved to {experiment_dir}")
+            st.info(f"Log entry added to runs/EXPERIMENTS_LOG.md")
+
+        except Exception as e:
+            st.error(f"❌ Failed to save experiment: {e}")
+            st.exception(e)
 
 # Footer
 st.markdown("---")

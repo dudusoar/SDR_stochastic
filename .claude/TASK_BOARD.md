@@ -92,6 +92,20 @@
   - Created tutorial 07_data_generation.ipynb (synthetic data)
   - Updated README with all 7 tutorials
   - Complete tutorial coverage for all major features
+- [x] Tutorial regeneration and testing (2026-01-09 afternoon)
+  - **All 7 tutorials regenerated and passing execution tests!**
+  - Fixed Tutorial 01: Parameter naming (penalty_unvisit, penalty_delay)
+  - Regenerated Tutorial 02: OSMnx integration with correct APIs
+  - Fixed critical OSMnx bug: Node ID mapping (RealIndex using position indices)
+  - Regenerated Tutorial 03: Custom problems without non-existent Node class
+  - Regenerated Tutorial 04: Problem variants (relaxed/standard/strict)
+  - Regenerated Tutorial 05: Sensitivity analysis (capacity, time windows, battery)
+  - Regenerated Tutorial 06: Custom algorithms (ALNS operator interfaces)
+  - Regenerated Tutorial 07: Data generation workflow
+  - Created tutorial testing infrastructure (test_single_notebook.py, README.md)
+  - All tutorials use actual PDPTWInstance API
+  - All tutorials follow progressive learning structure
+  - Git commits: 229046e, 280db8e, 25c8759
 - [x] Playground infrastructure preparation (2026-01-04 late evening)
   - Created create-playground skill (12th project skill)
   - Created maintain-architecture-map skill (13th project skill)
@@ -138,7 +152,15 @@
 No active tasks - Phase 3 ready to continue
 
 ### Recently Completed
-**2026-01-09 Session:**
+**2026-01-09 Afternoon Session (Tutorial Regeneration):**
+- ✅ **All 7 tutorials regenerated and passing execution tests!**
+- ✅ Fixed critical OSMnx node ID mapping bug
+- ✅ Regenerated tutorials 01-07 with correct PDPTWInstance API
+- ✅ Created tutorial testing infrastructure (test_single_notebook.py)
+- ✅ All tutorials follow progressive learning structure
+- ✅ 3 git commits created (229046e, 280db8e, 25c8759)
+
+**2026-01-09 Morning Session (Paper-code Validation):**
 - ✅ Created comprehensive paper-code test suite (4 tests, 100% passing)
 - ✅ Organized all tests in paper-code/tests/ directory
 - ✅ Fixed Windows encoding issues and API mismatches
@@ -203,9 +225,9 @@ No active tasks - Phase 3 ready to continue
 |-------|-----------|-------------|-------|----------|
 | Phase 1: Minimal Migration | 15 | 0 | 15 | 100% ✅ |
 | Phase 2: Refactoring | 27 | 0 | 27 | 100% ✅ |
-| Phase 3: Extension | 5 | 0 | ~12 | 42% 🚀 |
+| Phase 3: Extension | 6 | 0 | ~12 | 50% 🚀 |
 
-**Overall Project:** ~90% complete (Phase 1 & 2 complete, Phase 3 progressing: OSMnx + tutorials + playground MVP + paper-code validation implemented)
+**Overall Project:** ~92% complete (Phase 1 & 2 complete, Phase 3 progressing: OSMnx + tutorial system complete + playground MVP + paper-code validation + all 7 tutorials tested)
 
 **Test Suite Status:**
 - ALNS unit tests (vrp-toolkit): 40/40 passing (100%) ✅
@@ -222,6 +244,14 @@ No active tasks - Phase 3 ready to continue
   - Order Generation (OrderGenerator): PASS ✅
   - Instance & Solution (PDPTWInstance + PDPTWSolution): PASS ✅
   - Solver (Initial + ALNS short run): PASS ✅
+- Tutorial execution tests (vrp-toolkit): 7/7 passing (100%) ✅
+  - Tutorial 01 (Quickstart): PASS ✅
+  - Tutorial 02 (Real World Maps): PASS ✅
+  - Tutorial 03 (Custom Problems): PASS ✅
+  - Tutorial 04 (Problem Variants): PASS ✅
+  - Tutorial 05 (Sensitivity Analysis): PASS ✅
+  - Tutorial 06 (Custom Algorithms): PASS ✅
+  - Tutorial 07 (Data Generation): PASS ✅
 
 ---
 

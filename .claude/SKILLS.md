@@ -1,6 +1,6 @@
 # VRP Toolkit - Skills Reference
 
-**Last Updated:** 2026-01-04
+**Last Updated:** 2026-01-05
 
 Complete reference for all skills in the VRP Toolkit project.
 
@@ -8,10 +8,10 @@ Complete reference for all skills in the VRP Toolkit project.
 
 ## Overview
 
-We have created **13 custom skills** to automate common workflows. These skills are located in `.claude/skills/` as source directories.
+We have created **14 custom skills** to automate common workflows. These skills are located in `.claude/skills/` as source directories.
 
 **Categories:**
-- **Workflow Skills** (9) - Task execution and project management
+- **Workflow Skills** (10) - Task execution and project management
 - **Reference Skills** (1) - Knowledge base and documentation
 - **Utility Skills** (2) - Development tools
 - **Meta Skills** (1) - Skill management
@@ -229,7 +229,45 @@ We have created **13 custom skills** to automate common workflows. These skills 
 
 ---
 
-### 9. maintain-architecture-map
+### 9. integrate-playground
+**Playground ↔ VRP-Toolkit API Integration**
+
+**When to use:** Developing playground features, connecting UI to vrp-toolkit APIs, or encountering API signature mismatches
+
+**What it does:**
+- Provides complete interface mapping table (playground needs → vrp-toolkit APIs)
+- Token-efficient API quick reference (~800 tokens vs ~6500 tokens reading source code)
+- Integrates with contract tests for automated verification
+- Documents common mistakes and troubleshooting solutions
+- Maintains API signatures with usage examples
+
+**Key Workflow:**
+1. Check interface_mapping.md for exact API signature
+2. Verify with contract test (optional)
+3. Write integration code following mapping table
+4. Add error handling for common mistakes
+5. Create contract test for new integrations
+
+**Core References:**
+- **interface_mapping.md** - Complete API mapping table (Data generation + Solving flows)
+- **api_signatures.md** - Detailed API signatures with imports and types
+- **contract_tests.md** - How to write and maintain contract tests
+- **troubleshooting.md** - 6 categories of common errors and quick fixes
+
+**Token Efficiency:**
+- Without skill: ~6500 tokens (reading source code for each integration)
+- With skill: ~800 tokens (using mapping table)
+- **Savings: 87% token reduction**
+
+**Trigger:** Say "integrate playground", "connect to vrp-toolkit", or when encountering API mismatches
+
+**Value:** Eliminates repeated source code reading, prevents API mismatch errors, and maintains single source of truth for playground-vrp integration
+
+**Location:** `.claude/skills/integrate-playground/`
+
+---
+
+### 10. maintain-architecture-map
 **System Architecture Documentation**
 
 **When to use:** When architecture changes, modules are added, or system overview needs updating
@@ -269,7 +307,7 @@ We have created **13 custom skills** to automate common workflows. These skills 
 
 ## Reference Skills
 
-### 10. maintain-data-structures
+### 11. maintain-data-structures
 **Data Structure Reference**
 
 **When to use:** Need to understand data structures without reading code
@@ -296,7 +334,7 @@ We have created **13 custom skills** to automate common workflows. These skills 
 
 ## Utility Skills
 
-### 11. git-log
+### 12. git-log
 **Commit Message Generator & Git Log Maintenance**
 
 **When to use:** Generating appropriate commit messages and maintaining git log documentation
@@ -322,7 +360,7 @@ We have created **13 custom skills** to automate common workflows. These skills 
 
 ---
 
-### 12. manage-python-env
+### 13. manage-python-env
 **UV Package Manager Reference**
 
 **When to use:** Setting up Python environment, installing packages, managing dependencies
@@ -360,7 +398,7 @@ uv add osmnx geopandas
 
 ## Meta Skills
 
-### 13. manage-skills
+### 14. manage-skills
 **Skills Management & Compliance**
 
 **When to use:** Managing skills through compliance checking, audit tracking, and documentation synchronization

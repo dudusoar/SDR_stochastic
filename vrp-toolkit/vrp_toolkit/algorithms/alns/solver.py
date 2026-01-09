@@ -51,7 +51,10 @@ class ALNSConfig:
     
     # Charging station parameters
     charging_station_index: Optional[int] = None  # If None, assumes last index
-    
+
+    # Reproducibility
+    seed: Optional[int] = None  # Random seed for reproducibility
+
     def __post_init__(self):
         """Set default values for lists and handle parameter aliases."""
         # Handle seg_len alias (backward compatibility)
@@ -78,7 +81,7 @@ class ALNSConfig:
                            'max_no_improve', 'segment_length', 'num_segments', 'r', 'sigma',
                            'start_temp', 'cooling_rate', 'cost_ci_obj_diff_threshold',
                            'cost_ci_window_size', 'removal_indices', 'repair_indices',
-                           'charging_station_index']:
+                           'charging_station_index', 'seed']:
             # Get default from class definition
             if field_name in kwargs:
                 setattr(self, field_name, kwargs[field_name])
@@ -316,6 +319,11 @@ class ALNS(ConfigurableSolver):
         
         # Charging station index
         self.charging_station_index = config.charging_station_index
+
+        # Set random seed for reproducibility
+        if config.seed is not None:
+            np.random.seed(config.seed)
+            random.seed(config.seed)
         if self.charging_station_index is None:
             self.charging_station_index = len(self.dist_matrix) - 1
 

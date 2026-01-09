@@ -2,7 +2,7 @@
 
 Feature tracking for VRP-Toolkit interactive playground.
 
-**Last Updated:** 2026-01-04
+**Last Updated:** 2026-01-05
 
 ---
 
@@ -20,34 +20,36 @@ Feature tracking for VRP-Toolkit interactive playground.
 **Target:** Get something playable in 1-2 evenings
 
 ### Problem Definition
-- 🔮 Upload CSV file (order table)
-- 🔮 Generate synthetic instance (adjustable size, seed)
-- 🔮 View instance summary (orders, nodes, vehicles)
-- 🔮 Select from example instances (small/medium/large)
+- 🔮 Upload CSV file (order table) - *Planned for Stage 2*
+- 🚧 Generate synthetic instance (adjustable size, seed) - *Implemented but has bug*
+- ✅ View instance summary (orders, nodes, vehicles) - *Stable*
+- 🔮 Select from example instances (small/medium/large) - *Planned for Stage 2*
 
 ### Algorithm Configuration
-- 🔮 ALNS configuration panel
-  - Max iterations slider (100-10000)
+- ✅ ALNS configuration panel - *Stable*
+  - Max iterations slider (100-5000)
   - Start temperature input (0.1-100.0)
-  - Number of vehicles input (1-20)
+  - Number of vehicles input (1-10)
   - Random seed input (0-99999)
-- 🔮 Advanced parameters (in expander)
+- ✅ Advanced parameters (in expander) - *Stable*
   - Cooling rate slider (0.90-0.99)
   - Segment length input (10-500)
-  - Removal count slider (1-20)
-  - Shaw relatedness slider (1.0-10.0)
+  - Battery capacity input (1.0-100.0)
+  - *Note: Some parameters differ from original plan*
 
 ### Solver Execution
-- 🔮 Run button
-- 🔮 Progress indicator (spinner)
-- 🔮 Cancel button (optional)
+- ✅ Run button - *Stable*
+- ✅ Progress indicator (spinner) - *Stable*
+- 🔮 Cancel button (optional) - *Planned for Stage 2*
 
 ### Results Display
-- 🔮 Total cost metric (large display)
-- 🔮 Feasibility badge (✅/❌)
-- 🔮 Route count
-- 🔮 Route visualization (2D map with matplotlib)
-- 🔮 Basic metrics table (runtime, iterations)
+- ✅ Total cost metric (large display) - *Stable*
+- ✅ Feasibility badge (✅/❌) - *Stable*
+- ✅ Route count - *Stable*
+- ✅ Route visualization (2D map with matplotlib) - *Stable*
+- ✅ Convergence plot (cost vs iteration) - *Stable*
+- ✅ Route details table - *Stable*
+- 🔮 Basic metrics table (runtime, iterations) - *Planned for Stage 2*
 
 ### Documentation
 - ✅ playground/README.md created
@@ -233,4 +235,4 @@ Feature tracking for VRP-Toolkit interactive playground.
 ---
 
 **Maintained by:** `create-playground` skill
-**Status:** 🚧 Under active development (Stage 1 MVP pending)
+**Status:** 🚧 Under active development (Stage 1 MVP mostly complete, bug fixes needed)
