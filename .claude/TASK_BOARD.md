@@ -1,6 +1,6 @@
 # VRP Toolkit - Task Board
 
-**Last Updated:** 2026-01-05 (morning)
+**Last Updated:** 2026-01-09
 **Current Phase:** Phase 3 - Extension (in progress)
 
 ---
@@ -116,6 +116,19 @@
   - Integrated vrp-toolkit modules (PDPTWInstance, ALNS, PDPTWVisualizer)
   - Session state management for instance, solution, cost_history
   - Help text and error handling throughout UI
+- [x] Paper-code validation and testing (2026-01-09)
+  - Created comprehensive test suite for paper-code directory
+  - Created test_01_data_layer.py (RealMap + DemandGenerator)
+  - Created test_02_order_generation.py (OrderGenerator)
+  - Created test_03_instance_solution.py (PDPTWInstance + PDPTWSolution)
+  - Created test_04_solver.py (greedy initial solution + ALNS short run)
+  - Created run_all_tests.py master script
+  - All 4 tests passing (100% success rate)
+  - Organized tests in paper-code/tests/ directory
+  - Fixed Windows GBK encoding issues (replaced Unicode with ASCII)
+  - Fixed API mismatches (column names, num_removal parameter)
+  - Created TEST_SUMMARY.md and README.md documentation
+  - Verified paper-code fully functional after refactoring
 
 ---
 
@@ -125,6 +138,13 @@
 No active tasks - Phase 3 ready to continue
 
 ### Recently Completed
+**2026-01-09 Session:**
+- ✅ Created comprehensive paper-code test suite (4 tests, 100% passing)
+- ✅ Organized all tests in paper-code/tests/ directory
+- ✅ Fixed Windows encoding issues and API mismatches
+- ✅ Documented tests with README.md and TEST_SUMMARY.md
+- ✅ Verified paper-code fully functional after refactoring
+
 **2026-01-05 Morning Session:**
 - ✅ Implemented Playground Stage 1 MVP (playground/app.py - 400+ lines)
 - ✅ Integrated all core features: problem definition, ALNS config, solver execution, results display
@@ -183,12 +203,12 @@ No active tasks - Phase 3 ready to continue
 |-------|-----------|-------------|-------|----------|
 | Phase 1: Minimal Migration | 15 | 0 | 15 | 100% ✅ |
 | Phase 2: Refactoring | 27 | 0 | 27 | 100% ✅ |
-| Phase 3: Extension | 4 | 0 | ~12 | 33% 🚀 |
+| Phase 3: Extension | 5 | 0 | ~12 | 42% 🚀 |
 
-**Overall Project:** ~88% complete (Phase 1 & 2 complete, Phase 3 progressing: OSMnx + tutorials + playground MVP implemented)
+**Overall Project:** ~90% complete (Phase 1 & 2 complete, Phase 3 progressing: OSMnx + tutorials + playground MVP + paper-code validation implemented)
 
 **Test Suite Status:**
-- ALNS unit tests: 40/40 passing (100%) ✅
+- ALNS unit tests (vrp-toolkit): 40/40 passing (100%) ✅
   - Greedy Insertion: 6/6 (100%) ✅
   - ALNS Config: 6/6 (100%) ✅
   - ALNS Solver: 9/9 (100%) ✅
@@ -197,6 +217,11 @@ No active tasks - Phase 3 ready to continue
   - ALNS Operators: 4/4 (100%) ✅
   - Operator Integration: 2/2 (100%) ✅
   - Invalid Inputs: 2/2 (100%) ✅
+- Paper-code validation tests: 4/4 passing (100%) ✅
+  - Data Layer (RealMap + DemandGenerator): PASS ✅
+  - Order Generation (OrderGenerator): PASS ✅
+  - Instance & Solution (PDPTWInstance + PDPTWSolution): PASS ✅
+  - Solver (Initial + ALNS short run): PASS ✅
 
 ---
 

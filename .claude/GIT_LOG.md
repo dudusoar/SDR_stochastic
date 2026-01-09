@@ -4,6 +4,52 @@
 
 ## Recent Commits (newest first)
 
+### 2026-01-09 - test(paper-code): add comprehensive test suite for validation
+**Hash:** 5841546aa7f6b0dc1408b6c0616472ef09e8e313
+**Author:** YuChen Du
+**Date:** 2026-01-09 10:20:12 -0500
+
+**Changes:**
+Created complete test suite to verify paper-code functionality after refactoring.
+
+**Test Suite:**
+- test_01_data_layer.py: RealMap + DemandGenerator validation
+- test_02_order_generation.py: OrderGenerator validation
+- test_03_instance_solution.py: PDPTWInstance + PDPTWSolution validation
+- test_04_solver.py: Initial solution + ALNS short run validation (2 segments, 5 iterations)
+- run_all_tests.py: Master test script (runs all 4 tests)
+
+**Results:**
+- All 4 tests passing (100% success rate)
+- Total runtime: ~5-10 seconds
+- Tests use minimal parameters for quick validation
+- Verified paper-code fully functional after architecture refactoring
+
+**Documentation:**
+- TEST_SUMMARY.md: Detailed test results and findings
+- README.md: Usage instructions and test descriptions
+
+**Issues Fixed:**
+- Windows GBK encoding (replaced Unicode characters with ASCII)
+- OrderGenerator column names (Type, PartnerID vs Pickup, Delivery)
+- ALNS num_removal parameter adjusted based on instance size
+
+**Organization:**
+- All tests in paper-code/tests/ directory
+- Tests import from parent directory using sys.path
+- Clean separation from source code
+
+**Files added:**
+- paper-code/tests/README.md
+- paper-code/tests/TEST_SUMMARY.md
+- paper-code/tests/run_all_tests.py
+- paper-code/tests/test_01_data_layer.py
+- paper-code/tests/test_02_order_generation.py
+- paper-code/tests/test_03_instance_solution.py
+- paper-code/tests/test_04_solver.py
+
+---
+
 ### 2026-01-05 - feat(playground): implement Stage 1 MVP with infrastructure and API fixes
 **Hash:** d1dc7f4ba9de72beeb1999bd521c16996443ec8e
 **Author:** YuChen Du
