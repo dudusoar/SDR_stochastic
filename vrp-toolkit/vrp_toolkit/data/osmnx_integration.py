@@ -314,7 +314,7 @@ def create_pdptw_order_table_from_locations(
         'EndTime': time_window[1],
         'ServiceTime': 0.0,
         'PartnerID': 0,
-        'RealIndex': depot_node,
+        'RealIndex': 0,  # Position index, not OSM node ID
         'RealType': 'depot'
     })
 
@@ -335,7 +335,7 @@ def create_pdptw_order_table_from_locations(
             'EndTime': time_window[1],
             'ServiceTime': service_time,
             'PartnerID': delivery_id,
-            'RealIndex': p_node,
+            'RealIndex': pickup_id,  # Position index, not OSM node ID
             'RealType': 'cp'
         })
 
@@ -351,15 +351,16 @@ def create_pdptw_order_table_from_locations(
             'EndTime': time_window[1],
             'ServiceTime': service_time,
             'PartnerID': pickup_id,
-            'RealIndex': d_node,
+            'RealIndex': delivery_id,  # Position index, not OSM node ID
             'RealType': 'cd'
         })
 
     # Charging station (if provided)
     if charging_node is not None:
+        charging_id = len(rows)
         charging_data = G.nodes[charging_node]
         rows.append({
-            'ID': len(rows),
+            'ID': charging_id,
             'Type': 'charging',
             'X': charging_data['x'],
             'Y': charging_data['y'],
@@ -368,7 +369,7 @@ def create_pdptw_order_table_from_locations(
             'EndTime': time_window[1],
             'ServiceTime': 0.0,
             'PartnerID': 0,
-            'RealIndex': charging_node,
+            'RealIndex': charging_id,  # Position index, not OSM node ID
             'RealType': 'charging'
         })
 
@@ -503,6 +504,15 @@ def create_pdptw_from_osm(
     distance_matrix = compute_distance_matrix(G, all_nodes[:1+2*n_orders+(1 if charging_node else 0)])
     time_matrix = compute_time_matrix(distance_matrix)
 
+    # Create node mapping (VRP ID -> OSM node ID) before creating order table
+    node_mapping = {0: depot_node}  # Depot
+    for i, p_node in enumerate(pickup_nodes, 1):
+        node_mapping[i] = p_node  # Pickup
+    for i, d_node in enumerate(delivery_nodes, 1):
+        node_mapping[i + n_orders] = d_node  # Delivery
+    if charging_node:
+        node_mapping[1 + 2*n_orders] = charging_node  # Charging station
+
     # Step 4: Create order table
     order_table = create_pdptw_order_table_from_locations(
         depot_node=depot_node,
@@ -512,9 +522,6 @@ def create_pdptw_from_osm(
         charging_node=charging_node,
         **kwargs
     )
-
-    # Create node mapping (VRP ID -> OSM node ID)
-    node_mapping = {row['ID']: row['RealIndex'] for _, row in order_table.iterrows()}
 
     print(f"\nPDPTW instance created successfully!")
     print(f"- Nodes: {len(order_table)}")
