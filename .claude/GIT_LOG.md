@@ -4,6 +4,49 @@
 
 ## Recent Commits (newest first)
 
+### 2026-01-09 - feat(playground): add problem variants tab with constraint exploration
+**Hash:** 5489d30b01f66ce55411f3797b6f34848e611f9a
+**Author:** YuChen Du
+**Date:** 2026-01-09 22:02:37 -0500
+
+**Changes:**
+Restructured playground from single-page to two-tab layout for enhanced learning progression and educational value.
+
+**Tab 1: Quickstart (Tutorial 01)**
+- Preserved original basic PDPTW workflow
+- 4-step process: Generate instance → Configure ALNS → Solve → Visualize
+- Supports 2-20 orders with synthetic data generation
+- Experiment saving functionality
+
+**Tab 2: Problem Variants (Tutorial 04)** [NEW]
+- Demonstrates how constraints affect VRP problem difficulty
+- Three constraint levels with distinct characteristics:
+  - **Relaxed**: Wide time windows (0-480 min), always feasible, good for testing
+  - **Standard**: Moderate time windows (pickup: 0-120, delivery: 0-180), realistic scenarios
+  - **Strict**: Tight time windows (pickup: 30-60, delivery: 90-120), challenging, may be infeasible
+- Custom order table generation with configurable constraints
+- Smaller problem sizes (1-10 orders) for clearer comparison
+- Time window configuration visualization
+
+**Implementation Details:**
+- Refactored 987 lines (845 additions, 459 deletions)
+- Shared session state between tabs for instance/solution
+- Separate random seed controls per tab (`seed_variants` key)
+- Custom helper functions: `create_variant_order_table()`, `create_distance_matrix_variants()`
+- Higher battery capacity (300.0) for variant problems
+
+**Educational Value:**
+- Teaches relationship between constraints and problem solvability
+- Shows real-world impact of time window design decisions
+- Helps users understand when/why VRP problems become infeasible
+- Practical demonstration of problem modeling trade-offs
+- Aligns with "Learn by Playing, Not by Reading Code" philosophy (playground/VISION.md)
+
+**Files modified:**
+- playground/app.py
+
+---
+
 ### 2026-01-09 - feat(playground): add integrate-playground skill and contract testing framework
 **Hash:** 3f7807332d0cde99cfbc3f5e147e89f20353015e
 **Author:** YuChen Du

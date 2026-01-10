@@ -333,12 +333,12 @@ with tab1:
                     status_text = st.empty()
 
                     # Simple run (in real implementation, we'd add callbacks for live updates)
-                    alns.run()
+                    best_solution, best_charging_solution = alns.run()
                     progress_bar.progress(1.0)
 
                     # Store results
-                    st.session_state.solution = alns.best_solution
-                    st.session_state.cost_history = alns.cost_history
+                    st.session_state.solution = best_solution
+                    st.session_state.cost_history = None  # TODO: Add cost tracking to ALNS class
 
                     st.success("✅ ALNS completed successfully!")
 
@@ -454,6 +454,8 @@ with tab1:
                 with col3:
                     improvement = (cost_history[0] - cost_history[-1]) / cost_history[0] * 100
                     st.metric("Improvement", f"{improvement:.1f}%")
+            else:
+                st.info("📊 Convergence tracking coming soon! The ALNS algorithm currently doesn't expose iteration-by-iteration cost history.")
 
         with tab3:
             st.subheader("Route Details")
@@ -891,10 +893,10 @@ with tab2:
                         battery_capacity=300.0
                     )
 
-                    alns_variant.run()
+                    best_solution_variant, best_charging_variant = alns_variant.run()
 
-                    st.session_state.solution = alns_variant.best_solution
-                    st.session_state.cost_history = alns_variant.cost_history
+                    st.session_state.solution = best_solution_variant
+                    st.session_state.cost_history = None  # TODO: Add cost tracking to ALNS class
 
                     st.success("✅ ALNS completed!")
 
@@ -975,6 +977,8 @@ with tab2:
                     if len(cost_history_variant) > 1:
                         improvement = (cost_history_variant[0] - cost_history_variant[-1]) / cost_history_variant[0] * 100
                         st.metric("Improvement", f"{improvement:.1f}%")
+                else:
+                    st.info("📊 Convergence tracking coming soon! The ALNS algorithm currently doesn't expose iteration-by-iteration cost history.")
 
 # Footer
 st.markdown("---")
