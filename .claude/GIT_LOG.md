@@ -4,6 +4,75 @@
 
 ## Recent Commits (newest first)
 
+### 2026-01-09 - test(playground): add comprehensive feature tests and fix API mismatch
+**Hash:** 881bc50c0d7962da2d09c8b35c6e8fd8b7b10b9c
+**Author:** YuChen Du
+**Date:** 2026-01-09 22:51:41 -0500
+
+**Changes:**
+Created automated test suite for all playground features and fixed critical API compatibility issues discovered during testing.
+
+**Testing Infrastructure (NEW):**
+- playground/tests/test_playground_features.py (451 lines)
+  - 6 comprehensive test cases covering both Tab 1 and Tab 2
+  - Tab 1: Instance generation + ALNS solving workflow
+  - Tab 2: Three constraint levels (Relaxed/Standard/Strict)
+  - Reproducibility validation (same seed → same result)
+  - No UI dependency - tests core logic directly
+  - **Result: 6/6 tests passing (100%)**
+
+- playground/tests/TEST_RESULTS.md
+  - Detailed test execution log
+  - Bug discovery and fix documentation
+  - Recommendations for next steps
+
+**Test Results Summary:**
+- Tab 1 Instance Generation: [PASS] (5 orders, 11 nodes successfully created)
+- Tab 1 ALNS Solving: [PASS] (initial cost 4.32 → final 3.32, 23% improvement, feasible)
+- Tab 2 Relaxed Constraints: [PASS] (time windows [0-480], cost 0.61, feasible)
+- Tab 2 Standard Constraints: [PASS] (time windows pickup[0-120] delivery[0-180], cost 0.61, feasible)
+- Tab 2 Strict Constraints: [PASS] (time windows pickup[30-60] delivery[90-120], cost 0.67, feasible)
+- Reproducibility Test: [PASS] (identical distance matrices with same seed)
+
+**Critical Bug Fix - API Mismatch:**
+- **Problem:** playground/app.py used non-existent `alns.cost_history` attribute
+  - Impact: Would crash at runtime when rendering convergence plots
+  - Affected locations: Lines 336, 429-456, 536, 557-562, 894, 956-977
+
+- **Root Cause:** ALNS.run() returns `(best_solution, best_charging_solution)` tuple, no cost_history exposed
+
+- **Fix Applied:**
+  - Correctly unpack alns.run() return values (lines 336, 894)
+  - Set cost_history to None with TODO comment for future enhancement
+  - Added graceful degradation: display info message when cost_history unavailable
+  - Users now see "Convergence tracking coming soon!" instead of crash
+
+**Windows Compatibility Fix:**
+- Replaced Unicode check marks/crosses (✓ ✗ ⚠) with ASCII ([PASS] [FAIL] [WARN])
+- Fixes GBK encoding errors on Windows console during test execution
+
+**Educational Value Verified:**
+- All three constraint levels produce correct time windows
+- Time window configuration properly affects problem difficulty
+- Solutions remain feasible across all constraint levels
+- Reproducibility ensures "Learn by Playing" consistency
+
+**Files Modified:**
+- playground/app.py (6 API fixes)
+- .claude/GIT_LOG.md (documentation update)
+
+**Files Added:**
+- playground/tests/test_playground_features.py (automated testing)
+- playground/tests/TEST_RESULTS.md (test documentation)
+
+**Next Steps Identified:**
+1. Add cost_history tracking to ALNS class for convergence visualization
+2. Create contract tests (using integrate-playground skill framework)
+3. Manual UI testing with Streamlit
+4. Test experiment saving functionality
+
+---
+
 ### 2026-01-09 - feat(playground): add problem variants tab with constraint exploration
 **Hash:** 5489d30b01f66ce55411f3797b6f34848e611f9a
 **Author:** YuChen Du
