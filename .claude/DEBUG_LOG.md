@@ -5,10 +5,17 @@
 ## Active Issues 🚧
 *Issues not yet resolved or needing follow-up.*
 
+**None** - All critical issues resolved as of 2026-01-10
+
+---
+
+## Resolved Issues ✅
+*Issues that have been fixed.*
+
 ### All tutorial notebooks fail due to API incompatibility after refactoring
 **Date Opened:** 2026-01-09
-**Last Updated:** 2026-01-09
-**Status:** Needs Fix
+**Date Resolved:** 2026-01-09 (afternoon session)
+**Status:** ✅ RESOLVED
 **Priority:** HIGH (User-facing content)
 
 **Problem:**
@@ -137,6 +144,45 @@ initial_solution = greedy_insertion_initial_solution(
 - `vrp-toolkit/tutorials/05_sensitivity_analysis.ipynb`
 - `vrp-toolkit/tutorials/06_custom_algorithms.ipynb`
 - `vrp-toolkit/tutorials/07_data_generation.ipynb`
+
+**RESOLUTION (2026-01-09 Afternoon):**
+
+**Fix Strategy:** Option C - Regenerate tutorials with create-tutorial skill
+
+**Actions Taken:**
+1. Regenerated all 7 tutorials using correct PDPTWInstance API
+2. Fixed Tutorial 01: Parameter naming (penalty_unvisit, penalty_delay)
+3. Regenerated Tutorial 02: OSMnx integration with correct APIs
+4. Fixed critical OSMnx bug: Node ID mapping (RealIndex using position indices)
+5. Regenerated Tutorial 03: Custom problems without non-existent Node class
+6. Regenerated Tutorials 04-07: Problem variants, sensitivity, custom algorithms, data generation
+7. Created tutorial testing infrastructure (test_single_notebook.py, README.md)
+
+**Test Results:**
+- **All 7 tutorials now pass execution tests (7/7 = 100%)**
+- All tutorials use actual PDPTWInstance API
+- All tutorials follow progressive learning structure
+
+**Git Commits:**
+- 229046e: fix(tutorials): fix and regenerate tutorials 01, 02, 07 with correct APIs
+- 280db8e: fix(osmnx): fix node ID mapping bug and regenerate Tutorial 03
+- 25c8759: feat(tutorials): complete tutorials 04-06 regeneration and testing
+
+**Documentation:**
+- Updated TASK_BOARD.md with completion status
+- Created comprehensive tutorial testing infrastructure
+- All tutorials now validated and working
+
+**Impact:**
+- ✅ First-time users can now run all tutorials
+- ✅ Documentation is complete and accurate
+- ✅ Onboarding experience restored
+- ✅ Credibility and quality demonstrated
+
+**Lessons Applied:**
+- Regeneration approach worked better than manual fixes
+- Tutorial testing infrastructure now prevents future regressions
+- Progressive disclosure structure maintained across all tutorials
 
 **UPDATE 2026-01-09 - Post-Fix Analysis:**
 
