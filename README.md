@@ -1,8 +1,9 @@
 # Two-Stage Stochastic Fleet and Battery Sizing for Sidewalk Delivery Robots
 
 [![Paper](https://img.shields.io/badge/Paper-TRE%202025-blue)](https://doi.org/10.1016/j.tre.2025.104220)
-[![Python](https://img.shields.io/badge/Python-3.8+-green.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/Tests-4%2F4%20Passing-brightgreen.svg)](paper-code/tests/)
+[![ALNS](https://img.shields.io/badge/Algorithm-ALNS-green)](https://doi.org/10.1016/j.tre.2025.104220)
+[![PDPTW](https://img.shields.io/badge/Problem-PDPTW-orange)](https://doi.org/10.1016/j.tre.2025.104220)
+
 
 This repository contains the research code and reproducible experiments for:
 
@@ -11,9 +12,8 @@ This repository contains the research code and reproducible experiments for:
 Transportation Research Part E, 201, 104220.
 https://doi.org/10.1016/j.tre.2025.104220
 
----
 
-## 📋 Overview
+## Overview
 
 This project addresses **strategic resource planning** for sidewalk delivery robot (SDR) systems under **stochastic demand**, integrating:
 
@@ -28,11 +28,16 @@ This project addresses **strategic resource planning** for sidewalk delivery rob
 
 To ensure scalability, the framework combines **continuous approximation (CA)** models with a **customized ALNS heuristic** for the routing subproblem.
 
----
+<p align="center">
+  <img src="assets/Second-Stage-Framework.png" alt="Second-Stage Framework" width="400"/>
+  <br>
+  <em>Figure 1: Two-stage stochastic optimization framework</em>
+</p>
 
-## 🔬 Methodological Contributions
 
-**Contributors:** Yuchen Du and [Hai Yang](https://github.com/Marshallyangcuhk)
+## Methodological Contributions
+
+Contributors: Yuchen Du and Hai Yang(https://github.com/Marshallyangcuhk)
 
 ### Problem Setting (SDR-PDPTW)
 - Single-depot SDR system operating on sidewalks
@@ -42,9 +47,6 @@ To ensure scalability, the framework combines **continuous approximation (CA)** 
 
 ### Stage 2: Routing Heuristic (ALNS)
 Our custom **Adaptive Large Neighborhood Search (ALNS)** includes:
-
-![ALNS Framework with Battery Swapping](assets/Second-Stage-Framework.png)
-*Figure 1: ALNS framework for SDR-PDPTW with battery swapping strategy*
 
 **Removal Operators:**
 - SISR (Stochastic Insertion with Sequential Removal)
@@ -62,16 +64,18 @@ Our custom **Adaptive Large Neighborhood Search (ALNS)** includes:
 - Simulated annealing acceptance
 - Adaptive operator weight adjustment
 
-![Battery Swapping Insertion Strategy](assets/Battery-Swapping-Insertion.jpg)
-*Figure 2: Battery swapping insertion strategy - robots can swap batteries at depot to extend range*
+<p align="center">
+  <img src="assets/Battery-Swapping-Insertion.jpg" alt="Battery Swapping Insertion" width="600"/>
+  <br>
+  <em>Figure 2: Battery swapping insertion mechanism</em>
+</p>
 
 ### Stage 1: Continuous Approximation Model
-Instead of classical SAA, we fit a **CA-based surrogate model** from sampled Stage 2 solutions:
+Instead of classical SAA, we fit a CA-based surrogate model from sampled Stage 2 solutions:
 - Approximates expected routing distance + delay penalties
 - Function of: demand level, fleet size, battery availability
 - Enables fast evaluation of thousands of (fleet, battery) combinations
 
----
 
 ## 📂 Repository Structure
 
@@ -107,8 +111,6 @@ VRP-heuristics/
     ├── playground/          # Interactive Streamlit app
     └── tests/              # 40+ unit tests
 ```
-
----
 
 ## 🚀 Quick Start
 
@@ -177,9 +179,8 @@ print(f"Objective value: {best_solution.objective_function()}")
 
 See **`paper-code/test.ipynb`** for complete working examples.
 
----
 
-## 🧪 Reproducibility & Validation
+## Reproducibility & Validation
 
 ### Test Suite Status
 All components validated with automated tests:
@@ -189,55 +190,54 @@ cd paper-code/tests
 python run_all_tests.py
 ```
 
-**Results (2026-01-09):**
-- ✅ **Test 1**: Data Layer (RealMap + DemandGenerator)
-- ✅ **Test 2**: Order Generation (time windows, pickup-delivery pairing)
-- ✅ **Test 3**: Instance & Solution (feasibility checking, objective calculation)
-- ✅ **Test 4**: Solver (greedy initial + ALNS with 10 iterations: 10% improvement)
-
 See `paper-code/tests/TEST_SUMMARY.md` for detailed results.
 
 ### Case Study: Purdue University Campus
-
-![Purdue Campus Network](assets/Purdue-Campus.jpg)
-*Figure 3: Purdue University campus delivery network with 51 nodes (restaurants, customer locations, depot, charging stations)*
-
 - **Network**: 51 nodes extracted from OSM data
 - **Scenario**: Restaurant delivery to campus buildings
 - **Sensitivity Analysis**: Demand level, fleet size, battery range
 - **Results**: Available in `paper-code/results/`
 
-![Routing Solution Example](assets/Routing-Example.jpg)
-*Figure 4: Example routing solution showing multi-vehicle routes with battery swapping*
+<p align="center">
+  <img src="assets/Purdue-Campus.jpg" alt="Purdue Campus Network" width="600"/>
+  <br>
+  <em>Figure 3: Purdue University campus delivery network with 51 nodes</em>
+</p>
 
 Run `paper-code/sensitivity_test.ipynb` to reproduce experiments.
 
----
 
-## 📊 Key Results
+## Key Results
 
 The paper demonstrates:
 
 1. **ALNS Efficiency**:
-   - Solves 100-order instances in < 1 minute
+   - Solves 100-order instances in few minutes
    - Within 5% of MIP lower bound on small instances
    - Scales to realistic problem sizes (200+ orders)
 
 2. **Two-Stage Framework**:
-   - CA model reduces computational time by 95% vs. sample average approximation
+   - CA model reduces computational time vs. sample average approximation
    - Enables comprehensive sensitivity analysis
    - Identifies trade-offs between fleet cost and service quality
 
 3. **Purdue Case Study**:
-   - Optimal configuration: 8 robots, 12 batteries for peak demand
-   - Battery swapping reduces fleet requirement by 30%
-   - Soft time windows reduce total cost by 15% vs. hard constraints
+   - Optimal configuration
+   - Battery swapping reduces fleet requirement
+   - Soft time windows reduce total cost
+
+
+<p align="center">
+  <img src="assets/Routing-Example.jpg" alt="Routing Example" width="500"/>
+  <br>
+  <em>Figure 4: Example routing solution with battery swapping</em>
+</p>
 
 See paper for complete experimental results and analysis.
 
 ---
 
-## 🔧 Development Notes
+## Development Notes
 
 ### Paper Code (`paper-code/`)
 - **Status**: ✅ Validated and fully tested
@@ -260,7 +260,7 @@ The toolkit is being developed to enable:
 - Educational use in courses
 - Rapid prototyping for new research
 
-For development roadmap and future plans, see [`DEVELOPMENT.md`](DEVELOPMENT.md).
+For development documentation, see [`.claude/CLAUDE.md`](.claude/CLAUDE.md).
 
 ---
 
@@ -282,7 +282,7 @@ If you use this code or build upon this work, please cite:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 This repository serves dual purposes:
 
@@ -297,15 +297,11 @@ Contributions are welcome for:
 
 See individual directory READMEs for specific guidelines.
 
----
-
-## 📄 License
+## License
 
 This code is provided for academic and research purposes. Please cite the paper if you use this code in your research.
 
----
-
-## 👥 Authors
+## Authors
 
 This work is authored by Du, Y., Yang, H., Chow, J. Y. J., & Le, T. V.
 
@@ -313,9 +309,7 @@ This work is authored by Du, Y., Yang, H., Chow, J. Y. J., & Le, T. V.
 
 For questions about the research or code implementation, please open an issue in this repository.
 
----
-
-## 🔗 Links
+## Links
 
 - 📄 [Paper (Transportation Research Part E)](https://doi.org/10.1016/j.tre.2025.104220)
 - 💻 [Research Code Documentation](paper-code/README.md)
@@ -325,4 +319,3 @@ For questions about the research or code implementation, please open an issue in
 ---
 
 **Last Updated**: 2026-01-12
-**Code Status**: ✅ Validated (4/4 tests passing)
