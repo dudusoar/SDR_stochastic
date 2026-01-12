@@ -50,3 +50,7 @@ htmlcov/
 # Local development
 *.log
 .env
+
+# Claude Code temporary files
+tmpclaude-*-cwd
+*.cwd
