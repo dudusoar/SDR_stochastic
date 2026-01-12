@@ -4,6 +4,63 @@
 
 ## Recent Commits (newest first)
 
+### 2026-01-12 - docs: add comprehensive documentation with contribution attribution
+**Hash:** b94c278fdc5c16e458aea63fe1e979df99be35bf
+**Author:** YuChen Du
+**Date:** 2026-01-12 14:23:04 -0500
+
+**Changes:**
+Added comprehensive documentation for paper publication and job search preparation.
+
+**Main README Updates:**
+- Complete paper information (TRE 2025, DOI, full citation)
+- Two-stage stochastic optimization framework description
+- Methodological contributions section with contributor attribution
+- Contributors clearly identified: Yuchen Du and Hai Yang
+- Repository structure updated (paper-code vs vrp-toolkit)
+- Quick start guide with code examples
+- Test suite validation results
+- Key paper results summary
+- Simplified Authors section (4 co-authors listed)
+- Links to DEVELOPMENT.md for future roadmap
+
+**New Files Created:**
+- **DEVELOPMENT.md**: Framework development roadmap and future plans
+  - Phase 1-3 status (95% complete)
+  - Short-term and long-term development goals
+  - Algorithm extensions (GA, Tabu Search)
+  - Playground Stage 2 features
+  - Benchmark integration plans
+  - Three-layer architecture vision
+  - Testing strategy and contribution guidelines
+
+- **paper-code/README.md**: Research code documentation
+  - PDPTW with battery constraints problem description
+  - ALNS method with SISR operator (novel contribution)
+  - Purdue University campus dataset details
+  - Quick start and validation instructions
+  - Repository structure explanation
+  - Test results (4/4 passing)
+  - Citation information
+  - Link to VRP Toolkit framework
+
+- **assets/**: Created empty folder for paper figures
+
+**Purpose:**
+- Prepare repository for job search and resume showcase
+- Clearly distinguish research contribution (paper-code) from engineering work (vrp-toolkit)
+- Provide professional documentation suitable for recruiters and collaborators
+- Maintain academic integrity with proper contribution attribution
+- Enable easy citation and reproduction of research
+
+**Files modified/added:**
+- README.md (major rewrite: 659 insertions, 175 deletions)
+- DEVELOPMENT.md (new)
+- paper-code/README.md (new)
+- assets/ (new directory)
+
+---
+
 ### 2026-01-10 - docs(tracking): update task board and debug log with evening session progress
 **Hash:** 66c9355db85d1a1a5e1f5e9fd8b7b21c8e3c8e3c
 **Author:** YuChen Du
