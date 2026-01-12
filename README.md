@@ -43,6 +43,9 @@ To ensure scalability, the framework combines **continuous approximation (CA)** 
 ### Stage 2: Routing Heuristic (ALNS)
 Our custom **Adaptive Large Neighborhood Search (ALNS)** includes:
 
+![ALNS Framework with Battery Swapping](assets/Second-Stage-Framework.png)
+*Figure 1: ALNS framework for SDR-PDPTW with battery swapping strategy*
+
 **Removal Operators:**
 - SISR (Stochastic Insertion with Sequential Removal)
 - Shaw removal (similarity-based)
@@ -58,6 +61,9 @@ Our custom **Adaptive Large Neighborhood Search (ALNS)** includes:
 - Explicit battery-swapping insertion after route optimization
 - Simulated annealing acceptance
 - Adaptive operator weight adjustment
+
+![Battery Swapping Insertion Strategy](assets/Battery-Swapping-Insertion.jpg)
+*Figure 2: Battery swapping insertion strategy - robots can swap batteries at depot to extend range*
 
 ### Stage 1: Continuous Approximation Model
 Instead of classical SAA, we fit a **CA-based surrogate model** from sampled Stage 2 solutions:
@@ -192,10 +198,17 @@ python run_all_tests.py
 See `paper-code/tests/TEST_SUMMARY.md` for detailed results.
 
 ### Case Study: Purdue University Campus
+
+![Purdue Campus Network](assets/Purdue-Campus.jpg)
+*Figure 3: Purdue University campus delivery network with 51 nodes (restaurants, customer locations, depot, charging stations)*
+
 - **Network**: 51 nodes extracted from OSM data
 - **Scenario**: Restaurant delivery to campus buildings
 - **Sensitivity Analysis**: Demand level, fleet size, battery range
 - **Results**: Available in `paper-code/results/`
+
+![Routing Solution Example](assets/Routing-Example.jpg)
+*Figure 4: Example routing solution showing multi-vehicle routes with battery swapping*
 
 Run `paper-code/sensitivity_test.ipynb` to reproduce experiments.
 
