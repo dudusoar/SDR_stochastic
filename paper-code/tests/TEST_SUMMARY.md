@@ -135,8 +135,8 @@ The `paper-code` directory is **fully functional** after refactoring. All major 
 The code is ready for:
 - Full optimization runs
 - Parameter tuning experiments
-- Integration with new features
-- Migration to vrp-toolkit
+- TRE paper reproduction and benchmarking
+- Comparison with the separately maintained vrp-toolkit project
 
 ---
 
@@ -144,4 +144,4 @@ The code is ready for:
 - Consider running full ALNS optimization (100+ segments)
 - Validate against benchmark instances
 - Compare results with original paper
-- Continue migration to vrp-toolkit architecture
+- Keep this repository focused on TRE reproduction code; maintain reusable framework work in the separate vrp-toolkit project

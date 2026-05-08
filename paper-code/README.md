@@ -131,11 +131,7 @@ If you use this code in your research, please cite:
 
 ## Related Framework
 
-This research code is being transformed into a reusable **VRP Toolkit** framework. See the [`vrp-toolkit/`](../vrp-toolkit/) directory for the generalized implementation with:
-- Modular three-layer architecture
-- Support for multiple VRP variants
-- Real-world OSMnx integration
-- Comprehensive tutorials
+The reusable **VRP Toolkit** framework has been split out of this TRE paper repository and is maintained as a separate project. This repository keeps only the paper reproduction code and associated experiment assets.
 
 ## License
 

@@ -153,7 +153,7 @@ Total time: ~5-10s
 1. 运行完整的 ALNS 优化（增加 segments 数量）
 2. 在真实数据集上验证
 3. 与论文结果对比
-4. 继续迁移到 vrp-toolkit 架构
+4. 将可复用框架开发放到独立的 vrp-toolkit 项目中维护
 
 ---
 
